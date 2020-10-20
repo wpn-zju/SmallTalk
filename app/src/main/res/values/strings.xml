@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">SmallTalk</string>
+    <string name="title_activity_main2">MainActivity</string>
+    <string name="title_activity_bottom_bar">MainActivity</string>
+    <string name="chat_room_watch_profile">Profile</string>
+    <string name="chat_room_share">Share</string>
+    <string name="new_contacts">New Contact</string>
+    <string name="join_group">Join Group</string>
+    <string name="create_group">Create Group</string>
+    <string name="profile_share">Share</string>
+    <string name="clear_recent_message">Clear Message</string>
+    <string name="bottom_bar_message">Message</string>
+    <string name="bottom_bar_contacts">Contacts</string>
+    <string name="bottom_bar_about_me">Me</string>
+</resources>
