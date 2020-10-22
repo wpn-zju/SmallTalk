@@ -1,10 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.profile.ProfileFragment"
-    android:id="@+id/fragment_about_me">
+    tools:context=".AboutMeFragment">
+
+    <ImageView
+        android:id="@+id/imgView_portrait"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_baseline_portrait_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:text="Zhouchang He"
+        android:textSize="28sp"
+        app:layout_constraintStart_toEndOf="@+id/imgView_portrait"
+        app:layout_constraintTop_toTopOf="@+id/imgView_portrait" />
+
+    <TextView
+        android:id="@+id/textView_mail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="xxxxxx@syr.edu"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imgView_portrait"
+        app:layout_constraintStart_toStartOf="@+id/textView_name" />
+
+    <TextView
+        android:id="@+id/textView_whatsauplabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="What's up:"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@+id/imgView_portrait"
+        app:layout_constraintStart_toStartOf="@+id/imgView_portrait"
+        app:layout_constraintTop_toBottomOf="@+id/imgView_portrait" />
+
+    <TextView
+        android:id="@+id/textView_whatsup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Have a good day!"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView_name"
+        app:layout_constraintStart_toStartOf="@+id/imgView_portrait"
+        app:layout_constraintTop_toBottomOf="@+id/textView_whatsauplabel" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

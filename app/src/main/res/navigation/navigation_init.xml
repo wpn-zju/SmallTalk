@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_init"
+    app:startDestination="@id/mailFragment">
+    <fragment
+        android:id="@+id/mailFragment"
+        android:name="edu.syr.smalltalk.MailFragment"
+        android:label="fragment_mail"
+        tools:layout="@layout/fragment_mail">
+        <action
+            android:id="@+id/action_mailFragment_to_passwordFragment"
+            app:destination="@id/passwordFragment" />
+        <action
+            android:id="@+id/action_mailFragment_to_authCodeFragment"
+            app:destination="@id/authCodeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/passwordFragment"
+        android:name="edu.syr.smalltalk.PasswordFragment"
+        android:label="fragment_password"
+        tools:layout="@layout/fragment_password" />
+    <fragment
+        android:id="@+id/authCodeFragment"
+        android:name="edu.syr.smalltalk.AuthCodeFragment"
+        android:label="fragment_auth_code"
+        tools:layout="@layout/fragment_auth_code" />
+</navigation>

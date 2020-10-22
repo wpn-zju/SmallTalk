@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.contacts.ContactsFragment" >
+    tools:context="edu.syr.smalltalk.ui.contacts.ContactsFragment" >
 
     <include
         layout="@layout/activity_contacts"
