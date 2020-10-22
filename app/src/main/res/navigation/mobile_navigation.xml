@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_nav_recent"
-        android:name="com.peinanweng.smalltalk.ui.message.MessageFragment"
+        android:name="edu.syr.smalltalk.ui.message.MessageFragment"
         android:label="@string/bottom_bar_message"
         tools:layout="@layout/fragment_message" />
 
     <fragment
         android:id="@+id/navigation_nav_contacts"
-        android:name="com.peinanweng.smalltalk.ui.contacts.ContactsFragment"
+        android:name="edu.syr.smalltalk.ui.contacts.ContactsFragment"
         android:label="@string/bottom_bar_contacts"
         tools:layout="@layout/fragment_contacts" />
 
     <fragment
         android:id="@+id/navigation_about_me"
-        android:name="com.peinanweng.smalltalk.ui.profile.ProfileFragment"
+        android:name="edu.syr.smalltalk.ui.profile.ProfileFragment"
         android:label="@string/bottom_bar_about_me"
         tools:layout="@layout/fragment_about_me" />
 </navigation>

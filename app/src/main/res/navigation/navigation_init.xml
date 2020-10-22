@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_init"
+    app:startDestination="@id/helloFragment">
+    <fragment
+        android:id="@+id/helloFragment"
+        android:name="edu.syr.smalltalk.init.HelloFragment"
+        android:label="fragment_hello"
+        tools:layout="@layout/fragment_hello">
+        <action
+            android:id="@+id/action_helloFragment_to_mailFragment"
+            app:destination="@id/mailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mailFragment"
+        android:name="edu.syr.smalltalk.init.MailFragment"
+        android:label="fragment_mail"
+        tools:layout="@layout/fragment_mail">
+        <action
+            android:id="@+id/action_mailFragment_to_passwordFragment"
+            app:destination="@id/passwordFragment" />
+        <action
+            android:id="@+id/action_mailFragment_to_authCodeFragment"
+            app:destination="@id/authCodeFragment" />
+        <argument
+            android:name="nextStep"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/passwordFragment"
+        android:name="edu.syr.smalltalk.init.PasswordFragment"
+        android:label="fragment_password"
+        tools:layout="@layout/fragment_password" />
+    <fragment
+        android:id="@+id/authCodeFragment"
+        android:name="edu.syr.smalltalk.init.AuthCodeFragment"
+        android:label="fragment_auth_code"
+        tools:layout="@layout/fragment_auth_code" />
+</navigation>
