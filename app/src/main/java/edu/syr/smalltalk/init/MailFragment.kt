@@ -1,10 +1,14 @@
-package edu.syr.smalltalk
+package edu.syr.smalltalk.init
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
+import edu.syr.smalltalk.R
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -14,10 +18,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [AuthCodeFragment.newInstance] factory method to
+ * Use the [MailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AuthCodeFragment : Fragment() {
+class MailFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -35,7 +39,21 @@ class AuthCodeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_auth_code, container, false)
+        return inflater.inflate(R.layout.fragment_mail, container, false)
+    }
+
+    private val args: MailFragmentArgs by navArgs()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val signIn = args.nextStep
+        view.findViewById<Button>(R.id.button_mail).setOnClickListener {
+            if (signIn) {
+                view.findNavController()
+                    .navigate(MailFragmentDirections.actionMailFragmentToPasswordFragment())
+            } else {
+                view.findNavController()
+                    .navigate(MailFragmentDirections.actionMailFragmentToAuthCodeFragment())
+            }
+        }
     }
 
     companion object {
@@ -45,12 +63,12 @@ class AuthCodeFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment AuthCodeFragment.
+         * @return A new instance of fragment MailFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            AuthCodeFragment().apply {
+            MailFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

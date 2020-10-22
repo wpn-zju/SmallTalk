@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="edu.syr.smalltalk.InitActivity">
+    tools:context="edu.syr.smalltalk.init.InitActivity">
 
+    <!--    TODO: use styled toolbar-->
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -18,7 +19,7 @@
         app:title="@string/app_name" />
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/initContainer"
+        android:id="@+id/init_nav_host_container"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

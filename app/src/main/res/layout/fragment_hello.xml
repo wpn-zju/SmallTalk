@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".init.HelloFragment">
 
     <TextView
         android:id="@+id/textView_logo"
@@ -26,7 +26,7 @@
         app:srcCompat="@drawable/ic_baseline_message_24" />
 
     <Button
-        android:id="@+id/button_signIn"
+        android:id="@+id/btn_signIn"
         android:layout_width="196dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="96dp"
@@ -37,13 +37,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textView_logo" />
 
     <Button
-        android:id="@+id/button_singUp"
+        android:id="@+id/btn_signUp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="@string/sign_up"
         android:textSize="32sp"
-        app:layout_constraintEnd_toEndOf="@id/button_signIn"
-        app:layout_constraintStart_toStartOf="@id/button_signIn"
-        app:layout_constraintTop_toBottomOf="@id/button_signIn" />
+        app:layout_constraintEnd_toEndOf="@id/btn_signIn"
+        app:layout_constraintStart_toStartOf="@id/btn_signIn"
+        app:layout_constraintTop_toBottomOf="@id/btn_signIn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

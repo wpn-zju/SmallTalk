@@ -12,18 +12,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <activity
-            android:name=".HelloActivity"
-            android:label="@string/title_activity_hello">
+        <activity android:name=".init.InitActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatRoomActivity" />
-        <activity android:name=".ContactsActivity" />
-        <activity android:name=".RecentMessageActivity" />
+
         <activity android:name=".MainActivity">
             <!--            <intent-filter>-->
             <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -31,9 +26,11 @@
             <!--                <category android:name="android.intent.category.LAUNCHER" />-->
             <!--            </intent-filter>-->
         </activity>
+        <activity android:name=".ChatRoomActivity" />
+        <activity android:name=".ContactsActivity" />
+        <activity android:name=".RecentMessageActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".AddFriendDetailActivity" />
-        <activity android:name=".InitActivity" />
     </application>
 
 </manifest>
