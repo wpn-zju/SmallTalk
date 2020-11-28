@@ -15,11 +15,11 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
     val currentUserInfo: LiveData<SmallTalkUser> = Transformations.switchMap(currentUser) {
             userId -> repository.getUser(userId).asLiveData() }
 
-    private val contactList: LiveData<List<SmallTalkContact>> = repository.contactList.asLiveData()
+    val contactList: LiveData<List<SmallTalkContact>> = repository.contactList.asLiveData()
     private val contactListMediator: ContactListLiveData = ContactListLiveData(currentUserInfo, contactList)
     val actualContactList: LiveData<List<SmallTalkContact>> = Transformations.map(contactListMediator) { mediator ->
         mediator.second.stream().filter {
-                contact -> mediator.first.contactList.contains(contact.userId)
+                contact -> mediator.first.contactList.contains(contact.contactId)
         }.collect(Collectors.toList())
     }
 

@@ -4,6 +4,14 @@ import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
 
 class BCSmallTalkService : ISmallTalkService {
+    override fun connect() {
+
+    }
+
+    override fun disconnect() {
+
+    }
+
     override fun setDataAccessor(smallTalkDao: SmallTalkDao) {
 
     }
@@ -101,6 +109,10 @@ class BCSmallTalkService : ISmallTalkService {
     }
 
     override fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String) {
+
+    }
+
+    override fun testSend(payload: Int) {
 
     }
 }

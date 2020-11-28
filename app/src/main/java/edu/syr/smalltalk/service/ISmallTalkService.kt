@@ -4,6 +4,8 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkDao
 
 interface ISmallTalkService {
     fun setDataAccessor(smallTalkDao: SmallTalkDao)
+    fun connect()
+    fun disconnect()
     fun userSignUp(userEmail: String, userPassword: String, passcode: String)
     fun userSignUpPasscodeRequest(userEmail: String)
     fun userRecoverPassword(userEmail: String, userPassword: String, passcode: String)
@@ -28,4 +30,6 @@ interface ISmallTalkService {
     fun groupAddConfirm(requestId: Int)
     fun groupAddRefuse(requestId: Int)
     fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String)
+
+    fun testSend(payload: Int)
 }

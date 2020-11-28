@@ -14,12 +14,14 @@ import androidx.viewpager2.widget.ViewPager2
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.RootService
-import edu.syr.smalltalk.service.model.entity.SmallTalkUser
+import edu.syr.smalltalk.service.model.entity.SmallTalkContact
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_bottom_bar.*
+import java.time.Instant
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,14 +34,14 @@ class MainActivity : AppCompatActivity() {
             bound = true
 
             // Use LiveData in Activity
-            val userInfo = Observer<SmallTalkUser> { user ->
-                if (user == null) {
-                    service.loadUser()
+            val contactList = Observer<List<SmallTalkContact>> { cList ->
+                if (cList == null) {
+                    Log.v("T", "Null")
                 } else {
-                    Log.v("T", user.userName)
+                    Log.v("T", cList.toString())
                 }
             }
-            viewModel.currentUserInfo.observe(this@MainActivity, userInfo)
+            viewModel.contactList.observe(this@MainActivity, contactList)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -93,6 +95,14 @@ class MainActivity : AppCompatActivity() {
                     2 -> nav_view.selectedItemId = R.id.navigation_about_me
                     else -> nav_view.selectedItemId = R.id.navigation_message
                 }
+
+                // Test
+                if(this@MainActivity::service.isInitialized) {
+                    val random: Int = Random(Instant.now().toEpochMilli()).nextInt()
+                    Log.v("Send Test Request", "With Payload - $random")
+                    service.testSend(random)
+                }
+
                 super.onPageSelected(position)
             }
         })

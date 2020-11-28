@@ -1,6 +1,7 @@
 package edu.syr.smalltalk.service.android
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import edu.syr.smalltalk.service.ISmallTalkService
@@ -12,16 +13,22 @@ import java.time.Instant
 class ASmallTalkService(private val context: Context) : ISmallTalkService {
     private val webSocketManager: AWebSocketManager = AWebSocketManager(context)
 
-    fun connect() {
+    override fun connect() {
         webSocketManager.connect()
     }
 
-    fun disconnect() {
+    override fun disconnect() {
         webSocketManager.disconnect()
     }
 
     override fun setDataAccessor(smallTalkDao: SmallTalkDao) {
         webSocketManager.setDataAccessor(smallTalkDao)
+    }
+
+    override fun testSend(payload: Int) {
+        webSocketManager.send(
+            ClientConstant.API_TEST_SEND,
+            "{\"" + ClientConstant.API_TEST_SEND_PAYLOAD + "\":\"$payload\"" + "}")
     }
 
     override fun userSignUp(userEmail: String, userPassword: String, passcode: String) {
