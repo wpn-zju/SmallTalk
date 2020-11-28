@@ -7,27 +7,26 @@ import androidx.room.TypeConverters
 import edu.syr.smalltalk.service.model.converter.IntArrayConverter
 import java.io.Serializable
 
-// Not sure whether it will crashed if I set all field as 'not-null' and use Gson to parse a string with only part of fields
 @Entity(tableName = "small_talk_user")
 data class SmallTalkUser (
     @PrimaryKey
     @ColumnInfo(name = "user_id")
     val userId: Int,
     @ColumnInfo(name = "user_session")
-    val userSession: String?,
+    val userSession: String,
     @ColumnInfo(name = "user_email")
-    val userEmail: String?,
+    val userEmail: String,
     @ColumnInfo(name = "user_name")
-    val userName: String?,
+    val userName: String,
     @ColumnInfo(name = "user_password")
-    val userPassword: String?,
+    val userPassword: String,
     @ColumnInfo(name = "contact_list")
     @TypeConverters(IntArrayConverter::class)
-    val contactList: List<Int>?,
+    val contactList: List<Int>,
     @ColumnInfo(name = "group_list")
     @TypeConverters(IntArrayConverter::class)
-    val groupList: List<Int>?,
+    val groupList: List<Int>,
     @ColumnInfo(name = "request_list")
     @TypeConverters(IntArrayConverter::class)
-    val requestList: List<Int>?
+    val requestList: List<Int>
 ) : Serializable

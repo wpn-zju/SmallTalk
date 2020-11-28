@@ -25,7 +25,7 @@ class AWebSocketManager(private val context: Context) {
     private lateinit var smalltalkDao: SmallTalkDao
 
     fun setDataAccessor(smallTalkDao: SmallTalkDao) {
-        smalltalkDao = smallTalkDao
+        if (!this::smalltalkDao.isInitialized) { smalltalkDao = smallTalkDao }
     }
 
     fun connect() {
@@ -46,7 +46,7 @@ class AWebSocketManager(private val context: Context) {
         // Examples
         compositeDisposable.add(stompClient.topic(ServerConstant.DIR_USER_SYNC).subscribe {
             val userInfo: SmallTalkUser = Gson().fromJson(it.payload, SmallTalkUser::class.java)
-            smalltalkDao.updateUser(userInfo)
+            smalltalkDao.insertUser(userInfo)
         })
 
         compositeDisposable.add(stompClient.topic(ServerConstant.DIR_CONTACT_SYNC).subscribe {
@@ -67,7 +67,7 @@ class AWebSocketManager(private val context: Context) {
         compositeDisposable.add(stompClient.topic(ServerConstant.DIR_INVALID_PASSCODE).subscribe {
             AlertDialog.Builder(context)
                 .setTitle("Error")
-                .setMessage("Passcode Incorrect!")
+                .setMessage("Passcode should be a 6-digit number!")
                 .setPositiveButton("Yes", null)
                 .show()
         })

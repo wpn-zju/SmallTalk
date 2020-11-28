@@ -21,7 +21,7 @@ data class SmallTalkMessage (
     val receiver: Int,
     @ColumnInfo(name = "content")
     val content: String,
-    @ColumnInfo(name = "contentType")
+    @ColumnInfo(name = "content_type")
     val contentType: String,
     @ColumnInfo(name = "timestamp")
     @TypeConverters(InstantConverter::class)

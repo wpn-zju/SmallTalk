@@ -27,7 +27,7 @@ class AboutMeFragment : Fragment() {
 
         // Use LiveData in Fragment
         val n = Observer<SmallTalkUser> { it ->
-            Log.v("T", it.userName!!)
+            Log.v("T", it.userName)
         }
         viewModel.currentUserInfo.observe(viewLifecycleOwner, n);
     }

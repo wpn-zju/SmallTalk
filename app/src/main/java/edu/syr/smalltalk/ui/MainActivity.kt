@@ -23,16 +23,23 @@ import kotlinx.android.synthetic.main.layout_bottom_bar.*
 
 
 class MainActivity : AppCompatActivity() {
-    private val viewModel: SmallTalkViewModel by viewModels {
-        SmallTalkViewModelFactory(application as SmallTalkApplication)
-    }
-
     private lateinit var service: ISmallTalkService
     private var bound: Boolean = false
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             service = (binder as RootService.RootServiceBinder).getService()
+            service.setDataAccessor((application as SmallTalkApplication).repository.getDataAccessor())
             bound = true
+
+            // Use LiveData in Activity
+            val userInfo = Observer<SmallTalkUser> { user ->
+                if (user == null) {
+                    service.loadUser()
+                } else {
+                    Log.v("T", user.userName)
+                }
+            }
+            viewModel.currentUserInfo.observe(this@MainActivity, userInfo)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -40,8 +47,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val viewModel: SmallTalkViewModel by viewModels {
+        SmallTalkViewModelFactory(application as SmallTalkApplication)
+    }
+
     override fun onStart() {
         super.onStart()
+
+        // Write following lines in the first activity
+        Intent(this, RootService::class.java).also { intent -> startService(
+            intent
+        ) }
 
         Intent(this, RootService::class.java).also { intent -> bindService(
             intent,
@@ -61,12 +77,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // Use LiveData in Activity
-        val userInfo = Observer<SmallTalkUser> { it ->
-            Log.v("T", it.userName!!)
-        }
-        viewModel.currentUserInfo.observe(this, userInfo)
 
         val adapter = PageAdapter(this)
         view_pager.adapter = adapter

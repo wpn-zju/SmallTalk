@@ -19,7 +19,7 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
     private val contactListMediator: ContactListLiveData = ContactListLiveData(currentUserInfo, contactList)
     val actualContactList: LiveData<List<SmallTalkContact>> = Transformations.map(contactListMediator) { mediator ->
         mediator.second.stream().filter {
-                contact -> mediator.first.contactList!!.contains(contact.userId)
+                contact -> mediator.first.contactList.contains(contact.userId)
         }.collect(Collectors.toList())
     }
 
@@ -27,7 +27,7 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
     private val groupListMediator: GroupListLiveData = GroupListLiveData(currentUserInfo, groupList)
     val actualGroupList: LiveData<List<SmallTalkGroup>> = Transformations.map(groupListMediator) { mediator ->
         mediator.second.stream().filter {
-            group -> mediator.first.groupList!!.contains(group.groupId)
+            group -> mediator.first.groupList.contains(group.groupId)
         }.collect(Collectors.toList())
     }
 
