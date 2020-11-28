@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="edu.syr.smalltalk.ContactsActivity">
+    tools:context="edu.syr.smalltalk.ui.ChatRoomActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -28,31 +28,31 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <include
-                layout="@layout/room_timestamp"
+                layout="@layout/layout_prefab_chat_room_timestamp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include
-                layout="@layout/message"
+                layout="@layout/layout_prefab_message_left"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include
-                layout="@layout/message"
+                layout="@layout/layout_prefab_message_left"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include
-                layout="@layout/message_right"
+                layout="@layout/layout_prefab_message_right"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include
-                layout="@layout/room_timestamp"
+                layout="@layout/layout_prefab_chat_room_timestamp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include
-                layout="@layout/message_right"
+                layout="@layout/layout_prefab_message_right"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include
-                layout="@layout/message"
+                layout="@layout/layout_prefab_message_left"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>

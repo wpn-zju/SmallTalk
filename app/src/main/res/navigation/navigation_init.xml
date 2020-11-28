@@ -3,39 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_init"
-    app:startDestination="@id/helloFragment">
+    app:startDestination="@id/fragment_hello">
+
     <fragment
-        android:id="@+id/helloFragment"
-        android:name="edu.syr.smalltalk.init.HelloFragment"
+        android:id="@+id/fragment_hello"
+        android:name="edu.syr.smalltalk.ui.init.HelloFragment"
         android:label="fragment_hello"
         tools:layout="@layout/fragment_hello">
         <action
-            android:id="@+id/action_helloFragment_to_mailFragment"
-            app:destination="@id/mailFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/mailFragment"
-        android:name="edu.syr.smalltalk.init.MailFragment"
-        android:label="fragment_mail"
-        tools:layout="@layout/fragment_mail">
+            android:id="@+id/action_fragment_hello_to_fragment_recover_password"
+            app:destination="@id/fragment_recover_password" />
         <action
-            android:id="@+id/action_mailFragment_to_passwordFragment"
-            app:destination="@id/passwordFragment" />
-        <action
-            android:id="@+id/action_mailFragment_to_authCodeFragment"
-            app:destination="@id/authCodeFragment" />
-        <argument
-            android:name="nextStep"
-            app:argType="boolean" />
+            android:id="@+id/action_fragment_hello_to_fragment_create_user"
+            app:destination="@id/fragment_create_user" />
     </fragment>
+
     <fragment
-        android:id="@+id/passwordFragment"
-        android:name="edu.syr.smalltalk.init.PasswordFragment"
-        android:label="fragment_password"
-        tools:layout="@layout/fragment_password" />
+        android:id="@+id/fragment_create_user"
+        android:name="edu.syr.smalltalk.ui.init.CreateUserFragment"
+        android:label="fragment_create_user"
+        tools:layout="@layout/fragment_create_user" />
+
     <fragment
-        android:id="@+id/authCodeFragment"
-        android:name="edu.syr.smalltalk.init.AuthCodeFragment"
-        android:label="fragment_auth_code"
-        tools:layout="@layout/fragment_auth_code" />
+        android:id="@+id/fragment_recover_password"
+        android:name="edu.syr.smalltalk.ui.init.RecoverPasswordFragment"
+        android:label="fragment_recover_password"
+        tools:layout="@layout/fragment_recover_password" />
 </navigation>

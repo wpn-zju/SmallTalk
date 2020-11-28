@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="edu.syr.smalltalk.init.InitActivity">
+    tools:context=".ui.init.InitActivity">
 
     <!--    TODO: use styled toolbar-->
     <androidx.appcompat.widget.Toolbar
