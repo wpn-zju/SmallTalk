@@ -1,4 +1,4 @@
-package edu.syr.smalltalk.ui
+package edu.syr.smalltalk.ui.main
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

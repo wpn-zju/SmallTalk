@@ -5,18 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.init.InitActivity">
-
-    <!--    TODO: use styled toolbar-->
-    <androidx.appcompat.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:padding="1dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/app_name" />
+    tools:context=".ui.login.LoginActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/init_nav_host_container"

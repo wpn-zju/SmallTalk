@@ -45,6 +45,9 @@ dependencies {
 
     implementation 'org.webrtc:google-webrtc:1.0.32006'
 
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
     def room_version = "2.2.5"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"

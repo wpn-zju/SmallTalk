@@ -2,12 +2,11 @@ package edu.syr.smalltalk.service.android
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import com.google.gson.Gson
-import edu.syr.smalltalk.service.IntentAction
 import edu.syr.smalltalk.service.android.constant.ServerConstant
-import edu.syr.smalltalk.service.eventbus.UserRefreshEvent
+import edu.syr.smalltalk.service.eventbus.SignInEvent
+import edu.syr.smalltalk.service.eventbus.SignOutEvent
 import edu.syr.smalltalk.service.model.entity.SmallTalkContact
 import edu.syr.smalltalk.service.model.entity.SmallTalkGroup
 import edu.syr.smalltalk.service.model.entity.SmallTalkRequest
@@ -79,7 +78,6 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_CONTACT_SYNC).subscribe {
-            Log.v("Receive Data", it.payload)
             val contactInfo: SmallTalkContact = Gson().fromJson(it.payload, SmallTalkContact::class.java)
             smalltalkDao.insertContact(contactInfo)
         })
@@ -104,92 +102,46 @@ class AWebSocketManager(private val context: Context) {
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_INVALID_SESSION).subscribe {
             Log.v("Greetings", it.payload)
-
-            EventBus.getDefault().post(UserRefreshEvent())
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_INVALID_USER_NAME).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_INVALID_USER_EMAIL).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_INVALID_USER_PASSWORD).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_INVALID_GROUP_NAME).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_UP_SUCCESS).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_UP_FAILED_EMAIL_EXISTS).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_UP_FAILED_PASSCODE_INCORRECT).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_UP_PASSCODE_REQUEST_SUCCESS).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_UP_PASSCODE_REQUEST_FAILED_SERVER_ERROR).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_UP_PASSCODE_REQUEST_FAILED_EMAIL_EXISTS).subscribe {
             Log.v("Greetings", it.payload)
-
-            val intent: Intent = Intent()
-            intent.action = IntentAction.INTENT_REFRESH_USER
-            context.sendBroadcast(intent)
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_RECOVER_PASSWORD_SUCCESS).subscribe {
@@ -217,7 +169,7 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_IN_SUCCESS).subscribe {
-            Log.v("Greetings", it.payload)
+            EventBus.getDefault().post(SignInEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_IN_FAILED_USER_NOT_FOUND).subscribe {
@@ -229,7 +181,7 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_OUT_SUCCESS).subscribe {
-            Log.v("Greetings", it.payload)
+            EventBus.getDefault().post(SignOutEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_INVALID).subscribe {

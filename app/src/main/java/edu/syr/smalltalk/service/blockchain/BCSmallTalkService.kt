@@ -111,8 +111,4 @@ class BCSmallTalkService : ISmallTalkService {
     override fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String) {
 
     }
-
-    override fun testSend(payload: Int) {
-
-    }
 }

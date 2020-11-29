@@ -27,9 +27,6 @@ object ClientConstant {
     const val API_CHAT_GROUP_ADD_REFUSE = "/chat/group_add_refuse"
     const val API_CHAT_WEBRTC_CALL = "/chat/webrtc_call"
 
-    const val API_TEST_SEND = "/system/test_send"
-    const val API_TEST_SEND_PAYLOAD = "payload"
-
     const val TIMESTAMP = "timestamp"
     const val USER_SIGN_UP_USER_EMAIL = "user_email"
     const val USER_SIGN_UP_USER_PASSWORD = "user_password"

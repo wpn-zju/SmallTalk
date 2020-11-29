@@ -15,7 +15,7 @@ interface ISmallTalkService {
     fun userSessionSignOut()
     fun userModifyName(newUserName: String)
     fun userModifyPassword(newUserPassword: String)
-    fun loadUser() // Only work for current user
+    fun loadUser()
     fun loadContact(contactId: Int)
     fun loadGroup(groupId: Int)
     fun loadRequest(requestId: Int)
@@ -30,6 +30,4 @@ interface ISmallTalkService {
     fun groupAddConfirm(requestId: Int)
     fun groupAddRefuse(requestId: Int)
     fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String)
-
-    fun testSend(payload: Int)
 }

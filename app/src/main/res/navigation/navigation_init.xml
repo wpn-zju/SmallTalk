@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragment_hello"
-        android:name="edu.syr.smalltalk.ui.init.HelloFragment"
+        android:name="edu.syr.smalltalk.ui.login.HelloFragment"
         android:label="fragment_hello"
         tools:layout="@layout/fragment_hello">
         <action
@@ -20,13 +20,13 @@
 
     <fragment
         android:id="@+id/fragment_create_user"
-        android:name="edu.syr.smalltalk.ui.init.CreateUserFragment"
+        android:name="edu.syr.smalltalk.ui.login.CreateUserFragment"
         android:label="fragment_create_user"
         tools:layout="@layout/fragment_create_user" />
 
     <fragment
         android:id="@+id/fragment_recover_password"
-        android:name="edu.syr.smalltalk.ui.init.RecoverPasswordFragment"
+        android:name="edu.syr.smalltalk.ui.login.RecoverPasswordFragment"
         android:label="fragment_recover_password"
         tools:layout="@layout/fragment_recover_password" />
 </navigation>

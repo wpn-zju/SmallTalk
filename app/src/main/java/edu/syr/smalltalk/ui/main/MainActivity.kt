@@ -1,4 +1,4 @@
-package edu.syr.smalltalk.ui
+package edu.syr.smalltalk.ui.main
 
 import android.content.ComponentName
 import android.content.Context
@@ -13,24 +13,31 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
+import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.RootService
+import edu.syr.smalltalk.service.eventbus.SignOutEvent
 import edu.syr.smalltalk.service.model.entity.SmallTalkContact
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
+import edu.syr.smalltalk.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_bottom_bar.*
-import java.time.Instant
-import kotlin.random.Random
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
+    private val viewModel: SmallTalkViewModel by viewModels {
+        SmallTalkViewModelFactory(application as SmallTalkApplication)
+    }
+
     private lateinit var service: ISmallTalkService
     private var bound: Boolean = false
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             service = (binder as RootService.RootServiceBinder).getService()
-            service.setDataAccessor((application as SmallTalkApplication).repository.getDataAccessor())
             bound = true
 
             // Use LiveData in Activity
@@ -38,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                 if (cList == null) {
                     Log.v("T", "Null")
                 } else {
-                    Log.v("T", cList.toString())
+                    Log.v("T", "Contact List Updated - $cList")
                 }
             }
             viewModel.contactList.observe(this@MainActivity, contactList)
@@ -49,23 +56,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val viewModel: SmallTalkViewModel by viewModels {
-        SmallTalkViewModelFactory(application as SmallTalkApplication)
+    override fun hasService(): Boolean {
+        return bound
+    }
+
+    override fun getService(): ISmallTalkService? {
+        return if (bound) {
+            service
+        } else {
+            null
+        }
     }
 
     override fun onStart() {
         super.onStart()
 
         // Write following lines in the first activity
-        Intent(this, RootService::class.java).also { intent -> startService(
-            intent
-        ) }
-
         Intent(this, RootService::class.java).also { intent -> bindService(
             intent,
             connection,
             Context.BIND_AUTO_CREATE
         ) }
+
+        EventBus.getDefault().register(this)
     }
 
     override fun onStop() {
@@ -73,6 +86,8 @@ class MainActivity : AppCompatActivity() {
 
         unbindService(connection)
         bound = false
+
+        EventBus.getDefault().unregister(this)
     }
 
     // Activity Logic
@@ -94,13 +109,6 @@ class MainActivity : AppCompatActivity() {
                     1 -> nav_view.selectedItemId = R.id.navigation_contacts
                     2 -> nav_view.selectedItemId = R.id.navigation_about_me
                     else -> nav_view.selectedItemId = R.id.navigation_message
-                }
-
-                // Test
-                if(this@MainActivity::service.isInitialized) {
-                    val random: Int = Random(Instant.now().toEpochMilli()).nextInt()
-                    Log.v("Send Test Request", "With Payload - $random")
-                    service.testSend(random)
                 }
 
                 super.onPageSelected(position)
@@ -138,5 +146,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         nav_view.selectedItemId = R.id.navigation_message
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onSignOutMessage(signOutEvent: SignOutEvent) {
+        logout()
+    }
+
+    private fun logout() {
+        startActivity(Intent(this, LoginActivity::class.java))
     }
 }
