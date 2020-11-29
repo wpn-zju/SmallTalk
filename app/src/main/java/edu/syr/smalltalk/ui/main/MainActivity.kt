@@ -7,7 +7,9 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
@@ -15,7 +17,9 @@ import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.RootService
+import edu.syr.smalltalk.service.eventbus.AlertDialogEvent
 import edu.syr.smalltalk.service.eventbus.SignOutEvent
+import edu.syr.smalltalk.service.eventbus.ToastEvent
 import edu.syr.smalltalk.service.model.entity.SmallTalkContact
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
@@ -148,9 +152,23 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         nav_view.selectedItemId = R.id.navigation_message
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onSignOutMessage(signOutEvent: SignOutEvent) {
         logout()
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onToastMessage(toastEvent: ToastEvent) {
+        Toast.makeText(this, toastEvent.message, Toast.LENGTH_SHORT).show()
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onAlertDialogMessage(alertDialogEvent: AlertDialogEvent) {
+        AlertDialog.Builder(this)
+            .setTitle(alertDialogEvent.title)
+            .setMessage(alertDialogEvent.message)
+            .setPositiveButton("Confirm", null)
+            .show()
     }
 
     private fun logout() {

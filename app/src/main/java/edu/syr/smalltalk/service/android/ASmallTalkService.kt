@@ -183,7 +183,7 @@ class ASmallTalkService(private val context: Context) : ISmallTalkService {
     override fun contactAddConfirm(requestId: Int) {
         webSocketManager.send(
             ClientConstant.API_CHAT_CONTACT_ADD_CONFIRM,
-            Gson().toJson(contactAddConfirm(
+            Gson().toJson(ContactAddConfirmMessage(
                 requestId
             ))
         )

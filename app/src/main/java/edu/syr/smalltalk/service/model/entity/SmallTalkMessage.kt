@@ -11,10 +11,6 @@ import java.time.Instant
 
 @Entity(tableName = "small_talk_message")
 data class SmallTalkMessage (
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "message_id")
-    @SerializedName("message_id")
-    val messageId: Int,
     @ColumnInfo(name = "user_id")
     @SerializedName("user_id")
     val userId: Int,
@@ -34,4 +30,9 @@ data class SmallTalkMessage (
     @SerializedName("timestamp")
     @TypeConverters(InstantConverter::class)
     val timestamp: Instant
-) : Serializable
+) : Serializable {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "message_id")
+    @SerializedName("message_id")
+    var messageId: Int = 0
+}

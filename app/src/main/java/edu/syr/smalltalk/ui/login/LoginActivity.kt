@@ -6,13 +6,17 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.RootService
+import edu.syr.smalltalk.service.eventbus.AlertDialogEvent
 import edu.syr.smalltalk.service.eventbus.SignInEvent
+import edu.syr.smalltalk.service.eventbus.ToastEvent
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
@@ -83,9 +87,23 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         setContentView(R.layout.activity_login)
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onSignInMessage(signInEvent: SignInEvent) {
         login()
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onToastMessage(toastEvent: ToastEvent) {
+        Toast.makeText(this, toastEvent.message, Toast.LENGTH_SHORT).show()
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onAlertDialogMessage(alertDialogEvent: AlertDialogEvent) {
+        AlertDialog.Builder(this)
+            .setTitle(alertDialogEvent.title)
+            .setMessage(alertDialogEvent.message)
+            .setPositiveButton("Confirm", null)
+            .show()
     }
 
     private fun login() {
