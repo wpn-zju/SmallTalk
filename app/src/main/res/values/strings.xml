@@ -33,5 +33,17 @@
     <string name="email_holder">xxxxxx@syr.edu</string>
     <string name="what_s_up">Whats up:</string>
     <string name="what_s_up_holder">Have a good day!</string>
+    <string name="fragment_chat">Chat</string>
+    <string name="contact_email_address">Contact Email Address</string>
+    <string name="group_id">Group ID</string>
+    <string name="confirm">Confirm</string>
+    <string name="voice_message_button">Voice Message Button</string>
+    <string name="enter">Enter</string>
+    <string name="emoji">Emoji</string>
+    <string name="more_options">More Options</string>
+    <string name="group_name_holder">Group One</string>
+    <string name="group_description_holder">We are Group One</string>
+    <string name="send_message">Send Message</string>
     <string name="send_request">Send Request</string>
+    <string name="edit_profile">Edit Profile</string>
 </resources>

@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -110,47 +111,51 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
                 if (p0 < 0) position = 0
                 if (p0 > 3) position = 2
                 when (position) {
-                    0 -> nav_view.selectedItemId = R.id.navigation_message
-                    1 -> nav_view.selectedItemId = R.id.navigation_contacts
-                    2 -> nav_view.selectedItemId = R.id.navigation_about_me
-                    else -> nav_view.selectedItemId = R.id.navigation_message
+                    0 -> bottom_bar.selectedItemId = R.id.navigation_message
+                    1 -> bottom_bar.selectedItemId = R.id.navigation_contacts
+                    2 -> bottom_bar.selectedItemId = R.id.navigation_about_me
+                    else -> bottom_bar.selectedItemId = R.id.navigation_message
                 }
 
                 super.onPageSelected(position)
             }
         })
 
-        nav_view.setOnNavigationItemSelectedListener {
+        bottom_bar.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.navigation_message -> {
                     main_toolbar.setTitle(R.string.bottom_bar_message)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_recent_message)
                     view_pager.currentItem = 0
+                    bottom_bar.visibility = View.GONE
                 }
                 R.id.navigation_contacts -> {
                     main_toolbar.setTitle(R.string.bottom_bar_contacts)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_contacts)
                     view_pager.currentItem = 1
+                    bottom_bar.visibility = View.VISIBLE
                 }
                 R.id.navigation_about_me -> {
                     main_toolbar.setTitle(R.string.bottom_bar_about_me)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_profile)
                     view_pager.currentItem = 2
+                    bottom_bar.visibility = View.VISIBLE
                 }
                 else -> {
                     main_toolbar.setTitle(R.string.bottom_bar_message)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_recent_message)
                     view_pager.currentItem = 0
+                    bottom_bar.visibility = View.VISIBLE
                 }
             }
             true
         }
 
-        nav_view.selectedItemId = R.id.navigation_message
+        bottom_bar.selectedItemId = R.id.navigation_message
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
