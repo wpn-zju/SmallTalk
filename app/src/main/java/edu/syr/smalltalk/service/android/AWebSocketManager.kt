@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonParser
+import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.android.constant.ServerConstant
 import edu.syr.smalltalk.service.eventbus.*
 import edu.syr.smalltalk.service.model.entity.*
@@ -213,12 +214,12 @@ class AWebSocketManager(private val context: Context) {
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_NEW_MESSAGE).subscribe {
             val messageObj = JsonParser.parseString(it.payload).asJsonObject
             val smallTalkMessage = SmallTalkMessage(
-                PreferenceManager.getDefaultSharedPreferences(context).getInt("current_user", 0),
+                PreferenceManager.getDefaultSharedPreferences(context).getInt(KVPConstant.K_CURRENT_USER_ID, 0),
                 messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__SENDER).asInt,
                 messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__RECEIVER).asInt,
                 messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__CONTENT).asString,
                 messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE).asString,
-                Instant.now())
+                Instant.parse(messageObj.get(ServerConstant.TIMESTAMP).asString))
             smalltalkDao.insertMessage(smallTalkMessage)
         })
 

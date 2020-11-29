@@ -5,23 +5,24 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
+import edu.syr.smalltalk.service.android.constant.ServerConstant
 import edu.syr.smalltalk.service.model.converter.IntArrayConverter
 import java.io.Serializable
 
 @Entity(tableName = "small_talk_group")
 data class SmallTalkGroup (
     @PrimaryKey
-    @ColumnInfo(name = "group_id")
-    @SerializedName("group_id")
+    @ColumnInfo(name = ServerConstant.ACC_GROUP_SYNC__GROUP_ID)
+    @SerializedName(ServerConstant.ACC_GROUP_SYNC__GROUP_ID)
     val groupId: Int,
-    @ColumnInfo(name = "group_name")
-    @SerializedName("group_name")
+    @ColumnInfo(name = ServerConstant.ACC_GROUP_SYNC__GROUP_NAME)
+    @SerializedName(ServerConstant.ACC_GROUP_SYNC__GROUP_NAME)
     val groupName: String,
-    @ColumnInfo(name = "group_host")
-    @SerializedName("group_host")
-    val groupHostUserId: Int,
-    @ColumnInfo(name = "group_member_list")
-    @SerializedName("group_member_list")
+    @ColumnInfo(name = ServerConstant.ACC_GROUP_SYNC__GROUP_HOST)
+    @SerializedName(ServerConstant.ACC_GROUP_SYNC__GROUP_HOST)
+    val groupHostId: Int,
+    @ColumnInfo(name = ServerConstant.ACC_GROUP_SYNC__GROUP_MEMBER_LIST)
+    @SerializedName(ServerConstant.ACC_GROUP_SYNC__GROUP_MEMBER_LIST)
     @TypeConverters(IntArrayConverter::class)
     val groupMemberList: List<Int>
 ) : Serializable

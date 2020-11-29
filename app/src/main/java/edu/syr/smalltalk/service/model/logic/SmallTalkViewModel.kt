@@ -2,13 +2,15 @@ package edu.syr.smalltalk.service.model.logic
 
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.model.entity.*
 import kotlinx.coroutines.launch
 import java.util.stream.Collectors
 
 // All return values in this class should be LiveData<T>
 class SmallTalkViewModel(private val application: SmallTalkApplication, private val repository: SmallTalkRepository) : AndroidViewModel(application) {
-    private val currentUser: LiveData<Int> = PreferenceManager.getDefaultSharedPreferences(application.applicationContext).intLiveData("current_user", 0)
+    private val currentUser: LiveData<Int> = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
+        .intLiveData(KVPConstant.K_CURRENT_USER_ID, 0)
 
     val userList: LiveData<List<SmallTalkUser>> = repository.userList.asLiveData()
 

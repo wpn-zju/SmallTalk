@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
+import edu.syr.smalltalk.service.android.constant.ServerConstant
 import edu.syr.smalltalk.service.model.converter.InstantConverter
 import java.io.Serializable
 import java.time.Instant
@@ -14,20 +15,20 @@ data class SmallTalkMessage (
     @ColumnInfo(name = "user_id")
     @SerializedName("user_id")
     val userId: Int,
-    @ColumnInfo(name = "sender")
-    @SerializedName("sender")
+    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__SENDER)
+    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__SENDER)
     val sender: Int,
-    @ColumnInfo(name = "receiver")
-    @SerializedName("receiver")
+    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__RECEIVER)
+    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__RECEIVER)
     val receiver: Int,
-    @ColumnInfo(name = "content")
-    @SerializedName("content")
+    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__CONTENT)
+    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__CONTENT)
     val content: String,
-    @ColumnInfo(name = "content_type")
-    @SerializedName("content_type")
+    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE)
+    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE)
     val contentType: String,
-    @ColumnInfo(name = "timestamp")
-    @SerializedName("timestamp")
+    @ColumnInfo(name = ServerConstant.TIMESTAMP)
+    @SerializedName(ServerConstant.TIMESTAMP)
     @TypeConverters(InstantConverter::class)
     val timestamp: Instant
 ) : Serializable {

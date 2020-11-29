@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import edu.syr.smalltalk.R
+import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.RootService
@@ -37,6 +39,13 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
             service = (binder as RootService.RootServiceBinder).getService()
             service.setDataAccessor((application as SmallTalkApplication).repository.getDataAccessor())
             bound = true
+
+            // Auto Login
+            val lastSession: String = PreferenceManager.getDefaultSharedPreferences(this@LoginActivity)
+                .getString(KVPConstant.K_LAST_SESSION, "null")!!
+            if (lastSession != "null") {
+                service.userSessionSignIn(lastSession)
+            }
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -85,6 +94,12 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        val userStatus: String = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString(KVPConstant.K_USER_STATUS, KVPConstant.V_USER_STATUS_LOGOUT)!!
+        if (userStatus == KVPConstant.V_USER_STATUS_LOGIN) {
+            login()
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -107,6 +122,9 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     private fun login() {
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .edit().putString(KVPConstant.K_USER_STATUS, KVPConstant.V_USER_STATUS_LOGIN).apply()
         startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 }

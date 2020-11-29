@@ -12,8 +12,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import edu.syr.smalltalk.R
+import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.RootService
@@ -30,7 +32,6 @@ import kotlinx.android.synthetic.main.layout_bottom_bar.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-
 
 class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     private val viewModel: SmallTalkViewModel by viewModels {
@@ -172,6 +173,9 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     private fun logout() {
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .edit().putString(KVPConstant.K_USER_STATUS, KVPConstant.V_USER_STATUS_LOGOUT).apply()
         startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }
