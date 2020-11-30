@@ -6,47 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.main.ChatFragment">
+    tools:context=".ui.main.chat.ChatFragment">
 
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_message_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-        <LinearLayout
-            android:id="@+id/chat_message_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <include
-                layout="@layout/layout_prefab_chat_room_timestamp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <include
-                layout="@layout/layout_prefab_message_left"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <include
-                layout="@layout/layout_prefab_message_left"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <include
-                layout="@layout/layout_prefab_message_right"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <include
-                layout="@layout/layout_prefab_chat_room_timestamp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <include
-                layout="@layout/layout_prefab_message_right"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <include
-                layout="@layout/layout_prefab_message_left"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-    </ScrollView>
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="outsideInset"
+        tools:listitem="@layout/layout_prefab_message_left" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

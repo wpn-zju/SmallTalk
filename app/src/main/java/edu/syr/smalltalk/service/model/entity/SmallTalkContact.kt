@@ -19,4 +19,10 @@ data class SmallTalkContact (
     @ColumnInfo(name = ServerConstant.ACC_CONTACT_SYNC__CONTACT_EMAIL)
     @SerializedName(ServerConstant.ACC_CONTACT_SYNC__CONTACT_EMAIL)
     val contactEmail: String
-) : Serializable
+) : Serializable {
+    fun contactEquals(other: SmallTalkContact): Boolean {
+        return contactId == other.contactId &&
+                contactName == other.contactName &&
+                contactEmail == other.contactEmail
+    }
+}

@@ -25,4 +25,10 @@ data class SmallTalkGroup (
     @SerializedName(ServerConstant.ACC_GROUP_SYNC__GROUP_MEMBER_LIST)
     @TypeConverters(IntArrayConverter::class)
     val groupMemberList: List<Int>
-) : Serializable
+) : Serializable {
+    fun groupEquals(other: SmallTalkGroup): Boolean {
+        return groupId == other.groupId &&
+                groupName == other.groupName &&
+                groupHostId == other.groupHostId
+    }
+}

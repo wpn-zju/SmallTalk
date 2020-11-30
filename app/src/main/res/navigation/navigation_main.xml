@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_nav_recent"
-        android:name="edu.syr.smalltalk.ui.bottom.message.MessageFragment"
+        android:name="edu.syr.smalltalk.ui.main.messagelist.MessageListFragment"
         android:label="@string/bottom_bar_message"
         tools:layout="@layout/fragment_recent_message" >
         <action
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/navigation_nav_contacts"
-        android:name="edu.syr.smalltalk.ui.bottom.contacts.ContactsFragment"
+        android:name="edu.syr.smalltalk.ui.main.contactlist.ContactListFragment"
         android:label="@string/bottom_bar_contacts"
         tools:layout="@layout/fragment_contacts" >
         <action
@@ -26,20 +26,27 @@
         <action
             android:id="@+id/contact_list_view_contact"
             app:destination="@id/navigation_contact_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/groupListFragment"
+        android:name="edu.syr.smalltalk.ui.main.grouplist.GroupListFragment"
+        android:label="@string/bottom_bar_groups"
+        tools:layout="@layout/fragment_groups" >
         <action
-            android:id="@+id/contact_list_create_group"
+            android:id="@+id/group_list_create_group"
             app:destination="@id/navigation_group_create" />
         <action
-            android:id="@+id/contact_list_search_group"
+            android:id="@+id/group_list_search_group"
             app:destination="@id/navigation_group_search" />
         <action
-            android:id="@+id/contact_list_view_group"
+            android:id="@+id/group_list_view_group"
             app:destination="@id/navigation_group_detail" />
     </fragment>
 
     <fragment
         android:id="@+id/navigation_about_me"
-        android:name="edu.syr.smalltalk.ui.bottom.profile.ProfileFragment"
+        android:name="edu.syr.smalltalk.ui.main.ProfileFragment"
         android:label="@string/bottom_bar_about_me"
         tools:layout="@layout/fragment_about_me" />
 
@@ -61,32 +68,12 @@
         <action
             android:id="@+id/contact_detail_enter_chat"
             app:destination="@id/navigation_chat" />
-        <action
-            android:id="@+id/contact_detail_return_main"
-            app:destination="@id/navigation_nav_contacts" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/navigation_chat"
-        android:name="edu.syr.smalltalk.ui.main.ChatFragment"
-        android:label="@string/fragment_chat"
-        tools:layout="@layout/fragment_chat">
-        <action
-            android:id="@+id/chat_room_view_group"
-            app:destination="@id/navigation_group_detail" />
-        <action
-            android:id="@+id/chat_room_view_contact"
-            app:destination="@id/navigation_contact_detail" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/navigation_group_create"
-        android:name="edu.syr.smalltalk.ui.main.GroupCreateFragment"
-        android:label="GroupCreateFragment"
-        tools:layout="@layout/fragment_group_create">
-        <action
-            android:id="@+id/group_create_enter_group"
-            app:destination="@id/navigation_chat" />
+        <argument
+            android:name="contactId"
+            app:argType="integer" />
+        <argument
+            android:name="isContact"
+            app:argType="boolean" />
     </fragment>
 
     <fragment
@@ -107,8 +94,37 @@
         <action
             android:id="@+id/group_detail_enter_chat"
             app:destination="@id/navigation_chat" />
+        <argument
+            android:name="groupId"
+            app:argType="integer" />
+        <argument
+            android:name="isMember"
+            app:argType="boolean" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_chat"
+        android:name="edu.syr.smalltalk.ui.main.chat.ChatFragment"
+        android:label="@string/fragment_chat"
+        tools:layout="@layout/fragment_chat">
         <action
-            android:id="@+id/group_detail_return_main"
-            app:destination="@id/navigation_nav_contacts" />
+            android:id="@+id/chat_room_view_group"
+            app:destination="@id/navigation_group_detail" />
+        <action
+            android:id="@+id/chat_room_view_contact"
+            app:destination="@id/navigation_contact_detail" />
+        <argument
+            android:name="chatId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_group_create"
+        android:name="edu.syr.smalltalk.ui.main.GroupCreateFragment"
+        android:label="GroupCreateFragment"
+        tools:layout="@layout/fragment_group_create">
+        <action
+            android:id="@+id/group_create_enter_chat"
+            app:destination="@id/navigation_chat" />
     </fragment>
 </navigation>

@@ -1,60 +1,81 @@
 package edu.syr.smalltalk.ui.main
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import edu.syr.smalltalk.R
+import edu.syr.smalltalk.service.ISmallTalkServiceProvider
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
+import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
+import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
+import kotlinx.android.synthetic.main.layout_contact_detail.*
+import kotlinx.android.synthetic.main.layout_group_detail.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [GroupDetailFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class GroupDetailFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private val args: GroupDetailFragmentArgs by navArgs()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    private val viewModel: SmallTalkViewModel by viewModels {
+        SmallTalkViewModelFactory(requireContext().applicationContext as SmallTalkApplication)
+    }
+
+    private lateinit var serviceProvider: ISmallTalkServiceProvider
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_group_detail, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment GroupDetailFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            GroupDetailFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.getCurrentGroup(args.groupId).observe(requireActivity(), { group ->
+            if (group.isEmpty()) {
+                image_group_avatar.setImageResource(R.mipmap.ic_launcher)
+                text_group_name.text = "Loading..."
+                text_group_description.text = "Loading..."
+                group_enter_chat.visibility = View.GONE
+                group_send_request.visibility = View.GONE
+            } else {
+                image_group_avatar.setImageResource(R.mipmap.ic_launcher)
+                text_group_name.text = group[0].groupName
+                text_group_description.text = group[0].groupName
+                if (args.isMember) {
+                    group_enter_chat.visibility = View.VISIBLE
+                    group_send_request.visibility = View.GONE
+                    group_enter_chat.setOnClickListener {
+                        val action = GroupDetailFragmentDirections.groupDetailEnterChat(group[0].groupId)
+                        view.findNavController().navigate(action)
+                    }
+                    group_send_request.setOnClickListener {
+
+                    }
+                } else {
+                    group_enter_chat.visibility = View.GONE
+                    group_send_request.visibility = View.VISIBLE
+                    group_enter_chat.setOnClickListener {
+
+                    }
+                    group_send_request.setOnClickListener {
+                        if (serviceProvider.hasService()) {
+                            serviceProvider.getService()!!.groupAddRequest(group[0].groupId)
+                        }
+                    }
                 }
             }
+        })
     }
 }

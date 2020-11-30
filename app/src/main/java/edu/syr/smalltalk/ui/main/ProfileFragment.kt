@@ -13,7 +13,7 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 
-class AboutMeFragment : Fragment() {
+class ProfileFragment : Fragment() {
     private val viewModel: SmallTalkViewModel by viewModels {
         SmallTalkViewModelFactory(requireContext().applicationContext as SmallTalkApplication)
     }
@@ -37,15 +37,5 @@ class AboutMeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            AboutMeFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
     }
 }

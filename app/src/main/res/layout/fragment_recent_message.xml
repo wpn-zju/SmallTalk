@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.recyclerview.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bottom.message.MessageFragment" >
-
-    <include
-        layout="@layout/layout_recent_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:scrollbars="vertical"
+    android:scrollbarStyle="outsideInset"
+    tools:listitem="@layout/layout_prefab_recent_message"
+    tools:context=".ui.main.messagelist.MessageListFragment" />

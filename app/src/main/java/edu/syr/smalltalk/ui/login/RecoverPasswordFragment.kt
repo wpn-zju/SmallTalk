@@ -53,14 +53,4 @@ class RecoverPasswordFragment : Fragment() {
             }
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            RecoverPasswordFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }

@@ -60,6 +60,10 @@ class BCSmallTalkService : ISmallTalkService {
 
     }
 
+    override fun loadContactByEmail(contactEmail: String) {
+
+    }
+
     override fun loadGroup(groupId: Int) {
 
     }

@@ -53,14 +53,4 @@ class HelloFragment : Fragment() {
             it.findNavController().navigate(action)
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            HelloFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }

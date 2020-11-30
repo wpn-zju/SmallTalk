@@ -74,21 +74,41 @@ class AWebSocketManager(private val context: Context) {
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SYNC).subscribe {
             val userInfo: SmallTalkUser = Gson().fromJson(it.payload, SmallTalkUser::class.java)
             smalltalkDao.insertUser(userInfo)
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putInt(KVPConstant.K_CURRENT_USER_ID, userInfo.userId).apply()
+            EventBus.getDefault().post(SignInEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_CONTACT_SYNC).subscribe {
             val contactInfo: SmallTalkContact = Gson().fromJson(it.payload, SmallTalkContact::class.java)
             smalltalkDao.insertContact(contactInfo)
+            EventBus.getDefault().post(SearchContactSuccessEvent(contactInfo.contactId))
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_GROUP_SYNC).subscribe {
             val groupInfo: SmallTalkGroup = Gson().fromJson(it.payload, SmallTalkGroup::class.java)
             smalltalkDao.insertGroup(groupInfo)
+            EventBus.getDefault().post(SearchGroupSuccessEvent(groupInfo.groupId))
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_REQUEST_SYNC).subscribe {
             val requestInfo: SmallTalkRequest = Gson().fromJson(it.payload, SmallTalkRequest::class.java)
             smalltalkDao.insertRequest(requestInfo)
+        })
+
+        compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_CONTACT_SYNC_FAILED_USER_NOT_FOUND).subscribe {
+            EventBus.getDefault().post(AlertDialogEvent("Error",
+                "User not found!"))
+        })
+
+        compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_GROUP_SYNC_FAILED_GROUP_NOT_FOUND).subscribe {
+            EventBus.getDefault().post(AlertDialogEvent("Error",
+                "Group not found!"))
+        })
+
+        compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_REQUEST_SYNC_FAILED_REQUEST_NOT_FOUND).subscribe {
+            EventBus.getDefault().post(AlertDialogEvent("Error",
+                "Request not found!"))
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_INVALID_PASSCODE).subscribe {
@@ -170,7 +190,7 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_IN_SUCCESS).subscribe {
-            EventBus.getDefault().post(SignInEvent())
+            EventBus.getDefault().post(ToastEvent("Sign In - Success"))
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_IN_FAILED_USER_NOT_FOUND).subscribe {
@@ -213,13 +233,15 @@ class AWebSocketManager(private val context: Context) {
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_NEW_MESSAGE).subscribe {
             val messageObj = JsonParser.parseString(it.payload).asJsonObject
-            val smallTalkMessage = SmallTalkMessage(
-                PreferenceManager.getDefaultSharedPreferences(context).getInt(KVPConstant.K_CURRENT_USER_ID, 0),
-                messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__SENDER).asInt,
-                messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__RECEIVER).asInt,
-                messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__CONTENT).asString,
-                messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE).asString,
-                Instant.parse(messageObj.get(ServerConstant.TIMESTAMP).asString))
+            val user: Int = PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
+            val sender: Int = messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__SENDER).asInt
+            val receiver: Int = messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__RECEIVER).asInt
+            val chatId: Int = if (user == sender) receiver else if (user == receiver) sender else receiver
+            val content: String = messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__CONTENT).asString
+            val contentType: String = messageObj.get(ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE).asString
+            val timestamp = Instant.parse(messageObj.get(ServerConstant.TIMESTAMP).asString)
+            val smallTalkMessage = SmallTalkMessage(user, chatId, sender, receiver, content, contentType, timestamp)
             smalltalkDao.insertMessage(smallTalkMessage)
         })
 

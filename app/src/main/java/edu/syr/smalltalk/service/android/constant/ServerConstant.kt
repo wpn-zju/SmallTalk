@@ -17,7 +17,8 @@ object ServerConstant {
     const val DIR_USER_SIGN_UP_FAILED_EMAIL_EXISTS = "/queue/port/user_sign_up_failed_email_exists"
     const val DIR_USER_SIGN_UP_FAILED_PASSCODE_INCORRECT =
         "/queue/port/user_sign_up_failed_passcode_incorrect"
-    const val DIR_USER_SIGN_UP_PASSCODE_REQUEST_SUCCESS = "/queue/port/user_sign_up_passcode_request_success"
+    const val DIR_USER_SIGN_UP_PASSCODE_REQUEST_SUCCESS =
+        "/queue/port/user_sign_up_passcode_request_success"
     const val DIR_USER_SIGN_UP_PASSCODE_REQUEST_FAILED_SERVER_ERROR =
         "/queue/port/user_sign_up_passcode_request_failed_server_error"
     const val DIR_USER_SIGN_UP_PASSCODE_REQUEST_FAILED_EMAIL_EXISTS =
@@ -27,7 +28,8 @@ object ServerConstant {
         "/queue/port/user_recover_password_failed_user_not_found"
     const val DIR_USER_RECOVER_PASSWORD_FAILED_PASSCODE_INCORRECT =
         "/queue/port/user_recover_password_failed_passcode_incorrect"
-    const val DIR_USER_RECOVER_PASSWORD_PASSCODE_REQUEST_SUCCESS = "/queue/port/user_recover_passcode_passcode_request_success"
+    const val DIR_USER_RECOVER_PASSWORD_PASSCODE_REQUEST_SUCCESS =
+        "/queue/port/user_recover_passcode_passcode_request_success"
     const val DIR_USER_RECOVER_PASSWORD_PASSCODE_REQUEST_FAILED_SERVER_ERROR =
         "/queue/port/user_recover_password_passcode_request_failed_server_error"
     const val DIR_USER_RECOVER_PASSWORD_PASSCODE_REQUEST_FAILED_USER_NOT_FOUND =
@@ -45,8 +47,14 @@ object ServerConstant {
     const val DIR_USER_MODIFY_PASSWORD_SUCCESS = "/queue/port/user_modify_password_success"
     const val DIR_USER_SYNC = "/queue/port/user_sync"
     const val DIR_CONTACT_SYNC = "/queue/port/contact_sync"
+    const val DIR_CONTACT_SYNC_FAILED_USER_NOT_FOUND =
+        "/queue/port/contact_sync_failed_user_not_found"
     const val DIR_GROUP_SYNC = "/queue/port/group_sync"
+    const val DIR_GROUP_SYNC_FAILED_GROUP_NOT_FOUND =
+        "/queue/port/group_sync_failed_group_not_found"
     const val DIR_REQUEST_SYNC = "/queue/port/request_sync"
+    const val DIR_REQUEST_SYNC_FAILED_REQUEST_NOT_FOUND =
+        "/queue/port/request_sync_failed_request_not_found"
     const val DIR_NEW_MESSAGE = "/queue/port/new_message"
     const val DIR_CONTACT_ADD_REQUEST_SUCCESS = "/queue/port/contact_add_request_success"
     const val DIR_CONTACT_ADD_REQUEST_FAILED_ALREADY_CONTACT =

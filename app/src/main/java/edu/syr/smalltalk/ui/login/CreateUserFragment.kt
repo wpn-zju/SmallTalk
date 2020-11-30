@@ -53,14 +53,4 @@ class CreateUserFragment : Fragment() {
             }
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            CreateUserFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }

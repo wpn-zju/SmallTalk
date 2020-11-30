@@ -8,7 +8,7 @@
     tools:context=".ui.main.GroupSearchFragment">
 
     <EditText
-        android:id="@+id/input_group_search_group_id"
+        android:id="@+id/input_search_group_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -28,7 +28,7 @@
         android:layout_marginTop="16dp">
 
         <Button
-            android:id="@+id/btn_new_user_next"
+            android:id="@+id/btn_search_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

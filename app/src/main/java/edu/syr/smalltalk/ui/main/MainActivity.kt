@@ -6,24 +6,21 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import edu.syr.smalltalk.R
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
+import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.RootService
 import edu.syr.smalltalk.service.eventbus.AlertDialogEvent
 import edu.syr.smalltalk.service.eventbus.SignOutEvent
 import edu.syr.smalltalk.service.eventbus.ToastEvent
-import edu.syr.smalltalk.service.model.entity.SmallTalkContact
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
@@ -45,16 +42,6 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             service = (binder as RootService.RootServiceBinder).getService()
             bound = true
-
-            // Use LiveData in Activity
-            val contactList = Observer<List<SmallTalkContact>> { cList ->
-                if (cList == null) {
-                    Log.v("T", "Null")
-                } else {
-                    Log.v("T", "Contact List Updated - $cList")
-                }
-            }
-            viewModel.contactList.observe(this@MainActivity, contactList)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {

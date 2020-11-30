@@ -6,5 +6,5 @@
     android:layout_height="match_parent"
     android:scrollbars="vertical"
     android:scrollbarStyle="outsideInset"
-    tools:listitem="@layout/layout_prefab_contact"
-    tools:context=".ui.main.contactlist.ContactListFragment"/>
+    tools:listitem="@layout/layout_prefab_group"
+    tools:context=".ui.main.grouplist.GroupListFragment"/>

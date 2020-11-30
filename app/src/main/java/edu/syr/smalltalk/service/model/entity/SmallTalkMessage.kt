@@ -15,6 +15,9 @@ data class SmallTalkMessage (
     @ColumnInfo(name = "user_id")
     @SerializedName("user_id")
     val userId: Int,
+    @ColumnInfo(name = "chat_id")
+    @SerializedName("chat_id")
+    val chatId: Int,
     @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__SENDER)
     @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__SENDER)
     val sender: Int,

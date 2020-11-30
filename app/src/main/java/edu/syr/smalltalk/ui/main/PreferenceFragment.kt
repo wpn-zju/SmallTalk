@@ -38,14 +38,4 @@ class PreferenceFragment : Fragment() {
 
         
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            PreferenceFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }
