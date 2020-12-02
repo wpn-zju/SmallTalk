@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_nav"
+    app:startDestination="@id/navigation_nav_recent">
+
+    <fragment
+        android:id="@+id/navigation_nav_recent"
+        android:name="edu.syr.smalltalk.ui.main.message.MessageListFragment"
+        android:label="@string/bottom_bar_message"
+        tools:layout="@layout/fragment_recent_message" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_nav_contacts"
+        android:name="edu.syr.smalltalk.ui.main.contact.ContactListFragment"
+        android:label="@string/bottom_bar_contacts"
+        tools:layout="@layout/fragment_contacts" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_nav_groups"
+        android:name="edu.syr.smalltalk.ui.main.group.GroupListFragment"
+        android:label="@string/bottom_bar_groups"
+        tools:layout="@layout/fragment_groups" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_about_me"
+        android:name="edu.syr.smalltalk.ui.main.ProfileFragment"
+        android:label="@string/bottom_bar_about_me"
+        tools:layout="@layout/_fragment_about_me" />
+</navigation>

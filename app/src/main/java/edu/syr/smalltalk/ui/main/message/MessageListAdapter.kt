@@ -1,4 +1,4 @@
-package edu.syr.smalltalk.ui.main.messagelist
+package edu.syr.smalltalk.ui.main.message
 
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +19,23 @@ class MessageListAdapter
         holder.chatAvatar.setImageResource(R.mipmap.ic_launcher)
         holder.chatName.text = message.chatId.toString() // Todo
         holder.chatPreview.text = message.content // Todo
-        // Todo
+
+        holder.itemView.setOnClickListener {
+            if (messageClickListener != null) {
+                if (position != RecyclerView.NO_POSITION) {
+                    messageClickListener!!.onItemClickListener(holder.itemView, message.chatId)
+                }
+            }
+        }
+
+        holder.itemView.setOnLongClickListener {
+            if (messageClickListener != null) {
+                if (position != RecyclerView.NO_POSITION) {
+                    messageClickListener!!.onItemLongClickListener(holder.itemView, message.chatId)
+                }
+            }
+            true
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageListViewHolder {
@@ -34,27 +50,6 @@ class MessageListAdapter
         val chatPreview: TextView = view.findViewById(R.id.preview)
         val chatTimestamp: TextView = view.findViewById(R.id.recent_time)
         val chatUnreadNumber: TextView = view.findViewById(R.id.message_number)
-
-        init {
-            val message: SmallTalkMessage = getItem(adapterPosition)!!
-
-            view.setOnClickListener {
-                if (messageClickListener != null) {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        messageClickListener!!.onItemClickListener(view, message.chatId)
-                    }
-                }
-            }
-
-            view.setOnLongClickListener {
-                if (messageClickListener != null) {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        messageClickListener!!.onItemLongClickListener(view, message.chatId)
-                    }
-                }
-                true
-            }
-        }
     }
 
     private var messageClickListener: MessageClickListener? = null

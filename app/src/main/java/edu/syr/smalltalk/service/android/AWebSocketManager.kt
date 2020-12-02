@@ -20,7 +20,8 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent
 import java.time.Instant
 
 class AWebSocketManager(private val context: Context) {
-    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://18.217.4.124:8079/small_talk_websocket/websocket")
+    // private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://18.217.4.124:8079/small_talk_websocket/websocket")
+    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://10.0.2.2:8079/small_talk_websocket/websocket")
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private lateinit var smalltalkDao: SmallTalkDao
@@ -206,20 +207,14 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_INVALID).subscribe {
-            EventBus.getDefault().post(AlertDialogEvent("Error",
-                "Session Invalid - You will be logout!"))
             EventBus.getDefault().post(SignOutEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_EXPIRED).subscribe {
-            EventBus.getDefault().post(AlertDialogEvent("Error",
-                "Session Expired - You will be logout!"))
             EventBus.getDefault().post(SignOutEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_REVOKED).subscribe {
-            EventBus.getDefault().post(AlertDialogEvent("Error",
-                "Session Revoked - You will be logout!"))
             EventBus.getDefault().post(SignOutEvent())
         })
 

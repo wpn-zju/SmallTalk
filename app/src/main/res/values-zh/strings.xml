@@ -47,19 +47,4 @@
     <string name="send_message">Send Message</string>
     <string name="send_request">Send Request</string>
     <string name="edit_profile">Edit Profile</string>
-    <string name="file_name_holder">XXXXXXXX.txt</string>
-    <string name="file_size_holder">15.6 KB</string>
-    <string name="file_state_holder">Downloaded</string>
-    <string name="file_icon">File Icon</string>
-    <string name="more_options_image">More Options Image</string>
-    <string name="more_options_share">More Options Share</string>
-    <string name="more_options_position">More Options Position</string>
-    <string name="more_options_file">More Options File</string>
-    <string name="more_options_voice">More Options Voice</string>
-    <string name="more_options_webrtc">More Options WebRTC</string>
-    <string name="more_options_camera">More Options Camera</string>
-    <string name="request_status_holder">Accepted</string>
-    <string name="accept">Accept</string>
-    <string name="decline">Decline</string>
-    <string name="image_message">Image Message</string>
 </resources>

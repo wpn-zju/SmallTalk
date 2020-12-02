@@ -21,12 +21,18 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
     fun getContactList(userId: Int): LiveData<List<SmallTalkContact>> {
         val contactListMediator = ContactListLiveData(getCurrentUserInfo(userId), contactList)
         return Transformations.map(contactListMediator) { mediator ->
-            if (mediator.first == null) {
-                ArrayList()
-            } else {
-                mediator.second.stream().filter { contact ->
-                    mediator.first!!.contactList.contains(contact.contactId)
-                }.collect(Collectors.toList())
+            when {
+                mediator.first == null -> {
+                    ArrayList()
+                }
+                mediator.second == null -> {
+                    ArrayList()
+                }
+                else -> {
+                    mediator.second!!.stream().filter { contact ->
+                        mediator.first!![0].contactList.contains(contact.contactId)
+                    }.collect(Collectors.toList())
+                }
             }
         }
     }
@@ -40,12 +46,18 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
     fun getGroupList(userId: Int): LiveData<List<SmallTalkGroup>> {
         val groupListMediator = GroupListLiveData(getCurrentUserInfo(userId), groupList)
         return Transformations.map(groupListMediator) { mediator ->
-            if (mediator.first == null) {
-                ArrayList()
-            } else {
-                mediator.second.stream().filter { group ->
-                    mediator.first!!.groupList.contains(group.groupId)
-                }.collect(Collectors.toList())
+            when {
+                mediator.first == null -> {
+                    ArrayList()
+                }
+                mediator.second == null -> {
+                    ArrayList()
+                }
+                else -> {
+                    mediator.second!!.stream().filter { group ->
+                        mediator.first!![0].groupList.contains(group.groupId)
+                    }.collect(Collectors.toList())
+                }
             }
         }
     }
@@ -59,12 +71,18 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
     fun getRequestList(userId: Int): LiveData<List<SmallTalkRequest>> {
         val requestListMediator = RequestListLiveData(getCurrentUserInfo(userId), requestList)
         return Transformations.map(requestListMediator) { mediator ->
-            if (mediator.first == null) {
-                ArrayList()
-            } else {
-                mediator.second.stream().filter { request ->
-                    mediator.first!!.requestList.contains(request.requestId)
-                }.collect(Collectors.toList())
+            when {
+                mediator.first == null -> {
+                    ArrayList()
+                }
+                mediator.second == null -> {
+                    ArrayList()
+                }
+                else -> {
+                    mediator.second!!.stream().filter { request ->
+                        mediator.first!![0].requestList.contains(request.requestId)
+                    }.collect(Collectors.toList())
+                }
             }
         }
     }
@@ -80,33 +98,54 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
 
 class ContactListLiveData (
     userInfo: LiveData<List<SmallTalkUser>>, contactList: LiveData<List<SmallTalkContact>>
-) : MediatorLiveData<Pair<SmallTalkUser?, List<SmallTalkContact>>>() {
+) : MediatorLiveData<Pair<List<SmallTalkUser>?, List<SmallTalkContact>?>>() {
+    private var user: List<SmallTalkUser>? = null
+    private var cList: List<SmallTalkContact>? = null
+
     init {
         addSource(userInfo) {
-                first -> value = if (first.isEmpty()) Pair(null, ArrayList()) else Pair(first[0], contactList.value!!) }
+            user = it
+            value = Pair(user, cList)
+        }
         addSource(contactList) {
-                second -> value = if (userInfo.value!!.isEmpty()) Pair(null, ArrayList()) else Pair(userInfo.value!![0], second) }
+            cList = it
+            value = Pair(user, cList)
+        }
     }
 }
 
 class GroupListLiveData (
     userInfo: LiveData<List<SmallTalkUser>>, groupList: LiveData<List<SmallTalkGroup>>
-) : MediatorLiveData<Pair<SmallTalkUser?, List<SmallTalkGroup>>>() {
+) : MediatorLiveData<Pair<List<SmallTalkUser>?, List<SmallTalkGroup>?>>() {
+    private var user: List<SmallTalkUser>? = null
+    private var gList: List<SmallTalkGroup>? = null
+
     init {
         addSource(userInfo) {
-                first -> value = if (first.isEmpty()) Pair(null, ArrayList()) else Pair(first[0], groupList.value!!) }
+            user = it
+            value = Pair(user, gList)
+        }
         addSource(groupList) {
-                second -> value = if (userInfo.value!!.isEmpty()) Pair(null, ArrayList()) else Pair(userInfo.value!![0], second) }
+            gList = it
+            value = Pair(user, gList)
+        }
     }
 }
 
 class RequestListLiveData (
     userInfo: LiveData<List<SmallTalkUser>>, requestList: LiveData<List<SmallTalkRequest>>
-) : MediatorLiveData<Pair<SmallTalkUser?, List<SmallTalkRequest>>>() {
+) : MediatorLiveData<Pair<List<SmallTalkUser>?, List<SmallTalkRequest>?>>() {
+    private var user: List<SmallTalkUser>? = null
+    private var rList: List<SmallTalkRequest>? = null
+
     init {
         addSource(userInfo) {
-                first -> value = if (first.isEmpty()) Pair(null, ArrayList()) else Pair(first[0], requestList.value!!) }
+            user = it
+            value = Pair(user, rList)
+        }
         addSource(requestList) {
-                second -> value = if (userInfo.value!!.isEmpty()) Pair(null, ArrayList()) else Pair(userInfo.value!![0], second) }
+            rList = it
+            value = Pair(user, rList)
+        }
     }
 }

@@ -2,12 +2,13 @@ package edu.syr.smalltalk.ui.main
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import edu.syr.smalltalk.ui.main.contactlist.ContactListFragment
-import edu.syr.smalltalk.ui.main.messagelist.MessageListFragment
+import edu.syr.smalltalk.ui.main.contact.ContactListFragment
+import edu.syr.smalltalk.ui.main.group.GroupListFragment
+import edu.syr.smalltalk.ui.main.message.MessageListFragment
 
 class PageAdapter(fragmentManager: FragmentActivity) : androidx.viewpager2.adapter.FragmentStateAdapter(fragmentManager) {
     override fun getItemCount(): Int {
-        return 3
+        return 4
     }
 
     override fun createFragment(p0: Int): Fragment {
@@ -18,7 +19,8 @@ class PageAdapter(fragmentManager: FragmentActivity) : androidx.viewpager2.adapt
         return when (position) {
             0 -> MessageListFragment()
             1 -> ContactListFragment()
-            2 -> ProfileFragment()
+            2 -> GroupListFragment()
+            3 -> ProfileFragment()
             else -> MessageListFragment()
         }
     }

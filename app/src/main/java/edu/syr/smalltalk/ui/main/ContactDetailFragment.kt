@@ -60,7 +60,7 @@ class ContactDetailFragment : Fragment() {
                     contact_enter_chat.visibility = View.VISIBLE
                     contact_send_request.visibility = View.GONE
                     contact_enter_chat.setOnClickListener {
-                        val action = ContactDetailFragmentDirections.contactDetailEnterChat(contact[0].contactId)
+                        val action = ContactDetailFragmentDirections.contactDetailEnterChat(contact[0].contactId, false)
                         view.findNavController().navigate(action)
                     }
                     contact_send_request.setOnClickListener {

@@ -8,6 +8,8 @@ class SignInEvent
 
 class SignOutEvent
 
+class SessionExpiredEvent
+
 class WebRTCEvent (
     @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_SENDER)
     val sender: Int,

@@ -14,7 +14,6 @@ import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
-import kotlinx.android.synthetic.main.layout_contact_detail.*
 import kotlinx.android.synthetic.main.layout_group_detail.*
 
 class GroupDetailFragment : Fragment() {
@@ -57,7 +56,7 @@ class GroupDetailFragment : Fragment() {
                     group_enter_chat.visibility = View.VISIBLE
                     group_send_request.visibility = View.GONE
                     group_enter_chat.setOnClickListener {
-                        val action = GroupDetailFragmentDirections.groupDetailEnterChat(group[0].groupId)
+                        val action = GroupDetailFragmentDirections.groupDetailEnterChat(group[0].groupId, true)
                         view.findNavController().navigate(action)
                     }
                     group_send_request.setOnClickListener {

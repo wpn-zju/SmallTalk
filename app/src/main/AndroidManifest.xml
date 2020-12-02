@@ -3,6 +3,7 @@
     package="edu.syr.smalltalk">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".service.model.logic.SmallTalkApplication"
@@ -15,6 +16,16 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:fullBackupContent="@xml/backup_descriptor">
 
+        <provider
+            android:authorities="androidx.core.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+
         <service
             android:name=".service.RootService"
             android:enabled="true"
@@ -26,6 +37,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.file.FileSelectActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
 

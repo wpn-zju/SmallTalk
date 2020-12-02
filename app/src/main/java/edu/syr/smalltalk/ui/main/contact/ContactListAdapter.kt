@@ -1,4 +1,4 @@
-package edu.syr.smalltalk.ui.main.contactlist
+package edu.syr.smalltalk.ui.main.contact
 
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +18,23 @@ class ContactListAdapter
         val contact = getItem(position)
         holder.contactAvatar.setImageResource(R.mipmap.ic_launcher)
         holder.contactName.text = contact.contactName
+
+        holder.itemView.setOnClickListener {
+            if (contactClickListener != null) {
+                if (position != RecyclerView.NO_POSITION) {
+                    contactClickListener!!.onItemClickListener(holder.itemView, contact.contactId)
+                }
+            }
+        }
+
+        holder.itemView.setOnLongClickListener {
+            if (contactClickListener != null) {
+                if (position != RecyclerView.NO_POSITION) {
+                    contactClickListener!!.onItemLongClickListener(holder.itemView, contact.contactId)
+                }
+            }
+            true
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactListViewHolder {
@@ -29,27 +46,6 @@ class ContactListAdapter
     inner class ContactListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val contactAvatar: ImageView = view.findViewById(R.id.user_icon)
         val contactName: TextView = view.findViewById(R.id.user_name)
-
-        init {
-            val contact: SmallTalkContact = getItem(adapterPosition)!!
-
-            view.setOnClickListener {
-                if (contactClickListener != null) {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        contactClickListener!!.onItemClickListener(view, contact.contactId)
-                    }
-                }
-            }
-
-            view.setOnLongClickListener {
-                if (contactClickListener != null) {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        contactClickListener!!.onItemLongClickListener(view, contact.contactId)
-                    }
-                }
-                true
-            }
-        }
     }
 
     private var contactClickListener: ContactClickListener? = null

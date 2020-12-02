@@ -1,5 +1,6 @@
-package edu.syr.smalltalk.ui.main.grouplist
+package edu.syr.smalltalk.ui.main.group
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,24 @@ class GroupListAdapter
         val group = getItem(position)
         holder.groupAvatar.setImageResource(R.mipmap.ic_launcher)
         holder.groupName.text = group.groupName
+
+        holder.itemView.setOnClickListener {
+            Log.v("T","T")
+            if (groupClickListener != null) {
+                if (position != RecyclerView.NO_POSITION) {
+                    groupClickListener!!.onItemClickListener(holder.itemView, group.groupId)
+                }
+            }
+        }
+
+        holder.itemView.setOnLongClickListener {
+            if (groupClickListener != null) {
+                if (position != RecyclerView.NO_POSITION) {
+                    groupClickListener!!.onItemLongClickListener(holder.itemView, group.groupId)
+                }
+            }
+            true
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupListAdapter.GroupListViewHolder {
@@ -29,27 +48,6 @@ class GroupListAdapter
     inner class GroupListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val groupAvatar: ImageView = view.findViewById(R.id.group_icon)
         val groupName: TextView = view.findViewById(R.id.group_name)
-
-        init {
-            val group: SmallTalkGroup = getItem(adapterPosition)!!
-
-            view.setOnClickListener {
-                if (groupClickListener != null) {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        groupClickListener!!.onItemClickListener(view, group.groupId)
-                    }
-                }
-            }
-
-            view.setOnLongClickListener {
-                if (groupClickListener != null) {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        groupClickListener!!.onItemLongClickListener(view, group.groupId)
-                    }
-                }
-                true
-            }
-        }
     }
 
     private var groupClickListener: GroupListAdapter.GroupClickListener? = null

@@ -4,6 +4,8 @@ import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
 
 class BCSmallTalkService : ISmallTalkService {
+    private val contractManager: BCContractManager = BCContractManager()
+
     override fun connect() {
 
     }
