@@ -1,6 +1,7 @@
 package edu.syr.smalltalk.ui.main.chat
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -16,6 +17,7 @@ import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
+import edu.syr.smalltalk.ui.file.FileSelectActivity
 import kotlinx.android.synthetic.main.fragment_chat.*
 
 class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener {
@@ -92,9 +94,8 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
             }
         }
 
-        // Todo
         more_options_image.setOnClickListener {
-
+            startActivity(Intent(requireActivity(), FileSelectActivity::class.java))
         }
 
         more_options_camera.setOnClickListener {

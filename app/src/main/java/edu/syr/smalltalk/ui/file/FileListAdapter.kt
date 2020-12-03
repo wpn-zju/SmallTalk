@@ -5,8 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 class FileListAdapter : RecyclerView.Adapter<FileListAdapter.FileListViewHolder>() {
-    private var fileList: List<FileInfo>? = null
-
 
     override fun onBindViewHolder(holder: FileListViewHolder, position: Int) {
         TODO("Not yet implemented")

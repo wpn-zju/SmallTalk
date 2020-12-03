@@ -21,17 +21,13 @@ import java.time.Instant
 
 class AWebSocketManager(private val context: Context) {
     // private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://18.217.4.124:8079/small_talk_websocket/websocket")
-    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://10.0.2.2:8079/small_talk_websocket/websocket")
+    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://192.168.1.224:8079/small_talk_websocket/websocket")
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private lateinit var smalltalkDao: SmallTalkDao
 
     fun setDataAccessor(smallTalkDao: SmallTalkDao) {
         if (!this::smalltalkDao.isInitialized) { smalltalkDao = smallTalkDao }
-    }
-
-    init {
-        connect()
     }
 
     fun connect() {

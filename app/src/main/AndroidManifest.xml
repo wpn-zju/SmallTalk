@@ -14,23 +14,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        android:fullBackupContent="@xml/backup_descriptor">
-
-        <provider
-            android:authorities="androidx.core.content.FileProvider"
-            android:name="androidx.core.content.FileProvider"
-            android:grantUriPermissions="true"
-            android:exported="false" >
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths" />
-        </provider>
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:usesCleartextTraffic="true">
 
         <service
             android:name=".service.RootService"
             android:enabled="true"
             android:exported="false">
-
         </service>
 
         <activity android:name=".ui.login.LoginActivity">
@@ -40,16 +30,14 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.file.FileSelectActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.PICK" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.OPENABLE" />
-                <data android:mimeType="text/plain" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
+        <activity
+            android:name=".ui.file.FileSelectActivity"
+            android:exported="false">
         </activity>
 
-        <activity android:name=".ui.main.MainActivity" />
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:exported="false">
+        </activity>
     </application>
 </manifest>
