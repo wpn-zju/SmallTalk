@@ -1,10 +1,15 @@
 package edu.syr.smalltalk.service.blockchain
 
+import android.content.Context
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.WalletUtils
+import java.io.File
 
-class BCSmallTalkService : ISmallTalkService {
-    private val contractManager: BCContractManager = BCContractManager()
+
+class BCSmallTalkService(private val context: Context) : ISmallTalkService {
+    private val manager: BCContractManager = BCContractManager()
 
     override fun connect() {
 
@@ -15,11 +20,12 @@ class BCSmallTalkService : ISmallTalkService {
     }
 
     override fun setDataAccessor(smallTalkDao: SmallTalkDao) {
-
+        manager.setDataAccessor(smallTalkDao)
     }
 
+    // here userEmail stands for path of wallet file
     override fun userSignUp(userEmail: String, userPassword: String, passcode: String) {
-
+        WalletUtils.generateNewWalletFile(userPassword, File(userEmail))
     }
 
     override fun userSignUpPasscodeRequest(userEmail: String) {
@@ -34,8 +40,13 @@ class BCSmallTalkService : ISmallTalkService {
 
     }
 
+    // here userEmail stands for path of wallet file
     override fun userSignIn(userEmail: String, userPassword: String) {
-
+        // val credentials: Credentials = WalletUtils.loadCredentials(
+        //     userPassword,
+        //     userEmail
+        // )
+        // manager.setTransactionManager(credentials)
     }
 
     override fun userSessionSignIn(sessionToken: String) {
@@ -63,7 +74,7 @@ class BCSmallTalkService : ISmallTalkService {
     }
 
     override fun loadContactByEmail(contactEmail: String) {
-
+        TODO("Not yet implemented")
     }
 
     override fun loadGroup(groupId: Int) {
@@ -74,11 +85,21 @@ class BCSmallTalkService : ISmallTalkService {
 
     }
 
-    override fun messageForward(senderId: Int, receiverId: Int, content: String, contentType: String) {
+    override fun messageForward(
+        senderId: Int,
+        receiverId: Int,
+        content: String,
+        contentType: String
+    ) {
 
     }
 
-    override fun messageForwardGroup(senderId: Int, receiverId: Int, content: String, contentType: String) {
+    override fun messageForwardGroup(
+        senderId: Int,
+        receiverId: Int,
+        content: String,
+        contentType: String
+    ) {
 
     }
 
@@ -114,7 +135,12 @@ class BCSmallTalkService : ISmallTalkService {
 
     }
 
-    override fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String) {
+    override fun webrtcCall(
+        senderId: Int,
+        receiverId: Int,
+        webrtcCommand: String,
+        webrtcSessionDescription: String
+    ) {
 
     }
 }
