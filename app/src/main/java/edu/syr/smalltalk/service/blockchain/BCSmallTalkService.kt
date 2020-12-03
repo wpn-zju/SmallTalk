@@ -42,11 +42,11 @@ class BCSmallTalkService(private val context: Context) : ISmallTalkService {
 
     // here userEmail stands for path of wallet file
     override fun userSignIn(userEmail: String, userPassword: String) {
-        val credentials: Credentials = WalletUtils.loadCredentials(
-            userPassword,
-            userEmail
-        )
-        manager.setTransactionManager(credentials)
+        // val credentials: Credentials = WalletUtils.loadCredentials(
+        //     userPassword,
+        //     userEmail
+        // )
+        // manager.setTransactionManager(credentials)
     }
 
     override fun userSessionSignIn(sessionToken: String) {
