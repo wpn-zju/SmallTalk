@@ -8,6 +8,8 @@ class SignInEvent
 
 class SignOutEvent
 
+class SessionExpiredEvent
+
 class WebRTCEvent (
     @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_SENDER)
     val sender: Int,
@@ -22,3 +24,9 @@ class WebRTCEvent (
 class ToastEvent (val message: String)
 
 class AlertDialogEvent (val title: String, val message: String)
+
+class SearchContactSuccessEvent (val contactId: Int)
+
+class SearchGroupSuccessEvent (val groupId: Int)
+
+class CreateGroupSuccessEvent (val groupId: Int)

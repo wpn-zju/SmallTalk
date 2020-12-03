@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.recyclerview.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recycler_view_contact"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bottom.contacts.ContactsFragment" >
-
-    <include
-        layout="@layout/layout_contacts"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:scrollbars="vertical"
+    android:scrollbarStyle="outsideInset"
+    tools:listitem="@layout/layout_prefab_contact"
+    tools:context=".ui.main.contact.ContactListFragment"/>

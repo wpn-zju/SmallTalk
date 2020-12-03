@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SmallTalkDao {
-    @Query("SELECT * FROM small_talk_user")
-    fun getAllUsers(): Flow<List<SmallTalkUser>>
-
     @Query("SELECT * FROM small_talk_user WHERE user_id = :userId")
-    fun getUser(userId: Int): Flow<SmallTalkUser>
+    fun getUser(userId: Int): Flow<List<SmallTalkUser>>
+
+    @Query("SELECT * FROM small_talk_user")
+    fun getUserList(): Flow<List<SmallTalkUser>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(smallTalkUser: SmallTalkUser)
@@ -21,16 +21,28 @@ interface SmallTalkDao {
     @Delete
     fun deleteUser(smallTalkUser: SmallTalkUser)
 
-    @Query("SELECT * FROM small_talk_message WHERE user_id = :userId")
-    fun getMessageList(userId: Int): Flow<List<SmallTalkMessage>>
-
     @Insert
     fun insertMessage(smallTalkMessage: SmallTalkMessage)
 
     @Delete
     fun deleteMessage(smallTalkMessage: SmallTalkMessage)
 
-    @Query("SELECT * FROM small_talk_contact")
+    @Query("SELECT * FROM small_talk_message WHERE message_id = :messageId")
+    fun getMessage(messageId: Int): Flow<List<SmallTalkMessage>>
+
+    @Query("SELECT * FROM small_talk_message WHERE user_id = :userId")
+    fun getMessageList(userId: Int): Flow<List<SmallTalkMessage>>
+
+    @Query("SELECT *, MAX(timestamp) FROM small_talk_message WHERE user_id = :userId GROUP BY chat_id ORDER BY timestamp DESC")
+    fun getRecentMessageList(userId: Int): Flow<List<SmallTalkMessage>>
+
+    @Query("SELECT * FROM small_talk_message WHERE user_id = :userId AND chat_id = :chatId ORDER BY timestamp ASC")
+    fun getChatMessageList(userId: Int, chatId: Int): Flow<List<SmallTalkMessage>>
+
+    @Query("SELECT * FROM SMALL_TALK_CONTACT WHERE contact_id = :contactId")
+    fun getContact(contactId: Int): Flow<List<SmallTalkContact>>
+
+    @Query("SELECT * FROM small_talk_contact ORDER BY contact_name ASC")
     fun getContactList(): Flow<List<SmallTalkContact>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -42,7 +54,10 @@ interface SmallTalkDao {
     @Delete
     fun deleteContact(smallTalkContact: SmallTalkContact)
 
-    @Query("SELECT * FROM small_talk_group")
+    @Query("SELECT * FROM SMALL_TALK_GROUP WHERE group_id = :groupId")
+    fun getGroup(groupId: Int): Flow<List<SmallTalkGroup>>
+
+    @Query("SELECT * FROM small_talk_group ORDER BY group_name ASC")
     fun getGroupList(): Flow<List<SmallTalkGroup>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -54,7 +69,10 @@ interface SmallTalkDao {
     @Delete
     fun deleteGroup(smallTalkGroup: SmallTalkGroup)
 
-    @Query("SELECT * FROM small_talk_request")
+    @Query("SELECT * FROM SMALL_TALK_REQUEST WHERE request_id = :requestId")
+    fun getRequest(requestId: Int): Flow<List<SmallTalkRequest>>
+
+    @Query("SELECT * FROM small_talk_request ORDER BY request_id ASC")
     fun getRequestList(): Flow<List<SmallTalkRequest>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

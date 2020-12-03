@@ -11,6 +11,11 @@
         android:title="@string/bottom_bar_contacts" />
 
     <item
+        android:id="@+id/navigation_groups"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/bottom_bar_groups" />
+
+    <item
         android:id="@+id/navigation_about_me"
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/bottom_bar_about_me" />

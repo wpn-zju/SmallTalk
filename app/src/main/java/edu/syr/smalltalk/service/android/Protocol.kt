@@ -50,6 +50,11 @@ class LoadContactMessage (
     private val contactId: Int
 )
 
+class LoadContactByEmailMessage (
+    @SerializedName(ClientConstant.LOAD_CONTACT_BY_EMAIL_CONTACT_EMAIL)
+    private val contactEmail: String
+)
+
 class LoadGroupMessage (
     @SerializedName(ClientConstant.LOAD_GROUP_GROUP_ID)
     private val groupId: Int

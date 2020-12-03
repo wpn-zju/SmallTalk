@@ -127,6 +127,15 @@ class ASmallTalkService(private val context: Context) : ISmallTalkService {
         )
     }
 
+    override fun loadContactByEmail(contactEmail: String) {
+        webSocketManager.send(
+            ClientConstant.API_LOAD_CONTACT_BY_EMAIL,
+            Gson().toJson(LoadContactByEmailMessage(
+                contactEmail
+            ))
+        )
+    }
+
     override fun loadGroup(groupId: Int) {
         webSocketManager.send(
             ClientConstant.API_LOAD_GROUP,

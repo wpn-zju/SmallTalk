@@ -17,6 +17,7 @@ interface ISmallTalkService {
     fun userModifyPassword(newUserPassword: String)
     fun loadUser()
     fun loadContact(contactId: Int)
+    fun loadContactByEmail(contactEmail: String)
     fun loadGroup(groupId: Int)
     fun loadRequest(requestId: Int)
     fun messageForward(senderId: Int, receiverId: Int, content: String, contentType: String)

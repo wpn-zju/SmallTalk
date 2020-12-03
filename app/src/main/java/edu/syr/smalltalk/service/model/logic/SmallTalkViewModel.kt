@@ -1,70 +1,151 @@
 package edu.syr.smalltalk.service.model.logic
 
 import androidx.lifecycle.*
-import androidx.preference.PreferenceManager
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.model.entity.*
-import kotlinx.coroutines.launch
 import java.util.stream.Collectors
 
 // All return values in this class should be LiveData<T>
 class SmallTalkViewModel(private val application: SmallTalkApplication, private val repository: SmallTalkRepository) : AndroidViewModel(application) {
-    private val currentUser: LiveData<Int> = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
-        .intLiveData(KVPConstant.K_CURRENT_USER_ID, 0)
-
     val userList: LiveData<List<SmallTalkUser>> = repository.userList.asLiveData()
 
-    val currentUserInfo: LiveData<SmallTalkUser> = Transformations.switchMap(currentUser) {
-            userId -> repository.getUser(userId).asLiveData() }
+    fun getCurrentUserInfo(userId: Int): LiveData<List<SmallTalkUser>> {
+        return repository.getUser(userId).asLiveData()
+    }
 
-    val contactList: LiveData<List<SmallTalkContact>> = repository.contactList.asLiveData()
-    private val contactListMediator: ContactListLiveData = ContactListLiveData(currentUserInfo, contactList)
-    val actualContactList: LiveData<List<SmallTalkContact>> = Transformations.map(contactListMediator) { mediator ->
-        mediator.second.stream().filter {
-                contact -> mediator.first.contactList.contains(contact.contactId)
-        }.collect(Collectors.toList())
+    fun getCurrentContact(contactId: Int): LiveData<List<SmallTalkContact>> {
+        return repository.getContact(contactId).asLiveData()
+    }
+
+    private val contactList: LiveData<List<SmallTalkContact>> = repository.contactList.asLiveData()
+
+    fun getContactList(userId: Int): LiveData<List<SmallTalkContact>> {
+        val contactListMediator = ContactListLiveData(getCurrentUserInfo(userId), contactList)
+        return Transformations.map(contactListMediator) { mediator ->
+            when {
+                mediator.first == null -> {
+                    ArrayList()
+                }
+                mediator.second == null -> {
+                    ArrayList()
+                }
+                else -> {
+                    mediator.second!!.stream().filter { contact ->
+                        mediator.first!![0].contactList.contains(contact.contactId)
+                    }.collect(Collectors.toList())
+                }
+            }
+        }
+    }
+
+    fun getCurrentGroup(groupId: Int): LiveData<List<SmallTalkGroup>> {
+        return repository.getGroup(groupId).asLiveData()
     }
 
     private val groupList: LiveData<List<SmallTalkGroup>> = repository.groupList.asLiveData()
-    private val groupListMediator: GroupListLiveData = GroupListLiveData(currentUserInfo, groupList)
-    val actualGroupList: LiveData<List<SmallTalkGroup>> = Transformations.map(groupListMediator) { mediator ->
-        mediator.second.stream().filter {
-            group -> mediator.first.groupList.contains(group.groupId)
-        }.collect(Collectors.toList())
+
+    fun getGroupList(userId: Int): LiveData<List<SmallTalkGroup>> {
+        val groupListMediator = GroupListLiveData(getCurrentUserInfo(userId), groupList)
+        return Transformations.map(groupListMediator) { mediator ->
+            when {
+                mediator.first == null -> {
+                    ArrayList()
+                }
+                mediator.second == null -> {
+                    ArrayList()
+                }
+                else -> {
+                    mediator.second!!.stream().filter { group ->
+                        mediator.first!![0].groupList.contains(group.groupId)
+                    }.collect(Collectors.toList())
+                }
+            }
+        }
     }
 
-    private val messageList: LiveData<List<SmallTalkMessage>> = Transformations.switchMap(currentUser) {
-        userId -> repository.getMessageList(userId).asLiveData() }
+    fun getCurrentRequest(requestId: Int): LiveData<List<SmallTalkRequest>> {
+        return repository.getRequest(requestId).asLiveData()
+    }
 
-    // Modifier Example
-    fun insertUser(userInfo: SmallTalkUser) = viewModelScope.launch {
-        repository.insertUser(userInfo)
+    private val requestList: LiveData<List<SmallTalkRequest>> = repository.requestList.asLiveData()
+
+    fun getRequestList(userId: Int): LiveData<List<SmallTalkRequest>> {
+        val requestListMediator = RequestListLiveData(getCurrentUserInfo(userId), requestList)
+        return Transformations.map(requestListMediator) { mediator ->
+            when {
+                mediator.first == null -> {
+                    ArrayList()
+                }
+                mediator.second == null -> {
+                    ArrayList()
+                }
+                else -> {
+                    mediator.second!!.stream().filter { request ->
+                        mediator.first!![0].requestList.contains(request.requestId)
+                    }.collect(Collectors.toList())
+                }
+            }
+        }
+    }
+
+    fun getRecentMessageList(userId: Int): LiveData<List<SmallTalkMessage>> {
+        return repository.getRecentMessageList(userId).asLiveData()
+    }
+
+    fun getCurrentMessageList(userId: Int, chatId: Int): LiveData<List<SmallTalkMessage>> {
+        return repository.getChatMessageList(userId, chatId).asLiveData()
     }
 }
 
 class ContactListLiveData (
-    userInfo: LiveData<SmallTalkUser>, contactList: LiveData<List<SmallTalkContact>>
-) : MediatorLiveData<Pair<SmallTalkUser, List<SmallTalkContact>>>() {
+    userInfo: LiveData<List<SmallTalkUser>>, contactList: LiveData<List<SmallTalkContact>>
+) : MediatorLiveData<Pair<List<SmallTalkUser>?, List<SmallTalkContact>?>>() {
+    private var user: List<SmallTalkUser>? = null
+    private var cList: List<SmallTalkContact>? = null
+
     init {
-        addSource(userInfo) { first -> value = Pair(first, contactList.value!!) }
-        addSource(contactList) { second -> value = Pair(userInfo.value!!, second) }
+        addSource(userInfo) {
+            user = it
+            value = Pair(user, cList)
+        }
+        addSource(contactList) {
+            cList = it
+            value = Pair(user, cList)
+        }
     }
 }
 
 class GroupListLiveData (
-    userInfo: LiveData<SmallTalkUser>, groupList: LiveData<List<SmallTalkGroup>>
-) : MediatorLiveData<Pair<SmallTalkUser, List<SmallTalkGroup>>>() {
+    userInfo: LiveData<List<SmallTalkUser>>, groupList: LiveData<List<SmallTalkGroup>>
+) : MediatorLiveData<Pair<List<SmallTalkUser>?, List<SmallTalkGroup>?>>() {
+    private var user: List<SmallTalkUser>? = null
+    private var gList: List<SmallTalkGroup>? = null
+
     init {
-        addSource(userInfo) { first -> value = Pair(first, groupList.value!!) }
-        addSource(groupList) { second -> value = Pair(userInfo.value!!, second) }
+        addSource(userInfo) {
+            user = it
+            value = Pair(user, gList)
+        }
+        addSource(groupList) {
+            gList = it
+            value = Pair(user, gList)
+        }
     }
 }
 
 class RequestListLiveData (
-    userInfo: LiveData<SmallTalkUser>, requestList: LiveData<List<SmallTalkRequest>>
-) : MediatorLiveData<Pair<SmallTalkUser, List<SmallTalkRequest>>>() {
+    userInfo: LiveData<List<SmallTalkUser>>, requestList: LiveData<List<SmallTalkRequest>>
+) : MediatorLiveData<Pair<List<SmallTalkUser>?, List<SmallTalkRequest>?>>() {
+    private var user: List<SmallTalkUser>? = null
+    private var rList: List<SmallTalkRequest>? = null
+
     init {
-        addSource(userInfo) { first -> value = Pair(first, requestList.value!!) }
-        addSource(requestList) { second -> value = Pair(userInfo.value!!, second) }
+        addSource(userInfo) {
+            user = it
+            value = Pair(user, rList)
+        }
+        addSource(requestList) {
+            rList = it
+            value = Pair(user, rList)
+        }
     }
 }

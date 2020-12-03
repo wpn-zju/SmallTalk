@@ -73,6 +73,10 @@ class BCSmallTalkService(private val context: Context) : ISmallTalkService {
 
     }
 
+    override fun loadContactByEmail(contactEmail: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun loadGroup(groupId: Int) {
 
     }

@@ -26,4 +26,10 @@ data class SmallTalkRequest (
     @SerializedName(ServerConstant.ACC_REQUEST_SYNC__REQUEST_METADATA)
     @TypeConverters(JsonObjectConverter::class)
     val requestMetadata: JsonObject,
-) : Serializable
+) : Serializable {
+    fun requestEquals(other: SmallTalkRequest): Boolean {
+        return requestId == other.requestId &&
+                requestStatus == other.requestStatus &&
+                requestType == other.requestType
+    }
+}
