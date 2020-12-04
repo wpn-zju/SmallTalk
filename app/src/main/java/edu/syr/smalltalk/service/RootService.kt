@@ -6,6 +6,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.JobIntentService
 import edu.syr.smalltalk.service.android.ASmallTalkService
+import edu.syr.smalltalk.service.blockchain.BCContractManager
+import edu.syr.smalltalk.service.blockchain.BCSmallTalkService
 
 class RootService : JobIntentService() {
     private val service: ISmallTalkService = ASmallTalkService(this)

@@ -1,10 +1,21 @@
 package edu.syr.smalltalk.service.blockchain
 
 import android.content.Context
+import com.google.gson.Gson
 import edu.syr.smalltalk.service.ISmallTalkService
+import edu.syr.smalltalk.service.android.LoadUserMessage
+import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
+import org.web3j.abi.datatypes.Address
+import org.web3j.abi.datatypes.DynamicArray
+import org.web3j.abi.datatypes.Type
+import org.web3j.abi.datatypes.Utf8String
+import org.web3j.abi.datatypes.generated.Uint256
+import org.web3j.abi.datatypes.generated.Uint32
+import org.web3j.abi.datatypes.generated.Uint8
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
+import org.web3j.utils.Strings
 import java.io.File
 
 
@@ -12,7 +23,9 @@ class BCSmallTalkService(private val context: Context) : ISmallTalkService {
     private val manager: BCContractManager = BCContractManager()
 
     override fun connect() {
-
+        println(Thread.currentThread().id)
+        manager.newAccount("9aa4b6fa122407dbd0c267a80f2cffcddb66c8af8ba7dde3f6312b9a70003df8")
+        manager.subscribe()
     }
 
     override fun disconnect() {
@@ -42,11 +55,7 @@ class BCSmallTalkService(private val context: Context) : ISmallTalkService {
 
     // here userEmail stands for path of wallet file
     override fun userSignIn(userEmail: String, userPassword: String) {
-        // val credentials: Credentials = WalletUtils.loadCredentials(
-        //     userPassword,
-        //     userEmail
-        // )
-        // manager.setTransactionManager(credentials)
+
     }
 
     override fun userSessionSignIn(sessionToken: String) {
@@ -66,7 +75,13 @@ class BCSmallTalkService(private val context: Context) : ISmallTalkService {
     }
 
     override fun loadUser() {
-
+        manager.sendTransaction(
+            "test",
+            listOf(
+                Utf8String("CNM"),
+                Uint32(250)
+            )
+        )
     }
 
     override fun loadContact(contactId: Int) {
@@ -74,7 +89,7 @@ class BCSmallTalkService(private val context: Context) : ISmallTalkService {
     }
 
     override fun loadContactByEmail(contactEmail: String) {
-        TODO("Not yet implemented")
+
     }
 
     override fun loadGroup(groupId: Int) {

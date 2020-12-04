@@ -22,8 +22,10 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import kotlinx.android.synthetic.main.activity_file_select.*
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSink
 import retrofit2.Call
 import retrofit2.Callback
@@ -137,7 +139,7 @@ class FileSelectActivity : AppCompatActivity(), ISmallTalkServiceProvider, Uploa
         SmallTalkAPI().uploadFile(
             "base",
             MultipartBody.Part.createFormData("file", file.name, body),
-            RequestBody.create(MediaType.parse("multipart/form-data"), "json"))
+            "json".toRequestBody("multipart/form-data".toMediaTypeOrNull()))
             .enqueue(object : Callback<Void> {
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     progress_bar.progress = 0
@@ -183,7 +185,7 @@ class UploadRequestBody(
     private val callback: UploadCallback
 ) : RequestBody() {
     override fun contentType(): MediaType? {
-        return MediaType.parse("$contentType/*")
+        return "$contentType/*".toMediaTypeOrNull()
     }
 
     override fun contentLength(): Long {

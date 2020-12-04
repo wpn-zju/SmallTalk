@@ -3,54 +3,61 @@ pragma solidity ^0.5.16;
 
 contract Relay {
 
-    event sayHello(address indexed from);
-
-    function hello() public{
-        emit sayHello(msg.sender);
-    }
-
     // event messageSentEvent(address indexed from, address indexed to, bytes message, bytes32 encryption);
-    // event addContactEvent(address indexed from, address indexed to);
+    event addContactEvent(address indexed from, address indexed to);
     // event acceptContactEvent(address indexed from, address indexed to);
     // event profileUpdateEvent(address indexed from, bytes32 name, bytes32 avatarUrl);
     // event blockContactEvent(address indexed from, address indexed to);
     // event unblockContactEvent(address indexed from, address indexed to);
 
-    // enum RelationshipType {NoRelation, Requested, Connected, Blocked}
+    event testEvent(string param1, uint32 param2);
+    event messageEvent(bytes32 from, bytes32 to, string memory message);
+    event messageGroupEvent(bytes32 from, uint8 groupId, string memory message);
 
-    // struct Member {
-    //     bytes32 publicKeyLeft;
-    //     bytes32 publicKeyRight;
-    //     bytes32 name;
-    //     bytes32 avatarUrl;
-    //     uint messageStartBlock;
-    //     bool isMember;
-    // }
+    enum RelationshipType {NoRelation, Requested, Connected, Blocked}
 
-    // mapping (address => mapping (address => RelationshipType)) relationships;
-    // mapping (address => Member) public members;
+    struct User {
+        bytes32 publicKeyLeft;
+        bytes32 publicKeyRight;
+        bytes32 name;
+        bytes32 avatarUrl;
+        uint messageStartBlock;
+        bool isMember;
+    }
 
-    // function addContact(address addr) public onlyMember {
-    //     require(relationships[msg.sender][addr] == RelationshipType.NoRelation);
-    //     require(relationships[addr][msg.sender] == RelationshipType.NoRelation);
+    struct Group {
+        string groupName;
+        string
+    }
 
-    //     relationships[msg.sender][addr] = RelationshipType.Requested;
-    //     emit addContactEvent(msg.sender, addr);
-    // }
+    function test(string memory param1, uint32 param2) public {
+        emit testEvent(param1, param2);
+    }
 
-    // function acceptContactRequest(address addr) public onlyMember {
-    //     require(relationships[addr][msg.sender] == RelationshipType.Requested);
+    mapping (address => mapping (address => RelationshipType)) relationships;
+    mapping (address => User) public users;
 
-    //     relationships[msg.sender][addr] = RelationshipType.Connected;
-    //     relationships[addr][msg.sender] = RelationshipType.Connected;
+    function addContact(address addr) public onlyMember {
+         require(relationships[msg.sender][addr] == RelationshipType.NoRelation);
+         require(relationships[addr][msg.sender] == RelationshipType.NoRelation);
 
-    //     emit acceptContactEvent(msg.sender, addr);
-    // }
+         relationships[msg.sender][addr] = RelationshipType.Requested;
+         emit addContactEvent(msg.sender, addr);
+    }
+
+    function acceptContactRequest(address addr) public onlyMember {
+         require(relationships[addr][msg.sender] == RelationshipType.Requested);
+
+         relationships[msg.sender][addr] = RelationshipType.Connected;
+         relationships[addr][msg.sender] = RelationshipType.Connected;
+
+         emit acceptContactEvent(msg.sender, addr);
+    }
 
     // function join(bytes32 publicKeyLeft, bytes32 publicKeyRight) public {
     //     require(members[msg.sender].isMember == false);
 
-    //     Member memory newMember = Member(publicKeyLeft, publicKeyRight, "", "", 0, true);
+    //     User memory newMember = User(publicKeyLeft, publicKeyRight, "", "", 0, true);
     //     members[msg.sender] = newMember;
     // }
 
