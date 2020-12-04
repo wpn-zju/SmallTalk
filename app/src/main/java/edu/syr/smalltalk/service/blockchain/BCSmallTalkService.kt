@@ -1,21 +1,11 @@
 package edu.syr.smalltalk.service.blockchain
 
 import android.content.Context
-import com.google.gson.Gson
 import edu.syr.smalltalk.service.ISmallTalkService
-import edu.syr.smalltalk.service.android.LoadUserMessage
-import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
-import org.web3j.abi.datatypes.Address
-import org.web3j.abi.datatypes.DynamicArray
-import org.web3j.abi.datatypes.Type
 import org.web3j.abi.datatypes.Utf8String
-import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.abi.datatypes.generated.Uint32
-import org.web3j.abi.datatypes.generated.Uint8
-import org.web3j.crypto.Credentials
 import org.web3j.crypto.WalletUtils
-import org.web3j.utils.Strings
 import java.io.File
 
 

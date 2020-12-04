@@ -9,6 +9,7 @@ import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.android.constant.ServerConstant
 import edu.syr.smalltalk.service.eventbus.*
 import edu.syr.smalltalk.service.model.entity.*
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -20,8 +21,7 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent
 import java.time.Instant
 
 class AWebSocketManager(private val context: Context) {
-    // private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://18.217.4.124:8079/small_talk_websocket/websocket")
-    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, "http://192.168.1.224:8079/small_talk_websocket/websocket")
+    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, SmallTalkApplication.BASE_URL + "/small_talk_websocket/websocket")
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private lateinit var smalltalkDao: SmallTalkDao
@@ -32,7 +32,8 @@ class AWebSocketManager(private val context: Context) {
 
     fun connect() {
         stompClient.connect()
-        compositeDisposable.add(stompClient.lifecycle().subscribeOn(Schedulers.io())
+        compositeDisposable.add(stompClient.lifecycle()
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { lifecycleEvent: LifecycleEvent ->
                 when (lifecycleEvent.type) {
@@ -203,15 +204,15 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_INVALID).subscribe {
-            EventBus.getDefault().post(SignOutEvent())
+            EventBus.getDefault().post(SessionExpiredEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_EXPIRED).subscribe {
-            EventBus.getDefault().post(SignOutEvent())
+            EventBus.getDefault().post(SessionExpiredEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SESSION_REVOKED).subscribe {
-            EventBus.getDefault().post(SignOutEvent())
+            EventBus.getDefault().post(SessionExpiredEvent())
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_MODIFY_NAME_SUCCESS).subscribe {

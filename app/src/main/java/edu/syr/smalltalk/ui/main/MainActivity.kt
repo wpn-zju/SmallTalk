@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     override fun onStart() {
         super.onStart()
 
-        // Write following lines in the first activity
         Intent(this, RootService::class.java).also { intent -> bindService(
             intent,
             connection,
@@ -81,12 +80,9 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         EventBus.getDefault().unregister(this)
     }
 
-    // Activity Logic
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

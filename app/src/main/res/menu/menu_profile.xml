@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/navigation_view_request"
+        android:title="@string/view_request" />
+    <item
         android:id="@+id/navigation_share_me"
         android:title="@string/profile_share" />
+    <item
+        android:id="@+id/navigation_sign_out"
+        android:title="@string/sign_out" />
 </menu>

@@ -7,8 +7,22 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.GroupDetailFragment">
 
-    <include
-        android:layout_height="match_parent"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/group_detail_toolbar"
         android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:padding="1dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="Group Details" />
+
+    <include
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/group_detail_toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
         layout="@layout/layout_group_detail" />
 </androidx.constraintlayout.widget.ConstraintLayout>

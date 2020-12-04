@@ -14,6 +14,7 @@ import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
+import kotlinx.android.synthetic.main.fragment_contact_detail.*
 import kotlinx.android.synthetic.main.layout_contact_detail.*
 
 class ContactDetailFragment : Fragment() {
@@ -51,6 +52,7 @@ class ContactDetailFragment : Fragment() {
                 contact_enter_chat.visibility = View.GONE
                 contact_send_request.visibility = View.GONE
             } else {
+                contact_detail_toolbar.title = contact[0].contactName
                 image_contact_avatar.setImageResource(R.mipmap.ic_launcher)
                 text_contact_name.text = contact[0].contactName
                 text_contact_email.text = contact[0].contactEmail

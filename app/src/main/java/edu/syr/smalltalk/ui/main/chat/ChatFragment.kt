@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -53,28 +54,22 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
         super.onViewCreated(view, savedInstanceState)
 
         adapter.setChatMessageClickListener(this)
+
         val layoutManager = LinearLayoutManager(context)
+        layoutManager.stackFromEnd = true
         chat_message_list.layoutManager = layoutManager
         chat_message_list.adapter = adapter
-
-        emoji.setOnClickListener {
-            // Todo
-        }
 
         more_options.setOnClickListener {
             if (more_options_bar.visibility == View.GONE) {
                 more_options_bar.visibility = View.VISIBLE
-            }
-        }
-
-        chat_message_list.setOnClickListener {
-            if (more_options_bar.visibility == View.VISIBLE) {
+            } else {
                 more_options_bar.visibility = View.GONE
             }
         }
 
         send_message.setOnClickListener {
-            if (!input_text.text.isEmpty()) {
+            if (input_text.text.isNotEmpty()) {
                 if (serviceProvider.hasService()) {
                     if (args.isGroupChat) {
                         serviceProvider.getService()!!.messageForwardGroup(
@@ -94,39 +89,74 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
             }
         }
 
+        if (args.isGroupChat) {
+            more_options_webrtc.visibility = View.GONE
+        }
+
         more_options_image.setOnClickListener {
-            startActivity(Intent(requireActivity(), FileSelectActivity::class.java))
+            more_options_bar.visibility = View.GONE
+
+            val intent = Intent(requireActivity(), FileSelectActivity::class.java)
+            intent.putExtra("command", "image")
+            intent.putExtra("chatId", args.chatId)
+            intent.putExtra("isGroup", args.isGroupChat)
+            startActivity(intent)
         }
 
         more_options_camera.setOnClickListener {
+            more_options_bar.visibility = View.GONE
 
         }
 
         more_options_webrtc.setOnClickListener {
+            more_options_bar.visibility = View.GONE
 
         }
 
         more_options_voice.setOnClickListener {
+            more_options_bar.visibility = View.GONE
 
         }
 
         more_options_file.setOnClickListener {
+            more_options_bar.visibility = View.GONE
 
+            val intent = Intent(requireActivity(), FileSelectActivity::class.java)
+            intent.putExtra("command", "file")
+            intent.putExtra("chatId", args.chatId)
+            intent.putExtra("isGroup", args.isGroupChat)
+            startActivity(intent)
         }
 
         more_options_position.setOnClickListener {
+            more_options_bar.visibility = View.GONE
 
         }
 
         more_options_share.setOnClickListener {
+            more_options_bar.visibility = View.GONE
 
         }
 
-        viewModel.getCurrentMessageList(getUserId(), args.chatId).observe(requireActivity(), { chatMessageList ->
+        viewModel.getCurrentMessageList(getUserId(), args.chatId).observe(requireActivity()) { chatMessageList ->
             chatMessageList.let {
                 adapter.submitList(it)
             }
-        })
+        }
+
+        if (args.isGroupChat) {
+            viewModel.getCurrentGroup(args.chatId).observe(requireActivity()) { group ->
+                if (group.isNotEmpty()) {
+                    chat_toolbar?.title = group[0].groupName
+                }
+            }
+        } else {
+            viewModel.getCurrentContact(args.chatId).observe(requireActivity()) { contact ->
+                if (contact.isNotEmpty()) {
+                    chat_toolbar?.title = contact[0].contactName
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -138,7 +168,7 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.navigation_share -> {
-                // Todo
+                Toast.makeText(requireContext(), "Share Clicked", Toast.LENGTH_SHORT).show()
             }
             R.id.navigation_profile -> {
                 if (args.isGroupChat) {

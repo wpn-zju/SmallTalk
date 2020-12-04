@@ -1,9 +1,7 @@
 package edu.syr.smalltalk.service.blockchain
 
 import android.util.Log
-import android.widget.Toast
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -23,11 +21,7 @@ import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.EthFilter
 import org.web3j.protocol.core.methods.request.Transaction
 import org.web3j.protocol.http.HttpService
-import org.web3j.tx.Contract
-import org.web3j.tx.FastRawTransactionManager
 import java.math.BigInteger
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class BCContractManager {
@@ -104,7 +98,6 @@ class BCContractManager {
             DefaultBlockParameterName.EARLIEST,
             DefaultBlockParameterName.LATEST,
             ClientConstant.CONTRACT_ADDRESS).addSingleTopic(eventEncoder).addOptionalTopics("10000", null)
-        var t = Utf8String("")
         compositeDisposable.add(web3.ethLogFlowable(filter)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

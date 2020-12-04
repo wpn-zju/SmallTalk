@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -52,8 +53,17 @@ class ProfileFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.navigation_view_request -> {
+                val action = MainFragmentDirections.profileViewRequest()
+                requireView().findNavController().navigate(action)
+            }
             R.id.navigation_share_me -> {
-                Toast.makeText(requireContext(), "Clicked", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Share Clicked", Toast.LENGTH_SHORT).show()
+            }
+            R.id.navigation_sign_out -> {
+                if (serviceProvider.hasService()) {
+                    serviceProvider.getService()!!.userSessionSignOut()
+                }
             }
         }
         return super.onOptionsItemSelected(item)

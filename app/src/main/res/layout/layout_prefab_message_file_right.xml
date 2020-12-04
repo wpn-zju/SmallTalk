@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/chat_message_avatar"
+        android:id="@+id/message_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginEnd="16dp"
@@ -27,7 +27,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/shape_outline"
-        app:layout_constraintEnd_toStartOf="@id/chat_message_avatar"
+        app:layout_constraintEnd_toStartOf="@id/message_avatar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

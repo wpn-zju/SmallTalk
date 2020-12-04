@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:menu="@menu/menu_recent_message"
-        app:title="Recent Message" />
+        app:title="Small Talk" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
