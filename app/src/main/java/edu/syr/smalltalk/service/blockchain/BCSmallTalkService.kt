@@ -25,7 +25,6 @@ class BCSmallTalkService(context: Context) : ISmallTalkService {
 
     override fun userSignUp(userEmail: String, userPassword: String, passcode: String) {
 
-
     }
 
     override fun userSignUpPasscodeRequest(userEmail: String) {
@@ -42,7 +41,8 @@ class BCSmallTalkService(context: Context) : ISmallTalkService {
 
     // here userEmail stands for path of wallet file
     override fun userSignIn(userEmail: String, userPassword: String) {
-
+        manager.test("1")
+        manager.test("12")
     }
 
     override fun userSessionSignIn(sessionToken: String) {

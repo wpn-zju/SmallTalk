@@ -41,9 +41,9 @@ class HelloFragment : Fragment() {
         btn_signIn.setOnClickListener {
             // TODO: 2. change to BC
             if (serviceProvider.hasService()) {
-                // serviceProvider.getService()!!
-                //     .userSignIn(input_email.text.toString(), input_password.text.toString())
-                serviceProvider.getService()!!.userSignUp("", "610d9c81262ed53522bc173926c780e6ca07323ff543175959d582aefd8ea915", "")
+                serviceProvider.getService()!!
+                    .userSignIn(input_email.text.toString(), input_password.text.toString())
+                // serviceProvider.getService()!!.userSignIn("","")
             }
         }
         btn_signup.setOnClickListener {

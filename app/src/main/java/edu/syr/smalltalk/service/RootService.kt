@@ -11,8 +11,8 @@ import edu.syr.smalltalk.service.blockchain.BCSmallTalkService
 
 class RootService : JobIntentService() {
     // TODO: 1. change service here
-    // private val service: ISmallTalkService = ASmallTalkService(this)
-    private val service: ISmallTalkService = BCSmallTalkService(this)
+    private val service: ISmallTalkService = ASmallTalkService(this)
+    // private val service: ISmallTalkService = BCSmallTalkService(this)
 
     private val binder = RootServiceBinder()
 

@@ -126,7 +126,8 @@ class ASmallTalkService(private val context: Context) : ISmallTalkService {
             ))
         )
     }
-
+// sub event
+    /// insert
     override fun loadContactByEmail(contactEmail: String) {
         webSocketManager.send(
             ClientConstant.API_LOAD_CONTACT_BY_EMAIL,
