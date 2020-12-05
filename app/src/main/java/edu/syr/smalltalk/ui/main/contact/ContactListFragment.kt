@@ -55,14 +55,14 @@ class ContactListFragment: Fragment(), ContactListAdapter.ContactClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(requireActivity(), {  user ->
+        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, {  user ->
             if (user.isEmpty()) {
                 if (serviceProvider.hasService()) {
                     serviceProvider.getService()!!.loadUser()
                 }
             } else {
                 for (contactId in user[0].contactList) {
-                    viewModel.getCurrentContact(contactId).observe(requireActivity(), { contact ->
+                    viewModel.getCurrentContact(contactId).observe(viewLifecycleOwner, { contact ->
                         if (contact.isEmpty()) {
                             if (serviceProvider.hasService()) {
                                 serviceProvider.getService()!!.loadContact(contactId)
@@ -73,7 +73,7 @@ class ContactListFragment: Fragment(), ContactListAdapter.ContactClickListener {
             }
         })
 
-        viewModel.getContactList(userId).observe(requireActivity(), { contactList ->
+        viewModel.getContactList(userId).observe(viewLifecycleOwner, { contactList ->
             contactList.let {
                 adapter.submitList(it)
             }

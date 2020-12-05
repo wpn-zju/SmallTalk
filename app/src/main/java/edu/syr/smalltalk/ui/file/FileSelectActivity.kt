@@ -8,15 +8,19 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.OpenableColumns
-import android.util.Log
+import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
+import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.RootService
+import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.android.http.SmallTalkAPI
-import edu.syr.smalltalk.service.android.http.UploadResponse
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
@@ -34,7 +38,11 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-class FileSelectActivity : AppCompatActivity(), ISmallTalkServiceProvider, UploadRequestBody.UploadCallback {
+class FileSelectActivity
+    : AppCompatActivity(), ISmallTalkServiceProvider, FileListAdapter.UploadTaskListener {
+    private val fileList: ArrayList<FileUploadTask> = ArrayList()
+    private val adapter = FileListAdapter(fileList)
+
     private val viewModel: SmallTalkViewModel by viewModels {
         SmallTalkViewModelFactory(application as SmallTalkApplication)
     }
@@ -81,109 +89,180 @@ class FileSelectActivity : AppCompatActivity(), ISmallTalkServiceProvider, Uploa
         bound = false
     }
 
-    override fun onDestroy() {
-        Log.v("Des", "FSA Destroy")
-        super.onDestroy()
-    }
-
-    private var imageUri: Uri? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_select)
 
-        image_view.setOnClickListener {
-            openImagePicker()
+        setSupportActionBar(file_select_toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        adapter.setFileClickListener(this)
+
+        val layoutManager = LinearLayoutManager(this)
+        file_upload_list.layoutManager = layoutManager
+        file_upload_list.adapter = adapter
+
+        btn_select.setOnClickListener {
+            openContentPicker()
         }
 
-        button_upload.setOnClickListener {
-            uploadImage()
+        btn_upload.setOnClickListener {
+            uploadFiles()
         }
     }
 
-    private fun openImagePicker() {
-        Intent(Intent.ACTION_PICK).also {
-            it.type = "image/*"
-            val mimeTypes = arrayOf("image/png", "image/jpeg")
-            it.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
-            startActivityForResult(it, REQUEST_CODE_PICK_IMAGE)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun openContentPicker() {
+        if (intent.getStringExtra("command") == "image") {
+            Intent(Intent.ACTION_GET_CONTENT).also {
+                it.type = "image/*"
+                val mimeTypes = arrayOf("image/png", "image/jpeg")
+                it.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                it.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                startActivityForResult(it, REQUEST_CODE_PICK_IMAGE)
+            }
+        } else {
+            Intent(Intent.ACTION_GET_CONTENT).also {
+                it.type = "*/*"
+                it.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                startActivityForResult(it, REQUEST_CODE_PICK_FILE)
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        val lastCount = fileList.size
+
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_CODE_PICK_IMAGE -> {
-                    imageUri = data?.data
-                    image_view.setImageURI(imageUri)
+                    if (data?.clipData != null) {
+                        val clipData = data.clipData!!
+                        val count: Int = clipData.itemCount
+                        for (i in 0 until count) {
+                            val uri = clipData.getItemAt(i).uri
+                            val file = FileUploadTask(uri,
+                                contentResolver.getFileName(uri),
+                                contentResolver.getFileSize(uri))
+                            fileList.add(file)
+                        }
+                    } else if (data?.data != null) {
+                        val uri = data.data!!
+                        val file = FileUploadTask(uri,
+                            contentResolver.getFileName(uri),
+                            contentResolver.getFileSize(uri))
+                        fileList.add(file)
+                    }
+                }
+                REQUEST_CODE_PICK_FILE -> {
+                    if (data?.clipData != null) {
+                        val clipData = data.clipData!!
+                        val count: Int = clipData.itemCount
+                        for (i in 0 until count) {
+                            val uri = clipData.getItemAt(i).uri
+                            val file = FileUploadTask(uri,
+                                contentResolver.getFileName(uri),
+                                contentResolver.getFileSize(uri))
+                            fileList.add(file)
+                        }
+                    } else if (data?.data != null) {
+                        val uri = data.data!!
+                        val file = FileUploadTask(uri,
+                            contentResolver.getFileName(uri),
+                            contentResolver.getFileSize(uri))
+                        fileList.add(file)
+                    }
                 }
             }
         }
+
+        adapter.notifyItemRangeInserted(lastCount, fileList.size - lastCount)
     }
 
-    private fun uploadImage() {
-        if (imageUri == null) {
-            return
-        }
+    private fun uploadFiles() {
+        fileList.forEach { fileInfo ->
+            fileInfo.onStartUpload()
 
-        val parcelFileDescriptor = contentResolver.openFileDescriptor(imageUri!!, "r", null) ?: return
-
-        val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
-        val file = File(cacheDir, contentResolver.getFileName(imageUri!!))
-        val outputStream = FileOutputStream(file)
-        inputStream.copyTo(outputStream)
-        progress_bar.progress = 0
-        val body = UploadRequestBody(file, "image", this)
-        SmallTalkAPI().uploadFile(
-            "base",
-            MultipartBody.Part.createFormData("file", file.name, body),
-            "json".toRequestBody("multipart/form-data".toMediaTypeOrNull()))
-            .enqueue(object : Callback<Void> {
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    progress_bar.progress = 0
-                }
-
-                override fun onResponse(
-                    call: Call<Void>,
-                    response: Response<Void>
-                ) {
-                    response.body().let {
-                        progress_bar.progress = 100
+            val parcelFileDescriptor = contentResolver
+                .openFileDescriptor(fileInfo.fileUri, "r", null) ?: return
+            val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
+            val file = File(cacheDir, contentResolver.getFileName(fileInfo.fileUri))
+            val outputStream = FileOutputStream(file)
+            inputStream.copyTo(outputStream)
+            val body = UploadRequestBody(file, fileInfo,"application")
+            SmallTalkAPI()
+                .uploadFile(
+                    MultipartBody.Part.createFormData("file", fileInfo.fileName, body),
+                    "base", "json".toRequestBody("multipart/form-data".toMediaTypeOrNull()))
+                .enqueue(object : Callback<Void> {
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        fileInfo.onUploadFailed()
                     }
 
-                    finish()
-                }
-            })
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        fileInfo.onUploadResponse()
+                        response.body().let { file }
+
+                        if (hasService()) {
+                            if (intent.getBooleanExtra("isGroup", false)) {
+                                service.messageForwardGroup(
+                                    getUserId(),
+                                    intent.getIntExtra("chatId", 0),
+                                    SmallTalkApplication.BASE_URL + "/download/base/" + fileInfo.fileName,
+                                    if (intent.getStringExtra("command") == "file")
+                                        ClientConstant.CHAT_CONTENT_TYPE_FILE
+                                    else
+                                        ClientConstant.CHAT_CONTENT_TYPE_IMAGE)
+                            } else {
+                                service.messageForward(
+                                    getUserId(),
+                                    intent.getIntExtra("chatId", 0),
+                                    SmallTalkApplication.BASE_URL + "/download/base/" + fileInfo.fileName,
+                                    if (intent.getStringExtra("command") == "file")
+                                        ClientConstant.CHAT_CONTENT_TYPE_FILE
+                                    else
+                                        ClientConstant.CHAT_CONTENT_TYPE_IMAGE)
+                            }
+                        }
+                    }
+                })
+        }
     }
 
-    override fun onProgressUpdate(percentage: Int) {
-        progress_bar.progress = percentage
+    override fun onItemCanceledListener(view: View, fileId: Int) {
+        fileList.removeAt(fileId)
+        adapter.notifyItemRemoved(fileId)
+    }
+
+    private fun getUserId(): Int {
+        return PreferenceManager
+            .getDefaultSharedPreferences(applicationContext)
+            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
     }
 
     companion object {
         const val REQUEST_CODE_PICK_IMAGE = 101
+        const val REQUEST_CODE_PICK_FILE = 102
     }
-}
-
-fun ContentResolver.getFileName(uri: Uri): String {
-    var name = ""
-    val returnCursor = this.query(uri, null, null, null, null)
-    if (returnCursor != null) {
-        val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        returnCursor.moveToFirst()
-        name = returnCursor.getString(nameIndex)
-        returnCursor.close()
-    }
-    return name
 }
 
 class UploadRequestBody(
     private val file: File,
-    private val contentType: String,
-    private val callback: UploadCallback
+    private val fileUploader: FileUploadTask,
+    private val contentType: String
 ) : RequestBody() {
+
     override fun contentType(): MediaType? {
         return "$contentType/*".toMediaTypeOrNull()
     }
@@ -209,19 +288,43 @@ class UploadRequestBody(
     }
 
     interface UploadCallback {
+        fun onStartUpload()
+        fun onUploadFailed()
+        fun onUploadResponse()
         fun onProgressUpdate(percentage: Int)
     }
 
-    inner class ProgressUpdater(
-        private val uploaded: Long,
-        private val total: Long
-    ) : Runnable {
+    inner class ProgressUpdater(private val uploaded: Long, private val total: Long) : Runnable {
         override fun run() {
-            callback.onProgressUpdate((100 * uploaded / total).toInt())
+            fileUploader.onProgressUpdate((100 * uploaded / total).toInt())
         }
     }
 
     companion object {
         private const val DEFAULT_BUFFER_SIZE = 2048
     }
+}
+
+fun ContentResolver.getFileName(uri: Uri): String {
+    var name = String()
+    val returnCursor = this.query(uri, null, null, null, null)
+    if (returnCursor != null) {
+        val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        returnCursor.moveToFirst()
+        name = returnCursor.getString(nameIndex)
+        returnCursor.close()
+    }
+    return name
+}
+
+fun ContentResolver.getFileSize(uri: Uri): Long {
+    var size = 0L
+    val returnCursor = this.query(uri, null, null, null, null)
+    if (returnCursor != null) {
+        val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
+        returnCursor.moveToFirst()
+        size = returnCursor.getLong(sizeIndex)
+        returnCursor.close()
+    }
+    return size
 }

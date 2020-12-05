@@ -28,6 +28,9 @@
         <action
             android:id="@+id/group_list_view_group"
             app:destination="@id/navigation_group_detail" />
+        <action
+            android:id="@+id/profile_view_request"
+            app:destination="@id/navigation_request_list" />
     </fragment>
 
     <fragment
@@ -100,6 +103,12 @@
             android:name="isGroupChat"
             app:argType="boolean" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_request_list"
+        android:name="edu.syr.smalltalk.ui.main.request.RequestListFragment"
+        android:label="fragment_requests"
+        tools:layout="@layout/fragment_requests" />
 
     <fragment
         android:id="@+id/navigation_group_create"

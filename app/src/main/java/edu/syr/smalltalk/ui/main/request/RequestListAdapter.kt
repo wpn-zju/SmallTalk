@@ -5,42 +5,101 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
+import edu.syr.smalltalk.service.android.constant.RequestConstant
 import edu.syr.smalltalk.service.model.entity.SmallTalkRequest
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
+import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
+import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 
 class RequestListAdapter
     : ListAdapter<SmallTalkRequest, RequestListAdapter.RequestListViewHolder>(RequestListDiffCallback()){
 
     override fun onBindViewHolder(holder: RequestListViewHolder, position: Int) {
         val request = getItem(position)
-        holder.requestAvatar.setImageResource(R.mipmap.ic_launcher)
-        holder.requestTitle.text = "Request Title" // Todo
-        holder.requestDetail.text = "Request Detail" // Todo
-        holder.requestStatus.text = request.requestStatus
 
-        if (request.requestStatus == "request_pending") {
-            holder.requestAccept.visibility = View.VISIBLE
-            holder.requestDecline.visibility = View.VISIBLE
-            holder.requestAccept.setOnClickListener {
+        when (request.requestType) {
+            RequestConstant.REQUEST_CONTACT_ADD -> {
+                val requester = request.requestMetadata.get(RequestConstant.REQUEST_CONTACT_ADD_SENDER).asInt
+                val receiver = request.requestMetadata.get(RequestConstant.REQUEST_CONTACT_ADD_RECEIVER).asInt
+
+                holder.requestAvatar.setImageResource(R.mipmap.ic_launcher)
+                holder.requestTitle.text = "Loading info....." // Todo
+                holder.requestDetail.text = "New contact request" // Todo
+                holder.requestStatus.text = when (request.requestStatus) {
+                    "request_pending" -> "Pending"
+                    "request_accepted" -> "Accepted"
+                    "request_refused" -> "Declined"
+                    "request_revoked" -> "Revoked"
+                    else -> "Pending"
+                }
+
                 if (requestClickListener != null) {
-                    if (position != RecyclerView.NO_POSITION) {
-                        requestClickListener!!.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                    if (requester == requestClickListener!!.getUserId()) {
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
+                    } else if (receiver == requestClickListener!!.getUserId() && request.requestStatus == "request_pending") {
+                        holder.requestAccept.visibility = View.VISIBLE
+                        holder.requestDecline.visibility = View.VISIBLE
+                        holder.requestAccept.setOnClickListener {
+                            if (position != RecyclerView.NO_POSITION) {
+                                requestClickListener!!.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                            }
+                        }
+                        holder.requestDecline.setOnClickListener {
+                            if (position != RecyclerView.NO_POSITION) {
+                                requestClickListener!!.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                            }
+                        }
+                    } else {
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
                     }
                 }
             }
-            holder.requestDecline.setOnClickListener {
+            RequestConstant.REQUEST_GROUP_ADD -> {
+                val groupId = request.requestMetadata.get(RequestConstant.REQUEST_GROUP_ADD_GROUP_ID).asInt
+                val requester = request.requestMetadata.get(RequestConstant.REQUEST_GROUP_ADD_SENDER).asInt
+                val receiver = request.requestMetadata.get(RequestConstant.REQUEST_GROUP_ADD_RECEIVER).asInt
+
+                holder.requestAvatar.setImageResource(R.mipmap.ic_launcher)
+                holder.requestTitle.text = "Loading info....." // Todo
+                holder.requestDetail.text = String.format("Join group %d request", groupId)// Todo
+                holder.requestStatus.text = when (request.requestStatus) {
+                    "request_pending" -> "Pending"
+                    "request_accepted" -> "Accepted"
+                    "request_refused" -> "Declined"
+                    "request_revoked" -> "Revoked"
+                    else -> "Pending"
+                }
+
                 if (requestClickListener != null) {
-                    if (position != RecyclerView.NO_POSITION) {
-                        requestClickListener!!.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                    if (requester == requestClickListener!!.getUserId()) {
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
+                    } else if (receiver == requestClickListener!!.getUserId() && request.requestStatus == "request_pending") {
+                        holder.requestAccept.visibility = View.VISIBLE
+                        holder.requestDecline.visibility = View.VISIBLE
+                        holder.requestAccept.setOnClickListener {
+                            if (position != RecyclerView.NO_POSITION) {
+                                requestClickListener!!.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                            }
+                        }
+                        holder.requestDecline.setOnClickListener {
+                            if (position != RecyclerView.NO_POSITION) {
+                                requestClickListener!!.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                            }
+                        }
+                    } else {
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
                     }
                 }
             }
-        } else {
-            holder.requestAccept.visibility = View.GONE
-            holder.requestDecline.visibility = View.GONE
         }
     }
 
@@ -66,6 +125,7 @@ class RequestListAdapter
     }
 
     interface RequestClickListener {
+        fun getUserId(): Int
         fun onConfirmListener(view: View, requestType: String, requestId: Int)
         fun onDeclineListener(view: View, requestType: String, requestId: Int)
         fun onItemClickListener(view: View, requestId: Int)

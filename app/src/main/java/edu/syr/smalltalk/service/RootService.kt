@@ -1,13 +1,14 @@
 package edu.syr.smalltalk.service
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.JobIntentService
 import edu.syr.smalltalk.service.android.ASmallTalkService
-import edu.syr.smalltalk.service.blockchain.BCContractManager
-import edu.syr.smalltalk.service.blockchain.BCSmallTalkService
 
 class RootService : JobIntentService() {
     // TODO: 1. change service here
@@ -44,10 +45,22 @@ class RootService : JobIntentService() {
     }
 
     override fun onCreate() {
+        createNotificationChannel()
         service.connect()
     }
 
     override fun onDestroy() {
         service.disconnect()
+    }
+
+    private fun createNotificationChannel() {
+        val name = "Message"
+        val descText = "Message Pushing Channel"
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel("Message", name, importance).apply {
+            description = descText
+        }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 }

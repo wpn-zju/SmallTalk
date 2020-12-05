@@ -14,6 +14,7 @@ import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
+import kotlinx.android.synthetic.main.fragment_group_detail.*
 import kotlinx.android.synthetic.main.layout_group_detail.*
 
 class GroupDetailFragment : Fragment() {
@@ -41,7 +42,7 @@ class GroupDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getCurrentGroup(args.groupId).observe(requireActivity(), { group ->
+        viewModel.getCurrentGroup(args.groupId).observe(viewLifecycleOwner, { group ->
             if (group.isEmpty()) {
                 image_group_avatar.setImageResource(R.mipmap.ic_launcher)
                 text_group_name.text = "Loading..."
@@ -49,6 +50,7 @@ class GroupDetailFragment : Fragment() {
                 group_enter_chat.visibility = View.GONE
                 group_send_request.visibility = View.GONE
             } else {
+                group_detail_toolbar.title = group[0].groupName
                 image_group_avatar.setImageResource(R.mipmap.ic_launcher)
                 text_group_name.text = group[0].groupName
                 text_group_description.text = group[0].groupName
