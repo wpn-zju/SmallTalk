@@ -11,7 +11,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
+import com.tonyodev.fetch2.*
+import com.tonyodev.fetch2core.DownloadBlock
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
@@ -83,6 +87,103 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupFetcher()
+    }
+
+    override fun onAttachFragment(fragment: Fragment) {
+        if (fragment is MainFragment) {
+            if (intent.getStringExtra("command").equals("notification_start")) {
+                val chatId = intent.getIntExtra("chatId", 0)
+                val isGroup = intent.getBooleanExtra("isGroup", false)
+                val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
+                fragment.requireView().findNavController().navigate(action)
+            }
+        }
+    }
+
+    private fun setupFetcher() {
+        val fetchConfig = FetchConfiguration.Builder(this)
+            .setDownloadConcurrentLimit(6)
+            .build()
+        val fetch = Fetch.Impl.getInstance(fetchConfig)
+        val fetchListener = object : FetchListener {
+            override fun onAdded(download: Download) {
+
+            }
+
+            override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
+
+            }
+
+            override fun onCompleted(download: Download) {
+
+            }
+
+            override fun onError(download: Download, error: Error, throwable: Throwable?) {
+
+            }
+
+            override fun onProgress(
+                download: Download,
+                etaInMilliSeconds: Long,
+                downloadedBytesPerSecond: Long
+            ) {
+
+            }
+
+            override fun onPaused(download: Download) {
+
+            }
+
+            override fun onResumed(download: Download) {
+
+            }
+
+            override fun onCancelled(download: Download) {
+
+            }
+
+            override fun onRemoved(download: Download) {
+
+            }
+
+            override fun onDeleted(download: Download) {
+
+            }
+
+            override fun onDownloadBlockUpdated(
+                download: Download,
+                downloadBlock: DownloadBlock,
+                totalBlocks: Int
+            ) {
+
+            }
+
+            override fun onStarted(
+                download: Download,
+                downloadBlocks: List<DownloadBlock>,
+                totalBlocks: Int
+            ) {
+
+            }
+
+            override fun onWaitingNetwork(download: Download) {
+
+            }
+        }
+
+        fetch.addListener(fetchListener)
+        // val request = Request(
+        //     "http://192.168.1.224:8079/download/base/4_ideas.html",
+        //     "$filesDir/downloads/4_ideas.html"
+        // )
+        // request.priority = Priority.HIGH
+        // request.networkType = NetworkType.ALL
+        // fetch.enqueue(request, { updatedRequest ->
+        //     Log.i("FETCH", updatedRequest.toString())
+        // }, { err ->
+        //     Log.e("FETCH", err.toString())
+        // })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

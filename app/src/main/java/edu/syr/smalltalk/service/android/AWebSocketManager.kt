@@ -1,16 +1,23 @@
 package edu.syr.smalltalk.service.android
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonParser
+import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.KVPConstant
+import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.android.constant.ServerConstant
 import edu.syr.smalltalk.service.eventbus.*
 import edu.syr.smalltalk.service.model.entity.*
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkDao
+import edu.syr.smalltalk.ui.main.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -74,6 +81,8 @@ class AWebSocketManager(private val context: Context) {
             smalltalkDao.insertUser(userInfo)
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putInt(KVPConstant.K_CURRENT_USER_ID, userInfo.userId).apply()
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putString(KVPConstant.K_LAST_SESSION, userInfo.userSession).apply()
             EventBus.getDefault().post(SignInEvent())
         })
 
@@ -200,6 +209,8 @@ class AWebSocketManager(private val context: Context) {
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_OUT_SUCCESS).subscribe {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putString(KVPConstant.K_LAST_SESSION, "null").apply()
             EventBus.getDefault().post(SignOutEvent())
         })
 
@@ -235,6 +246,33 @@ class AWebSocketManager(private val context: Context) {
             val timestamp = Instant.parse(messageObj.get(ServerConstant.TIMESTAMP).asString)
             val smallTalkMessage = SmallTalkMessage(user, chatId, sender, receiver, content, contentType, timestamp)
             smalltalkDao.insertMessage(smallTalkMessage)
+
+            if (sender != user) {
+                val notificationText: String = when (contentType) {
+                    ClientConstant.CHAT_CONTENT_TYPE_TEXT -> content
+                    ClientConstant.CHAT_CONTENT_TYPE_IMAGE -> "[Image]"
+                    ClientConstant.CHAT_CONTENT_TYPE_AUDIO -> "[Audio]"
+                    ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> "[Video]"
+                    ClientConstant.CHAT_CONTENT_TYPE_FILE -> "[File]"
+                    else -> "New Message"
+                }
+
+                val intent = Intent(context, MainActivity::class.java)
+                intent.putExtra("command", "notification_start")
+                intent.putExtra("chatId", chatId)
+                intent.putExtra("isGroup", receiver != user)
+                val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+                val builder = NotificationCompat.Builder(context, "Message")
+                    .setSmallIcon(R.drawable.ic_baseline_message_24)
+                    .setContentTitle("Small Talk")
+                    .setContentText(notificationText)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                with(NotificationManagerCompat.from(context)) {
+                    notify(10000, builder.build())
+                }
+            }
         })
 
         compositeDisposable.add(stompClient.topic("/user" + ServerConstant.DIR_CONTACT_ADD_REQUEST_SUCCESS).subscribe {

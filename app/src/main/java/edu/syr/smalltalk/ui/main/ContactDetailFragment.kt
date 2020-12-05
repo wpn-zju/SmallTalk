@@ -42,7 +42,7 @@ class ContactDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getCurrentContact(args.contactId).observe(requireActivity(), { contact ->
+        viewModel.getCurrentContact(args.contactId).observe(viewLifecycleOwner, { contact ->
             if (contact.isEmpty()) {
                 image_contact_avatar.setImageResource(R.mipmap.ic_launcher)
                 text_contact_name.text = "Loading..."

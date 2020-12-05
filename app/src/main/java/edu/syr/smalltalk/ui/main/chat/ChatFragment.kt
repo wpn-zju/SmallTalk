@@ -138,20 +138,20 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
 
         }
 
-        viewModel.getCurrentMessageList(getUserId(), args.chatId).observe(requireActivity()) { chatMessageList ->
+        viewModel.getCurrentMessageList(getUserId(), args.chatId).observe(viewLifecycleOwner) { chatMessageList ->
             chatMessageList.let {
                 adapter.submitList(it)
             }
         }
 
         if (args.isGroupChat) {
-            viewModel.getCurrentGroup(args.chatId).observe(requireActivity()) { group ->
+            viewModel.getCurrentGroup(args.chatId).observe(viewLifecycleOwner) { group ->
                 if (group.isNotEmpty()) {
                     chat_toolbar?.title = group[0].groupName
                 }
             }
         } else {
-            viewModel.getCurrentContact(args.chatId).observe(requireActivity()) { contact ->
+            viewModel.getCurrentContact(args.chatId).observe(viewLifecycleOwner) { contact ->
                 if (contact.isNotEmpty()) {
                     chat_toolbar?.title = contact[0].contactName
                 }

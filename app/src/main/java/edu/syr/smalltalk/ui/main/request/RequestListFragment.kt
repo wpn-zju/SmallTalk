@@ -54,14 +54,14 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(requireActivity(), { user ->
+        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, { user ->
             if (user.isEmpty()) {
                 if (serviceProvider.hasService()) {
                     serviceProvider.getService()!!.loadUser()
                 }
             } else {
                 for (requestId in user[0].requestList) {
-                    viewModel.getCurrentRequest(requestId).observe(requireActivity(), { request ->
+                    viewModel.getCurrentRequest(requestId).observe(viewLifecycleOwner, { request ->
                         if (request.isEmpty()) {
                             if (serviceProvider.hasService()) {
                                 serviceProvider.getService()!!.loadRequest(requestId)
@@ -72,7 +72,7 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
             }
         })
 
-        viewModel.getRequestList(userId).observe(requireActivity(), { requestList ->
+        viewModel.getRequestList(userId).observe(viewLifecycleOwner, { requestList ->
             requestList.let {
                 adapter.submitList(it)
             }
@@ -112,6 +112,12 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
                 }
             }
         }
+    }
+
+    override fun getUserId(): Int {
+        return PreferenceManager
+            .getDefaultSharedPreferences(requireActivity().applicationContext)
+            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
     }
 
     override fun onItemClickListener(view: View, requestId: Int) {

@@ -42,7 +42,7 @@ class GroupDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getCurrentGroup(args.groupId).observe(requireActivity(), { group ->
+        viewModel.getCurrentGroup(args.groupId).observe(viewLifecycleOwner, { group ->
             if (group.isEmpty()) {
                 image_group_avatar.setImageResource(R.mipmap.ic_launcher)
                 text_group_name.text = "Loading..."

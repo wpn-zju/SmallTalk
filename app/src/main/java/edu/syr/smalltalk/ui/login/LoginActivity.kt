@@ -94,12 +94,6 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        val userStatus: String = PreferenceManager.getDefaultSharedPreferences(this)
-            .getString(KVPConstant.K_USER_STATUS, KVPConstant.V_USER_STATUS_LOGOUT)!!
-        if (userStatus == KVPConstant.V_USER_STATUS_LOGIN) {
-            login()
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

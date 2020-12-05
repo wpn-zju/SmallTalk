@@ -55,14 +55,14 @@ class GroupListFragment: Fragment(), GroupListAdapter.GroupClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(requireActivity(), {  user ->
+        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, {  user ->
             if (user.isEmpty()) {
                 if (serviceProvider.hasService()) {
                     serviceProvider.getService()!!.loadUser()
                 }
             } else {
                 for (groupId in user[0].groupList) {
-                    viewModel.getCurrentGroup(groupId).observe(requireActivity(), { group ->
+                    viewModel.getCurrentGroup(groupId).observe(viewLifecycleOwner, { group ->
                         if (group.isEmpty()) {
                             if (serviceProvider.hasService()) {
                                 serviceProvider.getService()!!.loadGroup(groupId)
@@ -73,7 +73,7 @@ class GroupListFragment: Fragment(), GroupListAdapter.GroupClickListener {
             }
         })
 
-        viewModel.getGroupList(userId).observe(requireActivity(), { groupList ->
+        viewModel.getGroupList(userId).observe(viewLifecycleOwner, { groupList ->
             groupList.let {
                 adapter.submitList(it)
             }

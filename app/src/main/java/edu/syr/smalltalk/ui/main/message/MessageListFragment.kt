@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,7 +57,7 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getRecentMessageList(userId).observe(requireActivity(), { messageList ->
+        viewModel.getRecentMessageList(userId).observe(viewLifecycleOwner, { messageList ->
             messageList.let {
                 adapter.submitList(it)
             }
@@ -79,9 +80,25 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
     }
 
     override fun onItemClickListener(view: View, chatId: Int) {
-        val isGroup: Boolean = true // Todo: Check if group chat or not
-        val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
-        requireView().findNavController().navigate(action)
+        val userId: Int = PreferenceManager
+            .getDefaultSharedPreferences(requireActivity().applicationContext)
+            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
+
+        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, { user ->
+            if (user.isEmpty()) {
+                if (serviceProvider.hasService()) {
+                    serviceProvider.getService()!!.loadUser()
+                }
+            } else {
+                if (user[0].contactList.contains(chatId)) {
+                    val action = MainFragmentDirections.recentMessageListEnterChat(chatId, false)
+                    requireView().findNavController().navigate(action)
+                } else if (user[0].groupList.contains(chatId)) {
+                    val action = MainFragmentDirections.recentMessageListEnterChat(chatId, true)
+                    requireView().findNavController().navigate(action)
+                }
+            }
+        })
     }
 
     override fun onItemLongClickListener(view: View, chatId: Int) {
