@@ -18,7 +18,8 @@
         android:layout_margin="8dp"
         android:hint="Old Password"
         android:inputType="textPassword"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:autofillHints="" />
 
     <EditText
         android:layout_width="match_parent"
@@ -26,7 +27,8 @@
         android:layout_margin="8dp"
         android:hint="New Password"
         android:inputType="textPassword"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:autofillHints="" />
 
     <EditText
         android:layout_width="match_parent"
@@ -34,7 +36,8 @@
         android:layout_margin="8dp"
         android:hint="Confirm Password"
         android:inputType="textPassword"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:autofillHints="" />
 
     <View
         android:layout_width="match_parent"
@@ -48,14 +51,17 @@
         android:layout_margin="8dp"
         android:hint="New Email address"
         android:inputType="textEmailAddress"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:autofillHints="" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:hint="Edit you recent status here"
-        android:textSize="20sp" />
+        android:inputType="text"
+        android:textSize="20sp"
+        android:autofillHints="" />
 
     <View
         android:layout_width="match_parent"

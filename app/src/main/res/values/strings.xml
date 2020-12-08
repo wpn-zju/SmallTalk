@@ -39,7 +39,7 @@
     <string name="group_name_holder">Group One</string>
     <string name="group_description_holder">We are Group One</string>
     <string name="send_request">Send Request</string>
-    <string name="file_name_holder">XXXXXXXX.txt</string>
+    <string name="file_name_holder">15557821-imag-of-water-drops-on-window-and-blue-sky-background.jpg</string>
     <string name="file_size_holder">15.6 KB</string>
     <string name="file_state_holder">Downloaded</string>
     <string name="file_icon">File Icon</string>
@@ -60,4 +60,6 @@
     <string name="file_transfer">File Transfer</string>
     <string name="send_location">Send Location</string>
     <string name="share">Share</string>
+    <string name="group_invite_avatar">Group Invite Avatar</string>
+    <string name="zero_length_whitespace">​</string>
 </resources>

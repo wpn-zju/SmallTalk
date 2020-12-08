@@ -20,8 +20,8 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="288dp"
-        android:layout_height="72dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
@@ -38,11 +38,13 @@
         <ImageView
             android:id="@+id/message_file_image"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.0"
             android:contentDescription="@string/file_icon" />
 
         <TextView
@@ -50,29 +52,26 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/file_name_holder"
-            android:textSize="24sp"
+            android:textSize="18sp"
+            app:layout_constrainedWidth="true"
             app:layout_constraintStart_toEndOf="@id/message_file_image"
-            app:layout_constraintTop_toTopOf="@id/message_file_image" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/message_file_image"
+            app:layout_constraintBottom_toTopOf="@id/message_file_size"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.0"/>
 
         <TextView
             android:id="@+id/message_file_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/message_file_name"
-            app:layout_constraintBottom_toBottomOf="@id/message_file_image"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/message_file_image"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:text="@string/file_size_holder"
             android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/message_file_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/message_file_size"
-            android:text="@string/file_state_holder"
-            android:textSize="18sp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

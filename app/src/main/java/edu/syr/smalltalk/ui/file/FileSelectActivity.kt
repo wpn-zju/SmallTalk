@@ -10,8 +10,11 @@ import android.os.Looper
 import android.provider.OpenableColumns
 import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.MimeTypeFilter
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.syr.smalltalk.R
@@ -124,11 +127,11 @@ class FileSelectActivity
     private fun openContentPicker() {
         if (intent.getStringExtra("command") == "image") {
             Intent(Intent.ACTION_GET_CONTENT).also {
-                it.type = "image/*"
-                val mimeTypes = arrayOf("image/png", "image/jpeg")
+                it.type = "*/*"
+                val mimeTypes = arrayOf("image/png", "image/jpeg", "image/gif", "image/x-ms-bmp", "video/mp4", "video/webm")
                 it.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
                 it.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                startActivityForResult(it, REQUEST_CODE_PICK_IMAGE)
+                startActivityForResult(it, REQUEST_CODE_PICK_MEDIA)
             }
         } else {
             Intent(Intent.ACTION_GET_CONTENT).also {
@@ -145,45 +148,22 @@ class FileSelectActivity
         val lastCount = fileList.size
 
         if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                REQUEST_CODE_PICK_IMAGE -> {
-                    if (data?.clipData != null) {
-                        val clipData = data.clipData!!
-                        val count: Int = clipData.itemCount
-                        for (i in 0 until count) {
-                            val uri = clipData.getItemAt(i).uri
-                            val file = FileUploadTask(uri,
-                                contentResolver.getFileName(uri),
-                                contentResolver.getFileSize(uri))
-                            fileList.add(file)
-                        }
-                    } else if (data?.data != null) {
-                        val uri = data.data!!
-                        val file = FileUploadTask(uri,
-                            contentResolver.getFileName(uri),
-                            contentResolver.getFileSize(uri))
-                        fileList.add(file)
-                    }
+            if (data?.clipData != null) {
+                val clipData = data.clipData!!
+                val count: Int = clipData.itemCount
+                for (i in 0 until count) {
+                    val uri = clipData.getItemAt(i).uri
+                    val file = FileUploadTask(uri,
+                        contentResolver.getFileName(uri),
+                        contentResolver.getFileSize(uri))
+                    fileList.add(file)
                 }
-                REQUEST_CODE_PICK_FILE -> {
-                    if (data?.clipData != null) {
-                        val clipData = data.clipData!!
-                        val count: Int = clipData.itemCount
-                        for (i in 0 until count) {
-                            val uri = clipData.getItemAt(i).uri
-                            val file = FileUploadTask(uri,
-                                contentResolver.getFileName(uri),
-                                contentResolver.getFileSize(uri))
-                            fileList.add(file)
-                        }
-                    } else if (data?.data != null) {
-                        val uri = data.data!!
-                        val file = FileUploadTask(uri,
-                            contentResolver.getFileName(uri),
-                            contentResolver.getFileSize(uri))
-                        fileList.add(file)
-                    }
-                }
+            } else if (data?.data != null) {
+                val uri = data.data!!
+                val file = FileUploadTask(uri,
+                    contentResolver.getFileName(uri),
+                    contentResolver.getFileSize(uri))
+                fileList.add(file)
             }
         }
 
@@ -192,6 +172,11 @@ class FileSelectActivity
 
     private fun uploadFiles() {
         fileList.forEach { fileInfo ->
+            if (fileInfo.fileSize > FILE_SIZE_MAX) {
+                Toast.makeText(this, "File size must be no greater than 30 MB!", Toast.LENGTH_LONG).show()
+                return@forEach
+            }
+
             fileInfo.onStartUpload()
 
             val parcelFileDescriptor = contentResolver
@@ -202,8 +187,7 @@ class FileSelectActivity
             inputStream.copyTo(outputStream)
             val body = UploadRequestBody(file, fileInfo,"application")
             SmallTalkAPI()
-                .uploadFile(
-                    MultipartBody.Part.createFormData("file", fileInfo.fileName, body),
+                .uploadFile(MultipartBody.Part.createFormData("file", fileInfo.fileName, body),
                     "base", "json".toRequestBody("multipart/form-data".toMediaTypeOrNull()))
                 .enqueue(object : Callback<Void> {
                     override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -214,25 +198,27 @@ class FileSelectActivity
                         fileInfo.onUploadResponse()
                         response.body().let { file }
 
+                        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.absolutePath)
+                        val contentType = when {
+                            MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_IMAGE) -> ClientConstant.CHAT_CONTENT_TYPE_IMAGE
+                            MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_AUDIO) -> ClientConstant.CHAT_CONTENT_TYPE_AUDIO
+                            MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_VIDEO) -> ClientConstant.CHAT_CONTENT_TYPE_VIDEO
+                            else -> ClientConstant.CHAT_CONTENT_TYPE_FILE
+                        }
+
                         if (hasService()) {
                             if (intent.getBooleanExtra("isGroup", false)) {
                                 service.messageForwardGroup(
                                     getUserId(),
                                     intent.getIntExtra("chatId", 0),
                                     SmallTalkApplication.BASE_URL + "/download/base/" + fileInfo.fileName,
-                                    if (intent.getStringExtra("command") == "file")
-                                        ClientConstant.CHAT_CONTENT_TYPE_FILE
-                                    else
-                                        ClientConstant.CHAT_CONTENT_TYPE_IMAGE)
+                                    contentType)
                             } else {
                                 service.messageForward(
                                     getUserId(),
                                     intent.getIntExtra("chatId", 0),
                                     SmallTalkApplication.BASE_URL + "/download/base/" + fileInfo.fileName,
-                                    if (intent.getStringExtra("command") == "file")
-                                        ClientConstant.CHAT_CONTENT_TYPE_FILE
-                                    else
-                                        ClientConstant.CHAT_CONTENT_TYPE_IMAGE)
+                                    contentType)
                             }
                         }
                     }
@@ -252,8 +238,14 @@ class FileSelectActivity
     }
 
     companion object {
-        const val REQUEST_CODE_PICK_IMAGE = 101
+        const val REQUEST_CODE_PICK_MEDIA = 101
         const val REQUEST_CODE_PICK_FILE = 102
+
+        const val MIME_TYPE_WILDCARD_IMAGE = "image/*"
+        const val MIME_TYPE_WILDCARD_AUDIO = "audio/*"
+        const val MIME_TYPE_WILDCARD_VIDEO = "video/*"
+
+        const val FILE_SIZE_MAX = 30 * 1024 * 1024
     }
 }
 

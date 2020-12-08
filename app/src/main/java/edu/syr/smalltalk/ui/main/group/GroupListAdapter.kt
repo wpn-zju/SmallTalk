@@ -39,7 +39,7 @@ class GroupListAdapter
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupListAdapter.GroupListViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupListViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val view = layoutInflater.inflate(R.layout.layout_prefab_group, parent, false)
         return GroupListViewHolder(view)

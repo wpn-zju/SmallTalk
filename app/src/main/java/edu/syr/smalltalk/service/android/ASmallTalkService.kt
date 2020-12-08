@@ -8,7 +8,7 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkDao
 import java.time.Instant
 
 // Consider combine AWebSocketManager and ASmallTalkService in ONE class to reduce unnecessary dependency injection
-class ASmallTalkService(private val context: Context) : ISmallTalkService {
+class ASmallTalkService(context: Context) : ISmallTalkService {
     private val webSocketManager: AWebSocketManager = AWebSocketManager(context)
 
     override fun connect() {
@@ -207,11 +207,12 @@ class ASmallTalkService(private val context: Context) : ISmallTalkService {
         )
     }
 
-    override fun groupCreateRequest(groupName: String) {
+    override fun groupCreateRequest(groupName: String, memberList: String) {
         webSocketManager.send(
             ClientConstant.API_CHAT_GROUP_CREATE_REQUEST,
             Gson().toJson(GroupCreateRequestMessage(
-                groupName
+                groupName,
+                memberList
             ))
         )
     }
@@ -222,6 +223,16 @@ class ASmallTalkService(private val context: Context) : ISmallTalkService {
             Gson().toJson(GroupModifyNameMessage(
                 groupId,
                 newGroupName
+            ))
+        )
+    }
+
+    override fun groupInviteMember(groupId: Int, memberId: Int) {
+        webSocketManager.send(
+            ClientConstant.API_CHAT_GROUP_INVITE_MEMBER,
+            Gson().toJson(GroupInviteMemberMessage(
+                groupId,
+                memberId
             ))
         )
     }
