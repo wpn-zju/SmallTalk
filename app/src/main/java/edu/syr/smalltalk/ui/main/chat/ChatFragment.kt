@@ -2,7 +2,10 @@ package edu.syr.smalltalk.ui.main.chat
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -11,6 +14,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.KVPConstant
@@ -20,6 +24,12 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import edu.syr.smalltalk.ui.file.FileSelectActivity
 import kotlinx.android.synthetic.main.fragment_chat.*
+import java.io.File
+import java.io.IOException
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener {
     private val args: ChatFragmentArgs by navArgs()
@@ -56,9 +66,24 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
         adapter.setChatMessageClickListener(this)
 
         val layoutManager = LinearLayoutManager(context)
-        layoutManager.stackFromEnd = true
         chat_message_list.layoutManager = layoutManager
         chat_message_list.adapter = adapter
+
+        var inited = false
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                chat_message_list.postDelayed({
+                    if (layoutManager.findLastVisibleItemPosition() + 2 >= positionStart) {
+                        if (inited) {
+                            inited = true
+                            chat_message_list.scrollToPosition(positionStart + itemCount)
+                        } else {
+                            chat_message_list.smoothScrollToPosition(positionStart + itemCount)
+                        }
+                    }
+                }, 100)
+            }
+        })
 
         more_options.setOnClickListener {
             if (more_options_bar.visibility == View.GONE) {
@@ -140,7 +165,7 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
 
         viewModel.getCurrentMessageList(getUserId(), args.chatId).observe(viewLifecycleOwner) { chatMessageList ->
             chatMessageList.let {
-                adapter.submitList(it)
+                adapter.submitList(it) { }
             }
         }
 
@@ -193,11 +218,7 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
     }
 
-    override fun onItemClickListener(view: View, messageId: Int) {
-
-    }
-
-    override fun onItemLongClickListener(view: View, messageId: Int) {
-
+    override fun openBrowser(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 }

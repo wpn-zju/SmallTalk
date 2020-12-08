@@ -17,6 +17,7 @@ class FileUploadTask (
         if (holder != null) {
             holder!!.cancel.visibility = View.GONE
         }
+        onProgressUpdate(0)
     }
 
     override fun onUploadFailed() {
@@ -25,6 +26,7 @@ class FileUploadTask (
         if (holder != null) {
             holder!!.cancel.visibility = View.VISIBLE
         }
+        onProgressUpdate(0)
     }
 
     override fun onUploadResponse() {
@@ -33,6 +35,7 @@ class FileUploadTask (
         if (holder != null) {
             holder!!.cancel.visibility = View.GONE
         }
+        onProgressUpdate(100)
     }
 
     override fun onProgressUpdate(percentage: Int) {

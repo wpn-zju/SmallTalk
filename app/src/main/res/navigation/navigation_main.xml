@@ -40,7 +40,9 @@
         tools:layout="@layout/fragment_contact_search">
         <action
             android:id="@+id/contact_search_view_detail"
-            app:destination="@id/navigation_contact_detail" />
+            app:destination="@id/navigation_contact_detail"
+            app:popUpTo="@id/navigation_main_fragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
@@ -50,7 +52,9 @@
         tools:layout="@layout/fragment_contact_detail">
         <action
             android:id="@+id/contact_detail_enter_chat"
-            app:destination="@id/navigation_chat" />
+            app:destination="@id/navigation_chat"
+            app:popUpTo="@id/navigation_main_fragment"
+            app:popUpToInclusive="false" />
         <argument
             android:name="contactId"
             app:argType="integer" />
@@ -66,7 +70,9 @@
         tools:layout="@layout/fragment_group_search" >
         <action
             android:id="@+id/group_search_view_detail"
-            app:destination="@id/navigation_group_detail" />
+            app:destination="@id/navigation_group_detail"
+            app:popUpTo="@id/navigation_main_fragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
@@ -76,7 +82,9 @@
         tools:layout="@layout/fragment_group_detail" >
         <action
             android:id="@+id/group_detail_enter_chat"
-            app:destination="@id/navigation_chat" />
+            app:destination="@id/navigation_chat"
+            app:popUpTo="@id/navigation_main_fragment"
+            app:popUpToInclusive="false" />
         <argument
             android:name="groupId"
             app:argType="integer" />
@@ -112,11 +120,13 @@
 
     <fragment
         android:id="@+id/navigation_group_create"
-        android:name="edu.syr.smalltalk.ui.main.GroupCreateFragment"
+        android:name="edu.syr.smalltalk.ui.main.group.create.GroupCreateFragment"
         android:label="GroupCreateFragment"
         tools:layout="@layout/fragment_group_create">
         <action
-            android:id="@+id/group_create_enter_chat"
-            app:destination="@id/navigation_chat" />
+            android:id="@+id/group_create_return_main"
+            app:destination="@id/navigation_main_fragment"
+            app:popUpTo="@id/navigation_main_fragment"
+            app:popUpToInclusive="false" />
     </fragment>
 </navigation>

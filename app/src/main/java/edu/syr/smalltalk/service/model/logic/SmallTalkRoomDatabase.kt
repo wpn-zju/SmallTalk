@@ -31,8 +31,7 @@ abstract class SmallTalkRoomDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     SmallTalkRoomDatabase::class.java,
-                    "small_talk_database"
-                ).build()
+                    "small_talk_database").build()
                 INSTANCE = instance
                 instance
             }

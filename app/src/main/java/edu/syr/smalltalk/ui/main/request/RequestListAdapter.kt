@@ -5,16 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.android.constant.RequestConstant
 import edu.syr.smalltalk.service.model.entity.SmallTalkRequest
-import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 
 class RequestListAdapter
     : ListAdapter<SmallTalkRequest, RequestListAdapter.RequestListViewHolder>(RequestListDiffCallback()){

@@ -6,7 +6,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -92,10 +91,10 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
             } else {
                 if (user[0].contactList.contains(chatId)) {
                     val action = MainFragmentDirections.recentMessageListEnterChat(chatId, false)
-                    requireView().findNavController().navigate(action)
+                    view.findNavController().navigate(action)
                 } else if (user[0].groupList.contains(chatId)) {
                     val action = MainFragmentDirections.recentMessageListEnterChat(chatId, true)
-                    requireView().findNavController().navigate(action)
+                    view.findNavController().navigate(action)
                 }
             }
         })

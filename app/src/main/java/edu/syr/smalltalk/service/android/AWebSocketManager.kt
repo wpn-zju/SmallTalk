@@ -247,16 +247,15 @@ class AWebSocketManager(private val context: Context) {
             val smallTalkMessage = SmallTalkMessage(user, chatId, sender, receiver, content, contentType, timestamp)
             smalltalkDao.insertMessage(smallTalkMessage)
 
-            if (sender != user) {
+            if (!PreferenceManager.getDefaultSharedPreferences(context)
+                    .getBoolean(KVPConstant.K_IS_FOREGROUND, true)) {
                 val notificationText: String = when (contentType) {
                     ClientConstant.CHAT_CONTENT_TYPE_TEXT -> content
                     ClientConstant.CHAT_CONTENT_TYPE_IMAGE -> "[Image]"
                     ClientConstant.CHAT_CONTENT_TYPE_AUDIO -> "[Audio]"
                     ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> "[Video]"
                     ClientConstant.CHAT_CONTENT_TYPE_FILE -> "[File]"
-                    else -> "New Message"
-                }
-
+                    else -> "New Message" }
                 val intent = Intent(context, MainActivity::class.java)
                 intent.putExtra("command", "notification_start")
                 intent.putExtra("chatId", chatId)

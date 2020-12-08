@@ -38,10 +38,6 @@ class RootService : JobIntentService() {
 
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return super.onStartCommand(intent, flags, startId)
-    }
-
     override fun onCreate() {
         createNotificationChannel()
         service.connect()

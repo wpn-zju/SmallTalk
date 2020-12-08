@@ -6,18 +6,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <CheckBox
-        android:id="@+id/check_box_select_contacts"
+        android:id="@+id/group_create_check_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleX="1.5"
         android:scaleY="1.5"
         android:layout_marginStart="16dp"
+        android:checked="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/zero_length_whitespace"/>
 
     <ImageView
-        android:id="@+id/user_icon"
+        android:id="@+id/group_create_contact_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
@@ -25,12 +27,12 @@
         android:layout_marginBottom="16dp"
         android:src="@mipmap/ic_launcher"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/check_box_select_contacts"
+        app:layout_constraintStart_toEndOf="@id/group_create_check_box"
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="@string/avatar" />
 
     <TextView
-        android:id="@+id/user_name"
+        android:id="@+id/group_create_contact_name"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -41,7 +43,7 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_icon"
+        app:layout_constraintStart_toEndOf="@id/group_create_contact_avatar"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center_vertical"/>
 

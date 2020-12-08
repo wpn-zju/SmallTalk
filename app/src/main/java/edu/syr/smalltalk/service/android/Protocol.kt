@@ -35,7 +35,9 @@ class GroupAddRequestMessage (
 
 class GroupCreateRequestMessage (
     @SerializedName(ClientConstant.CHAT_GROUP_CREATE_REQUEST_GROUP_NAME)
-    private val groupName: String
+    private val groupName: String,
+    @SerializedName(ClientConstant.CHAT_GROUP_CREATE_REQUEST_MEMBER_LIST)
+    private val memberList: String
 )
 
 class GroupModifyNameMessage (
@@ -43,6 +45,13 @@ class GroupModifyNameMessage (
     private val groupId: Int,
     @SerializedName(ClientConstant.CHAT_GROUP_MODIFY_NAME_NEW_GROUP_NAME)
     private val newGroupName: String
+)
+
+class GroupInviteMemberMessage (
+    @SerializedName(ClientConstant.CHAT_GROUP_INVITE_MEMBER_GROUP_ID)
+    private val groupId: Int,
+    @SerializedName(ClientConstant.CHAT_GROUP_INVITE_MEMBER_MEMBER_ID)
+    private val memberId: Int
 )
 
 class LoadContactMessage (

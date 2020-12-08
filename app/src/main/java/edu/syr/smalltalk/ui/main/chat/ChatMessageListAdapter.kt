@@ -36,42 +36,22 @@ class ChatMessageListAdapter
                 rHolder.content.text = message.content
             }
             ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> {
-                // val rHolder = holder as VideoViewHolder
-                // val mediaController = MediaController(holder.itemView.context)
-                // mediaController.setMediaPlayer(rHolder.content)
-                // rHolder.content.setMediaController(mediaController)
-                //
+                val rHolder = holder as VideoViewHolder
+                rHolder.content.setVideoPath(message.content)
             }
             ClientConstant.CHAT_CONTENT_TYPE_FILE -> {
                 val rHolder = holder as FileViewHolder
                 rHolder.fileImage.setImageResource(R.mipmap.ic_launcher) // Todo
-                rHolder.fileName.text = "Unknown"
+                rHolder.fileName.text = message.content.substring(message.content.lastIndexOf('/') + 1) // Todo
                 rHolder.fileSize.text = "Unknown" // Todo
-                rHolder.fileState.text = "Click To Download"
-
-                if (chatMessageClickListener != null) {
-                    if (position != RecyclerView.NO_POSITION) {
-                        chatMessageClickListener!!.onItemClickListener(holder.itemView, message.messageId)
+                holder.itemView.setOnClickListener {
+                    if (chatMessageClickListener != null) {
+                        if (position != RecyclerView.NO_POSITION) {
+                            chatMessageClickListener!!.openBrowser(message.content)
+                        }
                     }
                 }
             }
-        }
-
-        holder.itemView.setOnClickListener {
-            if (chatMessageClickListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    chatMessageClickListener!!.onItemClickListener(holder.itemView, message.messageId)
-                }
-            }
-        }
-
-        holder.itemView.setOnLongClickListener {
-            if (chatMessageClickListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    chatMessageClickListener!!.onItemLongClickListener(holder.itemView, message.messageId)
-                }
-            }
-            true
         }
     }
 
@@ -163,7 +143,6 @@ class ChatMessageListAdapter
         val fileImage: ImageView = view.findViewById(R.id.message_file_image)
         val fileName: TextView = view.findViewById(R.id.message_file_name)
         val fileSize: TextView = view.findViewById(R.id.message_file_size)
-        val fileState: TextView = view.findViewById(R.id.message_file_state)
     }
 
     private var chatMessageClickListener: ChatMessageClickListener? = null
@@ -175,8 +154,7 @@ class ChatMessageListAdapter
     interface ChatMessageClickListener {
         fun getUserId(): Int
         fun getChatId(): Int
-        fun onItemClickListener(view: View, messageId: Int)
-        fun onItemLongClickListener(view: View, messageId: Int)
+        fun openBrowser(url: String)
     }
 
     companion object {
