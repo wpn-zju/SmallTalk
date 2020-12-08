@@ -39,11 +39,9 @@ class HelloFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_signIn.setOnClickListener {
-            // TODO: 2. change to BC
             if (serviceProvider.hasService()) {
-                // serviceProvider.getService()!!
-                //     .userSignIn(input_email.text.toString(), input_password.text.toString())
-                serviceProvider.getService()!!.userSignIn("","")
+                serviceProvider.getService()!!
+                    .userSignIn(input_email.text.toString(), input_password.text.toString())
             }
         }
         btn_signup.setOnClickListener {

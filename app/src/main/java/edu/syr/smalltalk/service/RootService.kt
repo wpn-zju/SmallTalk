@@ -9,12 +9,9 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.JobIntentService
 import edu.syr.smalltalk.service.android.ASmallTalkService
-import edu.syr.smalltalk.service.blockchain.BCSmallTalkService
 
 class RootService : JobIntentService() {
-    // TODO: 1. change service here
-    // private val service: ISmallTalkService = ASmallTalkService(this)
-    private val service: ISmallTalkService = BCSmallTalkService(this)
+    private val service: ISmallTalkService = ASmallTalkService(this)
 
     private val binder = RootServiceBinder()
 
