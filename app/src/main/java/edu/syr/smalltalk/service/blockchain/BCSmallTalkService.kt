@@ -11,7 +11,6 @@ class BCSmallTalkService(context: Context) : ISmallTalkService {
     // init functions invoked in ISmallTalkService.onCreate()
     override fun connect() {
         manager.connect()
-        // println(Thread.currentThread().id)
     }
 
     override fun disconnect() {
@@ -39,10 +38,8 @@ class BCSmallTalkService(context: Context) : ISmallTalkService {
 
     }
 
-    // here userEmail stands for path of wallet file
     override fun userSignIn(userEmail: String, userPassword: String) {
-        manager.test("1")
-        manager.test("12")
+
     }
 
     override fun userSessionSignIn(sessionToken: String) {
