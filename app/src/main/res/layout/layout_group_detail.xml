@@ -42,6 +42,7 @@
         app:layout_constraintStart_toStartOf="@+id/text_group_name" />
 
     <Button
+        style="@style/ContainedButton"
         android:id="@+id/group_enter_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,6 +57,7 @@
         app:layout_constraintBottom_toTopOf="@id/group_send_request" />
 
     <Button
+        style="@style/ContainedButton"
         android:id="@+id/group_send_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

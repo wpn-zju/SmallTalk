@@ -12,6 +12,7 @@ import edu.syr.smalltalk.service.android.ASmallTalkService
 
 class RootService : JobIntentService() {
     private val service: ISmallTalkService = ASmallTalkService(this)
+
     private val binder = RootServiceBinder()
 
     inner class RootServiceBinder : Binder() {
@@ -53,7 +54,8 @@ class RootService : JobIntentService() {
         val channel = NotificationChannel("Message", name, importance).apply {
             description = descText
         }
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 }
