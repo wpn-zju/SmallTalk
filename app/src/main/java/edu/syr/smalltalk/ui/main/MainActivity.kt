@@ -91,14 +91,14 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     override fun onAttachFragment(fragment: Fragment) {
-        if (fragment is MainFragment) {
-            if (intent.getStringExtra("command").equals("notification_start")) {
-                val chatId = intent.getIntExtra("chatId", 0)
-                val isGroup = intent.getBooleanExtra("isGroup", false)
-                val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
-                fragment.requireView().findNavController().navigate(action)
-            }
-        }
+        // if (fragment is MainFragment) {
+        //     if (intent.getStringExtra("command").equals("notification_start")) {
+        //         val chatId = intent.getIntExtra("chatId", 0)
+        //         val isGroup = intent.getBooleanExtra("isGroup", false)
+        //         val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
+        //         fragment.requireView().findNavController().navigate(action)
+        //     }
+        // }
     }
 
     private fun setupFetcher() {

@@ -30,7 +30,9 @@ class SmallTalkApplication : Application(), LifecycleObserver {
     }
 
     companion object {
-        const val BASE_URL = "http://192.168.1.224:8079"
-        // const val BASE_URL = "http://smalltalknow.com:8079"
+        // const val HTTP_URL = "http://192.168.1.224:8079"
+        // const val WS_URL = "http://192.168.1.224:8079"
+        const val HTTP_URL = "https://smalltalknow.com:8078"
+        const val WS_URL = "https://smalltalknow.com:8079"
     }
 }

@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.MediaController
 import android.widget.TextView
 import android.widget.VideoView
 import androidx.recyclerview.widget.DiffUtil
@@ -37,13 +38,16 @@ class ChatMessageListAdapter
             }
             ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> {
                 val rHolder = holder as VideoViewHolder
+                val controller = MediaController(holder.content.context)
+                controller.setAnchorView(rHolder.content)
+                rHolder.content.setMediaController(controller)
                 rHolder.content.setVideoPath(message.content)
             }
             ClientConstant.CHAT_CONTENT_TYPE_FILE -> {
                 val rHolder = holder as FileViewHolder
                 rHolder.fileImage.setImageResource(R.mipmap.ic_launcher) // Todo
                 rHolder.fileName.text = message.content.substring(message.content.lastIndexOf('/') + 1) // Todo
-                rHolder.fileSize.text = "Unknown" // Todo
+                rHolder.fileSize.visibility = View.GONE // Todo
                 holder.itemView.setOnClickListener {
                     if (chatMessageClickListener != null) {
                         if (position != RecyclerView.NO_POSITION) {

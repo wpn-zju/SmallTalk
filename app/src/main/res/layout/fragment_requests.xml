@@ -10,7 +10,7 @@
         android:id="@+id/request_list_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryLight"
         android:elevation="4dp"
         android:padding="1dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"

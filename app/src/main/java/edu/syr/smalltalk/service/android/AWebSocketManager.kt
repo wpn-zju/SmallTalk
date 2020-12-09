@@ -28,7 +28,7 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent
 import java.time.Instant
 
 class AWebSocketManager(private val context: Context) {
-    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, SmallTalkApplication.BASE_URL + "/small_talk_websocket/websocket")
+    private val stompClient: StompClient = Stomp.over(Stomp.ConnectionProvider.JWS, SmallTalkApplication.WS_URL + "/small_talk_websocket/websocket")
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private lateinit var smalltalkDao: SmallTalkDao

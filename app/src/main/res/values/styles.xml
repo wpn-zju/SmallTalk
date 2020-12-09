@@ -7,7 +7,7 @@
         <item name="backgroundTint">@color/colorPrimaryLight</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
-    <!--<style name="ToolBar" parent="@style/Widget.MaterialComponents.Toolbar.Primary">-->
-    <!--    <item name="background">@color/colorPrimary</item>-->
-    <!--</style>-->
+    <style name="ToolBar" parent="@style/Widget.MaterialComponents.Toolbar.Primary">
+        <item name="background">@color/colorPrimary</item>
+    </style>
 </resources>

@@ -10,7 +10,7 @@
         android:id="@+id/file_select_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/colorPrimary"
         android:elevation="4dp"
         android:padding="1dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
@@ -46,7 +46,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_upload"
         android:text="@string/select_file"
-        android:textSize="24sp" />
+        android:textSize="18sp"
+        style="@style/ContainedButton"/>
 
     <Button
         android:id="@+id/btn_upload"
@@ -57,5 +58,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="@string/upload_all"
-        android:textSize="24sp" />
+        android:textSize="18sp"
+        style="@style/ContainedButton"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

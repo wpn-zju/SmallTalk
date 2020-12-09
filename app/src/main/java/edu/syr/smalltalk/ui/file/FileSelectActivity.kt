@@ -198,7 +198,7 @@ class FileSelectActivity
                         fileInfo.onUploadResponse()
                         response.body().let { file }
 
-                        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.absolutePath)
+                        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
                         val contentType = when {
                             MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_IMAGE) -> ClientConstant.CHAT_CONTENT_TYPE_IMAGE
                             MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_AUDIO) -> ClientConstant.CHAT_CONTENT_TYPE_AUDIO
@@ -211,13 +211,13 @@ class FileSelectActivity
                                 service.messageForwardGroup(
                                     getUserId(),
                                     intent.getIntExtra("chatId", 0),
-                                    SmallTalkApplication.BASE_URL + "/download/base/" + fileInfo.fileName,
+                                    SmallTalkApplication.HTTP_URL + "/download/base/" + fileInfo.fileName,
                                     contentType)
                             } else {
                                 service.messageForward(
                                     getUserId(),
                                     intent.getIntExtra("chatId", 0),
-                                    SmallTalkApplication.BASE_URL + "/download/base/" + fileInfo.fileName,
+                                    SmallTalkApplication.HTTP_URL + "/download/base/" + fileInfo.fileName,
                                     contentType)
                             }
                         }

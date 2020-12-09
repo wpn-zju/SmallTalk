@@ -17,7 +17,7 @@ class FileListAdapter(private val fileList: ArrayList<FileUploadTask>)
 
         file.holder = holder
 
-        holder.filePreview.setImageURI(file.fileUri)
+        // holder.filePreview.setImageURI(file.fileUri)
         holder.fileName.text = file.fileName
         holder.fileSize.text = longToSizeString(file.fileSize)
         holder.progressBar.progress = file.progress

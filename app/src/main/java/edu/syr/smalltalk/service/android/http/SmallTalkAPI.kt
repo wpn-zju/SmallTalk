@@ -23,7 +23,7 @@ interface SmallTalkAPI {
     companion object {
         operator fun invoke(): SmallTalkAPI {
             return Retrofit.Builder()
-                .baseUrl(SmallTalkApplication.BASE_URL)
+                .baseUrl(SmallTalkApplication.HTTP_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(SmallTalkAPI::class.java)

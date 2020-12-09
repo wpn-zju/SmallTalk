@@ -91,10 +91,10 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
             } else {
                 if (user[0].contactList.contains(chatId)) {
                     val action = MainFragmentDirections.recentMessageListEnterChat(chatId, false)
-                    view.findNavController().navigate(action)
+                    requireView().findNavController().navigate(action)
                 } else if (user[0].groupList.contains(chatId)) {
                     val action = MainFragmentDirections.recentMessageListEnterChat(chatId, true)
-                    view.findNavController().navigate(action)
+                    requireView().findNavController().navigate(action)
                 }
             }
         })
