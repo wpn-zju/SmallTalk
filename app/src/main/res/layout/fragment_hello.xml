@@ -21,10 +21,10 @@
         android:id="@+id/imageView_logo"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:contentDescription="@string/logo"
         app:layout_constraintBottom_toTopOf="@+id/textView_logo"
         app:layout_constraintStart_toEndOf="@+id/textView_logo"
-        app:srcCompat="@drawable/ic_baseline_message_24"
-        android:contentDescription="@string/logo" />
+        app:srcCompat="@drawable/ic_baseline_message_24" />
 
     <EditText
         android:id="@+id/input_email"
@@ -34,13 +34,13 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
+        android:autofillHints=""
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_logo"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@id/textView_logo" />
 
     <EditText
         android:id="@+id/input_password"
@@ -50,16 +50,17 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
+        android:autofillHints=""
         android:hint="@string/password"
         android:inputType="textPassword"
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_email"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@id/input_email" />
 
     <Button
         android:id="@+id/btn_signIn"
+        style="@style/ContainedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -72,29 +73,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_password" />
 
-    <TextView
+    <Button
         android:id="@+id/btn_signup"
+        style="@style/TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="@string/sign_up"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btn_signIn"
         app:layout_constraintTop_toBottomOf="@id/btn_signIn" />
 
-    <TextView
+    <Button
         android:id="@+id/btn_recover_password"
+        style="@style/TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
         android:text="@string/forgot_password"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btn_signIn"
+        app:layout_constraintStart_toEndOf="@+id/btn_signup"
         app:layout_constraintTop_toBottomOf="@id/btn_signIn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

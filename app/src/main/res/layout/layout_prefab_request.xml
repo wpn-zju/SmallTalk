@@ -61,7 +61,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/decline"
         android:textSize="20sp"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorSecondaryDark"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_request_confirm" />
 
@@ -73,7 +73,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/accept"
         android:textSize="20sp"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimaryLight"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

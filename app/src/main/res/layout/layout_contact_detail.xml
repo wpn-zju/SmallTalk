@@ -66,6 +66,7 @@
         app:layout_constraintTop_toBottomOf="@+id/text_what_s_up_label" />
 
     <Button
+        style="@style/ContainedButton"
         android:id="@+id/contact_enter_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,6 +81,7 @@
         app:layout_constraintBottom_toTopOf="@id/contact_send_request" />
 
     <Button
+        style="@style/ContainedButton"
         android:id="@+id/contact_send_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
