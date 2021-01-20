@@ -1,15 +1,13 @@
 package edu.syr.smalltalk.service.android
 
-import android.content.Context
 import com.google.gson.Gson
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.android.constant.ClientConstant
-import edu.syr.smalltalk.service.model.logic.SmallTalkDao
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import java.time.Instant
 
-// Consider combine AWebSocketManager and ASmallTalkService in ONE class to reduce unnecessary dependency injection
-class ASmallTalkService(context: Context) : ISmallTalkService {
-    private val webSocketManager: AWebSocketManager = AWebSocketManager(context)
+class ASmallTalkService(application: SmallTalkApplication) : ISmallTalkService {
+    private val webSocketManager: AWebSocketManager = AWebSocketManager(application)
 
     override fun connect() {
         webSocketManager.connect()
@@ -17,10 +15,6 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
 
     override fun disconnect() {
         webSocketManager.disconnect()
-    }
-
-    override fun setDataAccessor(smallTalkDao: SmallTalkDao) {
-        webSocketManager.setDataAccessor(smallTalkDao)
     }
 
     override fun userSignUp(userEmail: String, userPassword: String, passcode: String) {
@@ -91,31 +85,37 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
         )
     }
 
-    override fun userModifyName(newUserName: String) {
+    override fun userModifyInfo(
+        userId: Int,
+        userName: String?,
+        userPassword: String?,
+        userGender: Int?,
+        userAvatarLink: String?,
+        userInfo: String?,
+        userLocation: String?
+    ) {
         webSocketManager.send(
-            ClientConstant.API_USER_MODIFY_NAME,
-            Gson().toJson(UserModifyNameMessage(
-                newUserName
+            ClientConstant.API_USER_MODIFY_INFO,
+            Gson().toJson(UserModifyInfoMessage(
+                userId,
+                userName,
+                userPassword,
+                userGender,
+                userAvatarLink,
+                userInfo,
+                userLocation
             ))
         )
     }
 
-    override fun userModifyPassword(newUserPassword: String) {
-        webSocketManager.send(
-            ClientConstant.API_USER_MODIFY_PASSWORD,
-            Gson().toJson(UserModifyPasswordMessage(
-                newUserPassword
-            ))
-        )
-    }
-
-    override fun loadUser() {
+    override fun loadUser(userId: Int) {
         webSocketManager.send(
             ClientConstant.API_LOAD_USER,
             Gson().toJson(LoadUserMessage(
-
+                userId
             ))
         )
+        loadContact(userId)
     }
 
     override fun loadContact(contactId: Int) {
@@ -126,8 +126,7 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
             ))
         )
     }
-// sub event
-    /// insert
+
     override fun loadContactByEmail(contactEmail: String) {
         webSocketManager.send(
             ClientConstant.API_LOAD_CONTACT_BY_EMAIL,
@@ -151,6 +150,16 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
             ClientConstant.API_LOAD_REQUEST,
             Gson().toJson(LoadRequestMessage(
                 requestId
+            ))
+        )
+    }
+
+    override fun loadFileList(firstSelector: Int, secondSelector: Int) {
+        webSocketManager.send(
+            ClientConstant.API_LOAD_FILE_LIST,
+            Gson().toJson(LoadFileListMessage(
+                firstSelector,
+                secondSelector
             ))
         )
     }
@@ -208,6 +217,15 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
         )
     }
 
+    override fun contactAddRevoke(requestId: Int) {
+        webSocketManager.send(
+            ClientConstant.API_CHAT_CONTACT_ADD_REVOKE,
+            Gson().toJson(ContactAddRevokeMessage(
+                requestId
+            ))
+        )
+    }
+
     override fun groupCreateRequest(groupName: String, memberList: String) {
         webSocketManager.send(
             ClientConstant.API_CHAT_GROUP_CREATE_REQUEST,
@@ -218,12 +236,19 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
         )
     }
 
-    override fun groupModifyName(groupId: Int, newGroupName: String) {
+    override fun groupModifyInfo(
+        groupId: Int,
+        groupName: String?,
+        groupInfo: String?,
+        groupAvatarLink: String?
+    ) {
         webSocketManager.send(
-            ClientConstant.API_CHAT_GROUP_MODIFY_NAME,
-            Gson().toJson(GroupModifyNameMessage(
+            ClientConstant.API_GROUP_MODIFY_INFO,
+            Gson().toJson(GroupModifyInfoMessage(
                 groupId,
-                newGroupName
+                groupName,
+                groupInfo,
+                groupAvatarLink
             ))
         )
     }
@@ -265,14 +290,43 @@ class ASmallTalkService(context: Context) : ISmallTalkService {
         )
     }
 
-    override fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String) {
+    override fun groupAddRevoke(requestId: Int) {
+        webSocketManager.send(
+            ClientConstant.API_CHAT_GROUP_ADD_REVOKE,
+            Gson().toJson(GroupAddRevokeMessage(
+                requestId
+            ))
+        )
+    }
+
+    override fun webRTCCall(channel: String, command: String, data: String) {
         webSocketManager.send(
             ClientConstant.API_CHAT_WEBRTC_CALL,
             Gson().toJson(WebRTCCallMessage(
-                senderId,
-                receiverId,
-                webrtcCommand,
-                webrtcSessionDescription
+                channel,
+                command,
+                data
+            ))
+        )
+    }
+
+    override fun fileArchive(
+        firstSelector: Int,
+        secondSelector: Int,
+        fileName: String,
+        fileLink: String,
+        fileUploader: Int,
+        fileSize: Int
+    ) {
+        webSocketManager.send(
+            ClientConstant.API_FILE_ARCHIVE,
+            Gson().toJson(FileArchiveMessage(
+                firstSelector,
+                secondSelector,
+                fileName,
+                fileLink,
+                fileUploader,
+                fileSize
             ))
         )
     }

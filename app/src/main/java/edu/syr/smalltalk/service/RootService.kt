@@ -9,9 +9,10 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.JobIntentService
 import edu.syr.smalltalk.service.android.ASmallTalkService
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 
 class RootService : JobIntentService() {
-    private val service: ISmallTalkService = ASmallTalkService(this)
+    private lateinit var service: ISmallTalkService
 
     private val binder = RootServiceBinder()
 
@@ -20,17 +21,17 @@ class RootService : JobIntentService() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        Log.v("Bind", "Bind")
+        Log.v("Root Service Lifecycle", "Bind")
         return binder
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        Log.v("Unbind", "Unbind")
+        Log.v("Root Service Lifecycle", "Unbind")
         return super.onUnbind(intent)
     }
 
     override fun onRebind(intent: Intent?) {
-        Log.v("Rebind", "Rebind")
+        Log.v("Root Service Lifecycle", "Rebind")
         super.onRebind(intent)
     }
 
@@ -40,6 +41,7 @@ class RootService : JobIntentService() {
 
     override fun onCreate() {
         createNotificationChannel()
+        service = ASmallTalkService(application as SmallTalkApplication)
         service.connect()
     }
 

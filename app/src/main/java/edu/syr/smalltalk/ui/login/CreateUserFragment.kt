@@ -38,19 +38,14 @@ class CreateUserFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_new_user_send_passcode.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!
-                    .userSignUpPasscodeRequest(input_new_user_email.text.toString())
-            }
+            serviceProvider.getService()?.userSignUpPasscodeRequest(input_new_user_email.text.toString())
         }
 
         btn_new_user_next.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!.userSignUp(
-                    input_new_user_email.text.toString(),
-                    input_new_user_password.text.toString(),
-                    input_new_user_passcode.text.toString())
-            }
+            serviceProvider.getService()?.userSignUp(
+                input_new_user_email.text.toString(),
+                input_new_user_password.text.toString(),
+                input_new_user_passcode.text.toString())
         }
     }
 }

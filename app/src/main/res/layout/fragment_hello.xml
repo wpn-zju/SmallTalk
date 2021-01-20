@@ -7,7 +7,7 @@
     tools:context=".ui.login.HelloFragment">
 
     <TextView
-        android:id="@+id/textView_logo"
+        android:id="@+id/app_logo_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="160dp"
@@ -18,12 +18,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView_logo"
+        android:id="@+id/app_logo_image"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:contentDescription="@string/logo"
-        app:layout_constraintBottom_toTopOf="@+id/textView_logo"
-        app:layout_constraintStart_toEndOf="@+id/textView_logo"
+        android:contentDescription="@string/content_description_logo"
+        app:layout_constraintBottom_toTopOf="@+id/app_logo_text"
+        app:layout_constraintStart_toEndOf="@+id/app_logo_text"
         app:srcCompat="@drawable/ic_baseline_message_24" />
 
     <EditText
@@ -35,12 +35,12 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:autofillHints=""
-        android:hint="@string/email"
+        android:hint="@string/hint_email"
         android:inputType="textEmailAddress"
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_logo" />
+        app:layout_constraintTop_toBottomOf="@id/app_logo_text" />
 
     <EditText
         android:id="@+id/input_password"
@@ -51,7 +51,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:autofillHints=""
-        android:hint="@string/password"
+        android:hint="@string/label_password"
         android:inputType="textPassword"
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -65,7 +65,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
-        android:text="@string/sign_in"
+        android:text="@string/hello_sign_in"
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -76,7 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="@string/sign_up"
+        android:text="@string/hello_sign_up"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/btn_signIn"
@@ -87,7 +87,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="@string/forgot_password"
+        android:text="@string/hello_forgot_password"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/btn_signIn"

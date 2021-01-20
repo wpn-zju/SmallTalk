@@ -1,26 +1,42 @@
 package edu.syr.smalltalk.ui.main.chat
 
+import android.content.Context
+import android.media.MediaPlayer
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.MediaController
-import android.widget.TextView
-import android.widget.VideoView
+import android.widget.*
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.entity.SmallTalkMessage
+import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 
-class ChatMessageListAdapter
+class ChatMessageListAdapter(
+    private val context: Context,
+    private val lifecycleOwner: LifecycleOwner,
+    private val viewModel: SmallTalkViewModel)
     :ListAdapter<SmallTalkMessage, ChatMessageListAdapter.MessageViewHolder>(ChatMessageListDiffCallback()){
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         val message = getItem(position)
-        holder.avatar.setImageResource(R.mipmap.ic_launcher)
+
+        viewModel.watchCurrentContact(message.sender).observe(lifecycleOwner) {
+            if (it.isNotEmpty()) {
+                val contactInfo = it[0]
+                Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
+                    .load(contactInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.avatar)
+            } else {
+                chatMessageClickListener?.loadContact(message.sender)
+            }
+        }
 
         when (message.contentType) {
             ClientConstant.CHAT_CONTENT_TYPE_TEXT -> {
@@ -28,31 +44,69 @@ class ChatMessageListAdapter
                 rHolder.content.text = message.content
             }
             ClientConstant.CHAT_CONTENT_TYPE_IMAGE -> {
+                val fileDescription = Gson().fromJson(message.content, JsonObject::class.java)
+                val url = fileDescription.get("file_url").asString
                 val rHolder = holder as ImageViewHolder
                 Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(message.content).into(rHolder.content)
+                    .load(url).error(R.drawable.data_not_found).into(rHolder.content)
             }
             ClientConstant.CHAT_CONTENT_TYPE_AUDIO -> {
+                // TODO: TEST AUDIO PLAY
+                val fileDescription = Gson().fromJson(message.content, JsonObject::class.java)
+                val url = fileDescription.get("file_url").asString
                 val rHolder = holder as AudioViewHolder
-                rHolder.content.text = message.content
+                val mp = MediaPlayer.create(context, Uri.parse(url))
+                rHolder.playButtonImage.setOnClickListener {
+                    if (mp.isPlaying) {
+                        mp.stop()
+                        rHolder.playButtonImage.setImageResource(R.drawable.ic_outline_play_circle_outline_48)
+                    } else {
+                        mp.start()
+                        rHolder.playButtonImage.setImageResource(R.drawable.ic_baseline_pause_circle_outline_48)
+                        rHolder.progressText.post {
+                            while (mp.isPlaying) {
+                                val progress: Int = mp.currentPosition * 100 / mp.duration
+                                rHolder.seekBar.progress = progress
+                                rHolder.progressText.text = String.format("%d:%d / %d:%d",
+                                    mp.currentPosition / 1000 / 60,
+                                    mp.currentPosition / 1000 % 60,
+                                    mp.duration / 1000 / 60,
+                                    mp.duration / 1000 % 60)
+                                Thread.sleep(1000)
+                            }
+                        }
+                    }
+                }
+                mp.release()
+                mp.setOnCompletionListener {
+                    rHolder.playButtonImage.setImageResource(R.drawable.ic_outline_play_circle_outline_48)
+                    val progress: Int = mp.currentPosition * 100 / mp.duration
+                    rHolder.seekBar.progress = progress
+                    rHolder.progressText.text = String.format("%d:%d / %d:%d",
+                        mp.currentPosition / 1000 / 60,
+                        mp.currentPosition / 1000 % 60,
+                        mp.duration / 1000 / 60,
+                        mp.duration / 1000 % 60)
+                }
             }
             ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> {
+                val fileDescription = Gson().fromJson(message.content, JsonObject::class.java)
+                val url = fileDescription.get("file_url").asString
                 val rHolder = holder as VideoViewHolder
                 val controller = MediaController(holder.content.context)
                 controller.setAnchorView(rHolder.content)
                 rHolder.content.setMediaController(controller)
-                rHolder.content.setVideoPath(message.content)
+                rHolder.content.setVideoPath(url)
             }
             ClientConstant.CHAT_CONTENT_TYPE_FILE -> {
+                val fileDescription = Gson().fromJson(message.content, JsonObject::class.java)
                 val rHolder = holder as FileViewHolder
-                rHolder.fileImage.setImageResource(R.mipmap.ic_launcher) // Todo
-                rHolder.fileName.text = message.content.substring(message.content.lastIndexOf('/') + 1) // Todo
-                rHolder.fileSize.visibility = View.GONE // Todo
+                rHolder.fileImage.setImageResource(R.drawable.ic_outline_insert_drive_file_48)
+                rHolder.fileName.text = fileDescription.get("file_name").asString
+                rHolder.fileSize.text = fileDescription.get("file_size").asString
                 holder.itemView.setOnClickListener {
-                    if (chatMessageClickListener != null) {
-                        if (position != RecyclerView.NO_POSITION) {
-                            chatMessageClickListener!!.openBrowser(message.content)
-                        }
+                    if (position != RecyclerView.NO_POSITION) {
+                        chatMessageClickListener?.openBrowser(fileDescription.get("file_url").asString)
                     }
                 }
             }
@@ -136,7 +190,9 @@ class ChatMessageListAdapter
     }
 
     inner class AudioViewHolder(view: View) : MessageViewHolder(view) {
-        val content: TextView = view.findViewById(R.id.message_text_content)
+        val playButtonImage: ImageView = view.findViewById(R.id.audio_player_button_image)
+        val seekBar: SeekBar = view.findViewById(R.id.audio_player_seek_bar)
+        val progressText: TextView = view.findViewById(R.id.audio_player_progress_text)
     }
 
     inner class VideoViewHolder(view: View) : MessageViewHolder(view) {
@@ -159,6 +215,7 @@ class ChatMessageListAdapter
         fun getUserId(): Int
         fun getChatId(): Int
         fun openBrowser(url: String)
+        fun loadContact(contactId: Int)
     }
 
     companion object {

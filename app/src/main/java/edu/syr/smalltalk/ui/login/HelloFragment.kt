@@ -39,10 +39,7 @@ class HelloFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_signIn.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!
-                    .userSignIn(input_email.text.toString(), input_password.text.toString())
-            }
+            serviceProvider.getService()?.userSignIn(input_email.text.toString(), input_password.text.toString())
         }
         btn_signup.setOnClickListener {
             val action = HelloFragmentDirections.actionFragmentHelloToFragmentCreateUser()

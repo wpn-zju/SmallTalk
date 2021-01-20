@@ -47,30 +47,27 @@ class GroupCreateFragment : Fragment(), GroupCreateListAdapter.GroupCreateContac
         super.onViewCreated(view, savedInstanceState)
 
         adapter.setGroupCreateListener(this)
-        recycler_group_create_list.layoutManager = LinearLayoutManager(context)
-        recycler_group_create_list.adapter = adapter
+        recycler_view_group_create_list.layoutManager = LinearLayoutManager(context)
+        recycler_view_group_create_list.adapter = adapter
 
         val userId: Int = PreferenceManager
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getContactList(userId).observe(viewLifecycleOwner, { contactList ->
+        viewModel.watchContactList(userId).observe(viewLifecycleOwner) { contactList ->
             contactList.let { cList ->
                 adapter.submitList(cList.stream()
                     .map { contact ->
                         Pair(contact, checkedMap.getOrDefault(contact.contactId, false))
                     }.collect(Collectors.toList()))
             }
-        })
+        }
 
-        btn_create_group_create.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!
-                    .groupCreateRequest("New Group", checkedMap.toList().stream()
-                        .filter { kvp -> kvp.second }
-                        .map { kvp -> kvp.first }
-                        .collect(Collectors.toList()).toString())
-            }
+        create_group_btn_create.setOnClickListener {
+            serviceProvider.getService()?.groupCreateRequest("New Group", checkedMap.toList().stream()
+                .filter { kvp -> kvp.second }
+                .map { kvp -> kvp.first }
+                .collect(Collectors.toList()).toString())
             val action = GroupCreateFragmentDirections.groupCreateReturnMain()
             requireView().findNavController().navigate(action)
         }

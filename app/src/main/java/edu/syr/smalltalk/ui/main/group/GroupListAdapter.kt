@@ -1,6 +1,5 @@
 package edu.syr.smalltalk.ui.main.group
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,23 +16,16 @@ class GroupListAdapter
 
     override fun onBindViewHolder(holder: GroupListAdapter.GroupListViewHolder, position: Int) {
         val group = getItem(position)
-        holder.groupAvatar.setImageResource(R.mipmap.ic_launcher)
+        holder.groupAvatar.setImageResource(R.mipmap.ic_smalltalk)
         holder.groupName.text = group.groupName
-
         holder.itemView.setOnClickListener {
-            Log.v("T","T")
-            if (groupClickListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    groupClickListener!!.onItemClickListener(holder.itemView, group.groupId)
-                }
+            if (position != RecyclerView.NO_POSITION) {
+                groupClickListener?.onItemClickListener(holder.itemView, group.groupId)
             }
         }
-
         holder.itemView.setOnLongClickListener {
-            if (groupClickListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    groupClickListener!!.onItemLongClickListener(holder.itemView, group.groupId)
-                }
+            if (position != RecyclerView.NO_POSITION) {
+                groupClickListener?.onItemLongClickListener(holder.itemView, group.groupId)
             }
             true
         }
@@ -46,13 +38,13 @@ class GroupListAdapter
     }
 
     inner class GroupListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val groupAvatar: ImageView = view.findViewById(R.id.group_icon)
+        val groupAvatar: ImageView = view.findViewById(R.id.group_avatar)
         val groupName: TextView = view.findViewById(R.id.group_name)
     }
 
-    private var groupClickListener: GroupListAdapter.GroupClickListener? = null
+    private var groupClickListener: GroupClickListener? = null
 
-    fun setGroupClickListener(listener: GroupListAdapter.GroupClickListener) {
+    fun setGroupClickListener(listener: GroupClickListener) {
         groupClickListener = listener
     }
 

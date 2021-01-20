@@ -18,7 +18,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="160dp"
             android:layout_marginEnd="32dp"
-            android:hint="@string/email"
+            android:hint="@string/hint_email"
             android:inputType="textEmailAddress"
             android:textSize="28sp"
             android:autofillHints="" />
@@ -31,7 +31,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            android:hint="@string/password"
+            android:hint="@string/label_password"
             android:inputType="textPassword"
             android:textSize="28sp"
             android:autofillHints="" />
@@ -44,7 +44,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            android:hint="@string/passcode"
+            android:hint="@string/hint_passcode"
             android:inputType="textEmailAddress"
             android:textSize="28sp"
             android:autofillHints="" />
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/btn_new_user_next"
-                android:text="@string/send_passcode"
+                android:text="@string/button_send_passcode"
                 android:textSize="24sp" />
 
             <Button
@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:text="@string/next"
+                android:text="@string/button_confirm"
                 android:textSize="24sp" />
         </RelativeLayout>
     </LinearLayout>

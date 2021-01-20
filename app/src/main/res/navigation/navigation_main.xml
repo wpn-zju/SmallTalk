@@ -31,6 +31,9 @@
         <action
             android:id="@+id/profile_view_request"
             app:destination="@id/navigation_request_list" />
+        <action
+            android:id="@+id/profile_modify_info"
+            app:destination="@id/userInfoFragment" />
     </fragment>
 
     <fragment
@@ -96,7 +99,7 @@
     <fragment
         android:id="@+id/navigation_chat"
         android:name="edu.syr.smalltalk.ui.main.chat.ChatFragment"
-        android:label="@string/fragment_chat"
+        android:label="fragment_chat"
         tools:layout="@layout/fragment_chat">
         <action
             android:id="@+id/chat_room_view_group"
@@ -104,6 +107,12 @@
         <action
             android:id="@+id/chat_room_view_contact"
             app:destination="@id/navigation_contact_detail" />
+        <action
+            android:id="@+id/chat_room_modify_group_info"
+            app:destination="@id/groupInfoFragment" />
+        <action
+            android:id="@+id/chat_room_view_file_archive"
+            app:destination="@id/fileFragment" />
         <argument
             android:name="chatId"
             app:argType="integer" />
@@ -128,5 +137,76 @@
             app:destination="@id/navigation_main_fragment"
             app:popUpTo="@id/navigation_main_fragment"
             app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fileFragment"
+        android:name="edu.syr.smalltalk.ui.main.file.FileFragment"
+        android:label="FileFragment"
+        tools:layout="@layout/fragment_file">
+        <argument
+            android:name="firstSelector"
+            app:argType="integer" />
+        <argument
+            android:name="secondSelector"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userInfoFragment"
+        android:name="edu.syr.smalltalk.ui.main.UserInfoFragment"
+        android:label="UserInfoFragment"
+        tools:layout="@layout/fragment_user_info">
+        <argument
+            android:name="userId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/user_info_upload_image"
+            app:destination="@id/imageUploadFragment" />
+        <action
+            android:id="@+id/user_info_upload_text"
+            app:destination="@id/textUploadFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/groupInfoFragment"
+        android:name="edu.syr.smalltalk.ui.main.GroupInfoFragment"
+        android:label="GroupInfoFragment"
+        tools:layout="@layout/fragment_group_info">
+        <argument
+            android:name="groupId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/group_info_upload_image"
+            app:destination="@id/imageUploadFragment" />
+        <action
+            android:id="@+id/group_info_upload_text"
+            app:destination="@id/textUploadFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/imageUploadFragment"
+        android:name="edu.syr.smalltalk.ui.main.ImageUploadFragment"
+        android:label="ImageUploadFragment"
+        tools:layout="@layout/fragment_image_upload">
+        <argument
+            android:name="uploadType"
+            app:argType="string" />
+        <argument
+            android:name="uploadId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/textUploadFragment"
+        android:name="edu.syr.smalltalk.ui.main.TextUploadFragment"
+        android:label="TextUploadFragment"
+        tools:layout="@layout/fragment_text_upload">
+        <argument
+            android:name="uploadType"
+            app:argType="string" />
+        <argument
+            android:name="uploadId"
+            app:argType="integer" />
     </fragment>
 </navigation>

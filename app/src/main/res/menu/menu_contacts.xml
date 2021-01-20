@@ -2,5 +2,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_new_contact"
-        android:title="@string/new_contacts" />
+        android:title="@string/nav_contact_list_new_contacts" />
 </menu>

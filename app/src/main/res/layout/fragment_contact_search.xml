@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:elevation="4dp"
             android:padding="1dp"
-            app:title="@string/new_contacts" />
+            app:title="@string/menu_new_contacts" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -31,7 +31,7 @@
         android:layout_marginTop="160dp"
         android:layout_marginEnd="32dp"
         android:autofillHints=""
-        android:hint="@string/contact_email_address"
+        android:hint="@string/hint_contact_email_address"
         android:inputType="textEmailAddress"
         android:textSize="28sp" />
 
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:text="@string/next"
+            android:text="@string/button_confirm"
             android:textSize="24sp" />
     </RelativeLayout>
 </LinearLayout>

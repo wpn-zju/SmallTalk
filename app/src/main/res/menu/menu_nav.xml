@@ -3,20 +3,17 @@
     <item
         android:id="@+id/navigation_message"
         android:icon="@drawable/ic_baseline_message_black_24"
-        android:title="@string/bottom_bar_message" />
-
+        android:title="@string/bottom_bar_message_list" />
     <item
         android:id="@+id/navigation_contacts"
         android:icon="@drawable/ic_baseline_person_24"
-        android:title="@string/bottom_bar_contacts" />
-
+        android:title="@string/bottom_bar_contact_list" />
     <item
         android:id="@+id/navigation_groups"
         android:icon="@drawable/ic_baseline_group_24"
-        android:title="@string/bottom_bar_groups" />
-
+        android:title="@string/bottom_bar_group_list" />
     <item
         android:id="@+id/navigation_about_me"
         android:icon="@drawable/ic_baseline_account_circle_24"
-        android:title="@string/bottom_bar_about_me" />
+        android:title="@string/bottom_bar_about" />
 </menu>

@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import edu.syr.smalltalk.service.model.converter.InstantConverter
 import edu.syr.smalltalk.service.model.converter.IntArrayConverter
-import edu.syr.smalltalk.service.model.converter.JsonObjectConverter
 import edu.syr.smalltalk.service.model.entity.*
 
 @Database(entities = [
@@ -15,10 +14,11 @@ import edu.syr.smalltalk.service.model.entity.*
     SmallTalkContact::class,
     SmallTalkGroup::class,
     SmallTalkRequest::class,
-    SmallTalkMessage::class],
+    SmallTalkMessage::class,
+    SmallTalkFile::class],
     version = 1, exportSchema = false)
 
-@TypeConverters(IntArrayConverter::class, InstantConverter::class, JsonObjectConverter::class)
+@TypeConverters(IntArrayConverter::class, InstantConverter::class)
 abstract class SmallTalkRoomDatabase : RoomDatabase() {
     abstract fun smallTalkDao(): SmallTalkDao
 

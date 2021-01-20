@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -42,23 +43,21 @@ class GroupDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getCurrentGroup(args.groupId).observe(viewLifecycleOwner, { group ->
+        viewModel.watchCurrentGroup(args.groupId).observe(viewLifecycleOwner) { group ->
             if (group.isEmpty()) {
-                image_group_avatar.setImageResource(R.mipmap.ic_launcher)
-                text_group_name.text = "Loading..."
-                text_group_description.text = "Loading..."
-                group_enter_chat.visibility = View.GONE
-                group_send_request.visibility = View.GONE
+                serviceProvider.getService()?.loadGroup(args.groupId)
             } else {
-                group_detail_toolbar.title = group[0].groupName
-                image_group_avatar.setImageResource(R.mipmap.ic_launcher)
-                text_group_name.text = group[0].groupName
-                text_group_description.text = group[0].groupName
+                val groupInfo = group[0]
+                Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
+                    .load(groupInfo.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(group_avatar)
+                group_detail_toolbar.title = groupInfo.groupName
+                group_name.text = groupInfo.groupName
+                group_description.text = groupInfo.groupName
                 if (args.isMember) {
                     group_enter_chat.visibility = View.VISIBLE
                     group_send_request.visibility = View.GONE
                     group_enter_chat.setOnClickListener {
-                        val action = GroupDetailFragmentDirections.groupDetailEnterChat(group[0].groupId, true)
+                        val action = GroupDetailFragmentDirections.groupDetailEnterChat(groupInfo.groupId, true)
                         view.findNavController().navigate(action)
                     }
                     group_send_request.setOnClickListener {
@@ -71,12 +70,10 @@ class GroupDetailFragment : Fragment() {
 
                     }
                     group_send_request.setOnClickListener {
-                        if (serviceProvider.hasService()) {
-                            serviceProvider.getService()!!.groupAddRequest(group[0].groupId)
-                        }
+                        serviceProvider.getService()?.groupAddRequest(groupInfo.groupId)
                     }
                 }
             }
-        })
+        }
     }
 }

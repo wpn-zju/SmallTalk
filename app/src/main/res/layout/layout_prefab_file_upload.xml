@@ -16,58 +16,71 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@mipmap/ic_launcher"
-        android:contentDescription="@string/avatar" />
+        android:src="@mipmap/ic_smalltalk"
+        android:contentDescription="@string/label_avatar" />
 
     <TextView
         android:id="@+id/file_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/file_preview"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/progress_bar"
-        app:layout_constraintEnd_toStartOf="@id/file_size"
-        app:layout_constrainedWidth="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/file_name_placeholder"
+        android:textSize="18sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@id/file_progress_bar"
+        app:layout_constraintEnd_toStartOf="@id/file_size"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintVertical_bias="0.0"
-        android:text="@string/file_name_holder"
-        android:textSize="18sp"/>
+        app:layout_constraintStart_toEndOf="@id/file_preview"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/file_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/file_size_holder"
+        android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
+        android:text="@string/file_size_placeholder"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintBottom_toTopOf="@id/file_progress_bar"
         app:layout_constraintEnd_toStartOf="@id/file_cancel"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        android:gravity="center_vertical"/>
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/file_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/file_status_placeholder"
+        android:textSize="18sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@id/file_progress_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/file_size"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/file_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/progress_bar"
-        app:layout_constraintVertical_bias="0.0"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/content_description_file_cancel"
         android:src="@drawable/ic_baseline_cancel_24"
-        android:contentDescription="@string/file_cancel" />
+        app:layout_constraintBottom_toTopOf="@id/file_progress_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/file_progress_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:max="100"

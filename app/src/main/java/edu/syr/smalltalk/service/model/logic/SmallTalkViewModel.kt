@@ -5,21 +5,24 @@ import edu.syr.smalltalk.service.model.entity.*
 import java.util.stream.Collectors
 
 // All return values in this class should be LiveData<T>
-class SmallTalkViewModel(private val application: SmallTalkApplication, private val repository: SmallTalkRepository) : AndroidViewModel(application) {
-    val userList: LiveData<List<SmallTalkUser>> = repository.userList.asLiveData()
+class SmallTalkViewModel(application: SmallTalkApplication, private val repository: SmallTalkRepository)
+    : AndroidViewModel(application) {
 
-    fun getCurrentUserInfo(userId: Int): LiveData<List<SmallTalkUser>> {
-        return repository.getUser(userId).asLiveData()
+    val userList: LiveData<List<SmallTalkUser>> = repository.watchUserList.asLiveData()
+
+    fun watchCurrentUserInfo(userId: Int): LiveData<List<SmallTalkUser>> {
+        return repository.watchUser(userId).asLiveData()
     }
 
-    fun getCurrentContact(contactId: Int): LiveData<List<SmallTalkContact>> {
-        return repository.getContact(contactId).asLiveData()
+    fun watchCurrentContact(contactId: Int): LiveData<List<SmallTalkContact>> {
+        return repository.watchContact(contactId).asLiveData()
     }
 
-    private val contactList: LiveData<List<SmallTalkContact>> = repository.contactList.asLiveData()
+    private val contactList: LiveData<List<SmallTalkContact>> =
+        repository.watchContactList.asLiveData()
 
-    fun getContactList(userId: Int): LiveData<List<SmallTalkContact>> {
-        val contactListMediator = ContactListLiveData(getCurrentUserInfo(userId), contactList)
+    fun watchContactList(userId: Int): LiveData<List<SmallTalkContact>> {
+        val contactListMediator = ContactListLiveData(watchCurrentUserInfo(userId), contactList)
         return Transformations.map(contactListMediator) { mediator ->
             when {
                 mediator.first == null -> {
@@ -37,14 +40,14 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
         }
     }
 
-    fun getCurrentGroup(groupId: Int): LiveData<List<SmallTalkGroup>> {
-        return repository.getGroup(groupId).asLiveData()
+    fun watchCurrentGroup(groupId: Int): LiveData<List<SmallTalkGroup>> {
+        return repository.watchGroup(groupId).asLiveData()
     }
 
-    private val groupList: LiveData<List<SmallTalkGroup>> = repository.groupList.asLiveData()
+    private val groupList: LiveData<List<SmallTalkGroup>> = repository.watchGroupList.asLiveData()
 
-    fun getGroupList(userId: Int): LiveData<List<SmallTalkGroup>> {
-        val groupListMediator = GroupListLiveData(getCurrentUserInfo(userId), groupList)
+    fun watchGroupList(userId: Int): LiveData<List<SmallTalkGroup>> {
+        val groupListMediator = GroupListLiveData(watchCurrentUserInfo(userId), groupList)
         return Transformations.map(groupListMediator) { mediator ->
             when {
                 mediator.first == null -> {
@@ -62,14 +65,15 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
         }
     }
 
-    fun getCurrentRequest(requestId: Int): LiveData<List<SmallTalkRequest>> {
-        return repository.getRequest(requestId).asLiveData()
+    fun watchCurrentRequest(requestId: Int): LiveData<List<SmallTalkRequest>> {
+        return repository.watchRequest(requestId).asLiveData()
     }
 
-    private val requestList: LiveData<List<SmallTalkRequest>> = repository.requestList.asLiveData()
+    private val requestList: LiveData<List<SmallTalkRequest>> =
+        repository.watchRequestList.asLiveData()
 
-    fun getRequestList(userId: Int): LiveData<List<SmallTalkRequest>> {
-        val requestListMediator = RequestListLiveData(getCurrentUserInfo(userId), requestList)
+    fun watchRequestList(userId: Int): LiveData<List<SmallTalkRequest>> {
+        val requestListMediator = RequestListLiveData(watchCurrentUserInfo(userId), requestList)
         return Transformations.map(requestListMediator) { mediator ->
             when {
                 mediator.first == null -> {
@@ -87,12 +91,20 @@ class SmallTalkViewModel(private val application: SmallTalkApplication, private 
         }
     }
 
-    fun getRecentMessageList(userId: Int): LiveData<List<SmallTalkMessage>> {
-        return repository.getRecentMessageList(userId).asLiveData()
+    fun watchRecentMessageList(userId: Int): LiveData<List<SmallTalkRecentMessage>> {
+        return repository.watchRecentMessageList(userId).asLiveData()
     }
 
-    fun getCurrentMessageList(userId: Int, chatId: Int): LiveData<List<SmallTalkMessage>> {
-        return repository.getChatMessageList(userId, chatId).asLiveData()
+    fun watchCurrentMessageList(userId: Int, chatId: Int): LiveData<List<SmallTalkMessage>> {
+        return repository.watchChatMessageList(userId, chatId).asLiveData()
+    }
+
+    fun readMessage(userId: Int, chatId: Int) {
+        repository.readMessage(userId, chatId)
+    }
+
+    fun watchFileList(firstSelector: Int, secondSelector: Int): LiveData<List<SmallTalkFile>> {
+        return repository.watchFileList(firstSelector, secondSelector).asLiveData()
     }
 }
 

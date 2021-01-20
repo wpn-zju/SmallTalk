@@ -16,22 +16,16 @@ class ContactListAdapter
 
     override fun onBindViewHolder(holder: ContactListViewHolder, position: Int) {
         val contact = getItem(position)
-        holder.contactAvatar.setImageResource(R.mipmap.ic_launcher)
+        holder.contactAvatar.setImageResource(R.mipmap.ic_smalltalk)
         holder.contactName.text = contact.contactName
-
         holder.itemView.setOnClickListener {
-            if (contactClickListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    contactClickListener!!.onItemClickListener(holder.itemView, contact.contactId)
-                }
+            if (position != RecyclerView.NO_POSITION) {
+                contactClickListener?.onItemClickListener(holder.itemView, contact.contactId)
             }
         }
-
         holder.itemView.setOnLongClickListener {
-            if (contactClickListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    contactClickListener!!.onItemLongClickListener(holder.itemView, contact.contactId)
-                }
+            if (position != RecyclerView.NO_POSITION) {
+                contactClickListener?.onItemLongClickListener(holder.itemView, contact.contactId)
             }
             true
         }
@@ -44,8 +38,8 @@ class ContactListAdapter
     }
 
     inner class ContactListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val contactAvatar: ImageView = view.findViewById(R.id.user_icon)
-        val contactName: TextView = view.findViewById(R.id.user_name)
+        val contactAvatar: ImageView = view.findViewById(R.id.contact_avatar)
+        val contactName: TextView = view.findViewById(R.id.contact_name)
     }
 
     private var contactClickListener: ContactClickListener? = null

@@ -19,12 +19,11 @@ import edu.syr.smalltalk.ui.main.MainFragmentDirections
 import kotlinx.android.synthetic.main.fragment_recent_message.*
 
 class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
-    private val adapter = MessageListAdapter()
-
     private val viewModel: SmallTalkViewModel by viewModels {
         SmallTalkViewModelFactory(requireContext().applicationContext as SmallTalkApplication)
     }
 
+    private lateinit var adapter: MessageListAdapter
     private lateinit var serviceProvider: ISmallTalkServiceProvider
 
     override fun onAttach(context: Context) {
@@ -48,6 +47,7 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        adapter = MessageListAdapter(requireActivity(), viewLifecycleOwner, viewModel)
         adapter.setMessageClickListener(this)
         recycler_view_message.layoutManager = LinearLayoutManager(context)
         recycler_view_message.adapter = adapter
@@ -56,11 +56,11 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getRecentMessageList(userId).observe(viewLifecycleOwner, { messageList ->
+        viewModel.watchRecentMessageList(userId).observe(viewLifecycleOwner) { messageList ->
             messageList.let {
                 adapter.submitList(it)
             }
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -71,8 +71,8 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.navigation_clear -> {
-                Toast.makeText(requireContext(), "Clicked", Toast.LENGTH_SHORT).show()
+            R.id.navigation_mark_as_read -> {
+                Toast.makeText(requireContext(), getString(R.string.toast_mark_as_read_clicked), Toast.LENGTH_SHORT).show()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -83,11 +83,9 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, { user ->
+        viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
             if (user.isEmpty()) {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.loadUser()
-                }
+                serviceProvider.getService()?.loadUser(userId)
             } else {
                 if (user[0].contactList.contains(chatId)) {
                     val action = MainFragmentDirections.recentMessageListEnterChat(chatId, false)
@@ -97,10 +95,18 @@ class MessageListFragment: Fragment(), MessageListAdapter.MessageClickListener {
                     requireView().findNavController().navigate(action)
                 }
             }
-        })
+        }
     }
 
     override fun onItemLongClickListener(view: View, chatId: Int) {
 
+    }
+
+    override fun loadContact(contactId: Int) {
+        serviceProvider.getService()?.loadContact(contactId)
+    }
+
+    override fun loadGroup(groupId: Int) {
+        serviceProvider.getService()?.loadGroup(groupId)
     }
 }

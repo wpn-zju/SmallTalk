@@ -3,20 +3,11 @@ package edu.syr.smalltalk.service.model.logic
 import edu.syr.smalltalk.service.model.entity.*
 import kotlinx.coroutines.flow.Flow
 
-// All return values in this class should be Flow<T>
 class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
-    val userList: Flow<List<SmallTalkUser>> = smallTalkDao.getUserList()
-    val contactList: Flow<List<SmallTalkContact>> = smallTalkDao.getContactList()
-    val groupList: Flow<List<SmallTalkGroup>> = smallTalkDao.getGroupList()
-    val requestList: Flow<List<SmallTalkRequest>> = smallTalkDao.getRequestList()
-
-    fun getDataAccessor(): SmallTalkDao {
-        return smallTalkDao
-    }
-
-    fun getUser(userId: Int): Flow<List<SmallTalkUser>> {
-        return smallTalkDao.getUser(userId)
-    }
+    val watchUserList: Flow<List<SmallTalkUser>> = smallTalkDao.watchUserList()
+    val watchContactList: Flow<List<SmallTalkContact>> = smallTalkDao.watchContactList()
+    val watchGroupList: Flow<List<SmallTalkGroup>> = smallTalkDao.watchGroupList()
+    val watchRequestList: Flow<List<SmallTalkRequest>> = smallTalkDao.watchRequestList()
 
     fun insertUser(userInfo: SmallTalkUser) {
         smallTalkDao.insertUser(userInfo)
@@ -30,10 +21,6 @@ class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
         smallTalkDao.deleteUser(userInfo)
     }
 
-    fun getMessage(messageId: Int): Flow<List<SmallTalkMessage>> {
-        return smallTalkDao.getMessage(messageId)
-    }
-
     fun insertMessage(smallTalkMessage: SmallTalkMessage) {
         smallTalkDao.insertMessage(smallTalkMessage)
     }
@@ -42,20 +29,8 @@ class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
         smallTalkDao.deleteMessage(smallTalkMessage)
     }
 
-    fun getMessageList(userId: Int): Flow<List<SmallTalkMessage>> {
-        return smallTalkDao.getMessageList(userId)
-    }
-
-    fun getRecentMessageList(userId: Int): Flow<List<SmallTalkMessage>> {
-        return smallTalkDao.getRecentMessageList(userId)
-    }
-
-    fun getChatMessageList(userId: Int, chatId: Int): Flow<List<SmallTalkMessage>> {
-        return smallTalkDao.getChatMessageList(userId, chatId)
-    }
-
-    fun getContact(contactId: Int): Flow<List<SmallTalkContact>> {
-        return smallTalkDao.getContact(contactId)
+    fun readMessage(userId: Int, chatId: Int) {
+        smallTalkDao.readMessage(userId, chatId)
     }
 
     fun insertContact(smallTalkContact: SmallTalkContact) {
@@ -70,10 +45,6 @@ class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
         smallTalkDao.deleteContact(smallTalkContact)
     }
 
-    fun getGroup(groupId: Int): Flow<List<SmallTalkGroup>> {
-        return smallTalkDao.getGroup(groupId)
-    }
-
     fun insertGroup(smallTalkGroup: SmallTalkGroup) {
         smallTalkDao.insertGroup(smallTalkGroup)
     }
@@ -86,10 +57,6 @@ class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
         smallTalkDao.deleteGroup(smallTalkGroup)
     }
 
-    fun getRequest(requestId: Int): Flow<List<SmallTalkRequest>> {
-        return smallTalkDao.getRequest(requestId)
-    }
-
     fun insertRequest(smallTalkRequest: SmallTalkRequest) {
         smallTalkDao.insertRequest(smallTalkRequest)
     }
@@ -100,5 +67,55 @@ class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
 
     fun deleteRequest(smallTalkRequest: SmallTalkRequest) {
         smallTalkDao.deleteRequest(smallTalkRequest)
+    }
+
+    fun insertFile(smallTalkFile: SmallTalkFile) {
+        smallTalkDao.insertFile(smallTalkFile)
+    }
+
+    fun watchUser(userId: Int): Flow<List<SmallTalkUser>> {
+        return smallTalkDao.watchUser(userId)
+    }
+
+    fun watchContact(contactId: Int): Flow<List<SmallTalkContact>> {
+        return smallTalkDao.watchContact(contactId)
+    }
+
+    fun watchGroup(groupId: Int): Flow<List<SmallTalkGroup>> {
+        return smallTalkDao.watchGroup(groupId)
+    }
+
+    fun watchRequest(requestId: Int): Flow<List<SmallTalkRequest>> {
+        return smallTalkDao.watchRequest(requestId)
+    }
+
+    fun watchMessage(messageId: Int): Flow<List<SmallTalkMessage>> {
+        return smallTalkDao.watchMessage(messageId)
+    }
+
+    fun watchMessageList(userId: Int): Flow<List<SmallTalkMessage>> {
+        return smallTalkDao.watchMessageList(userId)
+    }
+
+    fun watchRecentMessageList(userId: Int): Flow<List<SmallTalkRecentMessage>> {
+        return smallTalkDao.watchRecentMessageList(userId)
+    }
+
+    fun watchChatMessageList(userId: Int, chatId: Int): Flow<List<SmallTalkMessage>> {
+        return smallTalkDao.watchChatMessageList(userId, chatId)
+    }
+
+    fun getContact(contactId: Int): SmallTalkContact? {
+        val prepare = smallTalkDao.getContact(contactId)
+        return if (prepare.isEmpty()) null else prepare[0]
+    }
+
+    fun getGroup(groupId: Int): SmallTalkGroup? {
+        val prepare = smallTalkDao.getGroup(groupId)
+        return if (prepare.isEmpty()) null else prepare[0]
+    }
+
+    fun watchFileList(firstSelector: Int, secondSelector: Int): Flow<List<SmallTalkFile>> {
+        return smallTalkDao.watchFileList(firstSelector, secondSelector)
     }
 }

@@ -22,14 +22,15 @@
         android:id="@+id/group_create_contact_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:scaleType="centerCrop"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@mipmap/ic_smalltalk"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/group_create_check_box"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="@string/avatar" />
+        android:contentDescription="@string/label_avatar" />
 
     <TextView
         android:id="@+id/group_create_contact_name"
@@ -39,7 +40,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/user_holder"
+        android:text="@string/nickname_placeholder"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

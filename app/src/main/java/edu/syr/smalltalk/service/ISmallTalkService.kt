@@ -1,9 +1,6 @@
 package edu.syr.smalltalk.service
 
-import edu.syr.smalltalk.service.model.logic.SmallTalkDao
-
 interface ISmallTalkService {
-    fun setDataAccessor(smallTalkDao: SmallTalkDao)
     fun connect()
     fun disconnect()
     fun userSignUp(userEmail: String, userPassword: String, passcode: String)
@@ -11,25 +8,28 @@ interface ISmallTalkService {
     fun userRecoverPassword(userEmail: String, userPassword: String, passcode: String)
     fun userRecoverPasswordPasscodeRequest(userEmail: String)
     fun userSignIn(userEmail: String, userPassword: String)
-    fun userSessionSignIn(sessionToken: String) // Last Session Token
+    fun userSessionSignIn(sessionToken: String)
     fun userSessionSignOut()
-    fun userModifyName(newUserName: String)
-    fun userModifyPassword(newUserPassword: String)
-    fun loadUser()
+    fun userModifyInfo(userId: Int, userName: String?, userPassword: String?, userGender: Int?, userAvatarLink: String?, userInfo: String?, userLocation: String?)
+    fun groupModifyInfo(groupId: Int, groupName: String?, groupInfo: String?, groupAvatarLink: String?)
+    fun loadUser(userId: Int)
     fun loadContact(contactId: Int)
     fun loadContactByEmail(contactEmail: String)
     fun loadGroup(groupId: Int)
     fun loadRequest(requestId: Int)
+    fun loadFileList(firstSelector: Int, secondSelector: Int)
+    fun fileArchive(firstSelector: Int, secondSelector: Int, fileName: String, fileLink: String, fileUploader: Int, fileSize: Int)
     fun messageForward(senderId: Int, receiverId: Int, content: String, contentType: String)
     fun messageForwardGroup(senderId: Int, receiverId: Int, content: String, contentType: String)
     fun contactAddRequest(contactEmail: String)
+    fun contactAddRevoke(requestId: Int)
     fun contactAddConfirm(requestId: Int)
     fun contactAddRefuse(requestId: Int)
     fun groupCreateRequest(groupName: String, memberList: String)
-    fun groupModifyName(groupId: Int, newGroupName: String)
     fun groupInviteMember(groupId: Int, memberId: Int)
     fun groupAddRequest(groupId: Int)
+    fun groupAddRevoke(requestId: Int)
     fun groupAddConfirm(requestId: Int)
     fun groupAddRefuse(requestId: Int)
-    fun webrtcCall(senderId: Int, receiverId: Int, webrtcCommand: String, webrtcSessionDescription: String)
+    fun webRTCCall(channel: String, command: String, data: String)
 }

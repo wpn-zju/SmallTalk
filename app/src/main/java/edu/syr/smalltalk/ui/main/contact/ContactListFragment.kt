@@ -55,29 +55,25 @@ class ContactListFragment: Fragment(), ContactListAdapter.ContactClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, {  user ->
+        viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
             if (user.isEmpty()) {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.loadUser()
-                }
+                serviceProvider.getService()?.loadUser(userId)
             } else {
                 for (contactId in user[0].contactList) {
-                    viewModel.getCurrentContact(contactId).observe(viewLifecycleOwner, { contact ->
+                    viewModel.watchCurrentContact(contactId).observe(viewLifecycleOwner) { contact ->
                         if (contact.isEmpty()) {
-                            if (serviceProvider.hasService()) {
-                                serviceProvider.getService()!!.loadContact(contactId)
-                            }
+                            serviceProvider.getService()?.loadContact(contactId)
                         }
-                    })
+                    }
                 }
             }
-        })
+        }
 
-        viewModel.getContactList(userId).observe(viewLifecycleOwner, { contactList ->
+        viewModel.watchContactList(userId).observe(viewLifecycleOwner) { contactList ->
             contactList.let {
                 adapter.submitList(it)
             }
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

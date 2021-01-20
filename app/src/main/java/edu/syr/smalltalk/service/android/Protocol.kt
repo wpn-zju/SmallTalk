@@ -3,6 +3,16 @@ package edu.syr.smalltalk.service.android
 import com.google.gson.annotations.SerializedName
 import edu.syr.smalltalk.service.android.constant.ClientConstant
 
+class ContactAddRequestMessage (
+    @SerializedName(ClientConstant.CHAT_CONTACT_ADD_REQUEST_CONTACT_EMAIL)
+    private val contactEmail: String
+)
+
+class ContactAddRevokeMessage (
+    @SerializedName(ClientConstant.CHAT_CONTACT_ADD_REVOKE_REQUEST_ID)
+    private val requestId: Int
+)
+
 class ContactAddConfirmMessage (
     @SerializedName(ClientConstant.CHAT_CONTACT_ADD_CONFIRM_REQUEST_ID)
     private val requestId: Int
@@ -13,9 +23,21 @@ class ContactAddRefuseMessage (
     private val requestId: Int
 )
 
-class ContactAddRequestMessage (
-    @SerializedName(ClientConstant.CHAT_CONTACT_ADD_REQUEST_CONTACT_EMAIL)
-    private val contactEmail: String
+class GroupCreateRequestMessage (
+    @SerializedName(ClientConstant.CHAT_GROUP_CREATE_REQUEST_GROUP_NAME)
+    private val groupName: String,
+    @SerializedName(ClientConstant.CHAT_GROUP_CREATE_REQUEST_MEMBER_LIST)
+    private val memberList: String
+)
+
+class GroupAddRequestMessage (
+    @SerializedName(ClientConstant.CHAT_GROUP_ADD_REQUEST_GROUP_ID)
+    private val groupId: Int
+)
+
+class GroupAddRevokeMessage (
+    @SerializedName(ClientConstant.CHAT_GROUP_ADD_REVOKE_REQUEST_ID)
+    private val requestId: Int
 )
 
 class GroupAddConfirmMessage (
@@ -28,30 +50,16 @@ class GroupAddRefuseMessage (
     private val requestId: Int
 )
 
-class GroupAddRequestMessage (
-    @SerializedName(ClientConstant.CHAT_GROUP_ADD_REQUEST_GROUP_ID)
-    private val groupId: Int
-)
-
-class GroupCreateRequestMessage (
-    @SerializedName(ClientConstant.CHAT_GROUP_CREATE_REQUEST_GROUP_NAME)
-    private val groupName: String,
-    @SerializedName(ClientConstant.CHAT_GROUP_CREATE_REQUEST_MEMBER_LIST)
-    private val memberList: String
-)
-
-class GroupModifyNameMessage (
-    @SerializedName(ClientConstant.CHAT_GROUP_MODIFY_NAME_GROUP_ID)
-    private val groupId: Int,
-    @SerializedName(ClientConstant.CHAT_GROUP_MODIFY_NAME_NEW_GROUP_NAME)
-    private val newGroupName: String
-)
-
 class GroupInviteMemberMessage (
     @SerializedName(ClientConstant.CHAT_GROUP_INVITE_MEMBER_GROUP_ID)
     private val groupId: Int,
     @SerializedName(ClientConstant.CHAT_GROUP_INVITE_MEMBER_MEMBER_ID)
     private val memberId: Int
+)
+
+class LoadUserMessage (
+    @SerializedName(ClientConstant.LOAD_USER_USER_ID)
+    private val userId: Int
 )
 
 class LoadContactMessage (
@@ -74,7 +82,12 @@ class LoadRequestMessage (
     private val requestId: Int
 )
 
-class LoadUserMessage
+class LoadFileListMessage (
+    @SerializedName(ClientConstant.LOAD_FILE_LIST_FIRST_SELECTOR)
+    private val firstSelector: Int,
+    @SerializedName(ClientConstant.LOAD_FILE_LIST_SECOND_SELECTOR)
+    private val secondSelector: Int
+)
 
 class MessageForwardGroupMessage (
     @SerializedName(ClientConstant.CHAT_MESSAGE_FORWARD_GROUP_SENDER)
@@ -102,14 +115,60 @@ class MessageForwardMessage (
     private val timestamp: String
 )
 
-class UserModifyNameMessage (
-    @SerializedName(ClientConstant.USER_MODIFY_USER_NAME_NEW_USER_NAME)
-    private val newUserName: String
+class UserModifyInfoMessage (
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_ID)
+    private val userId: Int,
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_NAME)
+    private val userName: String?,
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_PASSWORD)
+    private val userPassword: String?,
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_GENDER)
+    private val userGender: Int?,
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_AVATAR_LINK)
+    private val userAvatarLink: String?,
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_INFO)
+    private val userInfo: String?,
+    @SerializedName(ClientConstant.USER_MODIFY_INFO_USER_LOCATION)
+    private val userLocation: String?
 )
 
-class UserModifyPasswordMessage (
-    @SerializedName(ClientConstant.USER_MODIFY_USER_PASSWORD_NEW_USER_PASSWORD)
-    private val newUserPassword: String
+class GroupModifyInfoMessage (
+    @SerializedName(ClientConstant.GROUP_MODIFY_INFO_GROUP_ID)
+    private val groupId: Int,
+    @SerializedName(ClientConstant.GROUP_MODIFY_INFO_GROUP_NAME)
+    private val groupName: String?,
+    @SerializedName(ClientConstant.GROUP_MODIFY_INFO_GROUP_INFO)
+    private val groupInfo:String?,
+    @SerializedName(ClientConstant.GROUP_MODIFY_INFO_GROUP_AVATAR_LINK)
+    private val groupAvatarLink: String?
+)
+
+class UserSignInMessage (
+    @SerializedName(ClientConstant.USER_SIGN_IN_USER_EMAIL)
+    private val userEmail: String,
+    @SerializedName(ClientConstant.USER_SIGN_IN_USER_PASSWORD)
+    private val userPassword: String
+)
+
+class UserSessionSignInMessage (
+    @SerializedName(ClientConstant.USER_SESSION_SIGN_IN_SESSION_TOKEN)
+    private val sessionToken: String
+)
+
+class UserSessionSignOutMessage
+
+class UserSignUpMessage (
+    @SerializedName(ClientConstant.USER_SIGN_UP_USER_EMAIL)
+    private val userEmail: String,
+    @SerializedName(ClientConstant.USER_SIGN_UP_USER_PASSWORD)
+    private val userPassword: String,
+    @SerializedName(ClientConstant.USER_SIGN_UP_PASSCODE)
+    private val passcode: String
+)
+
+class UserSignUpPasscodeRequestMessage (
+    @SerializedName(ClientConstant.USER_SIGN_UP_PASSCODE_REQUEST_USER_EMAIL)
+    private val userEmail: String
 )
 
 class UserRecoverPasswordMessage (
@@ -126,41 +185,26 @@ class UserRecoverPasswordPasscodeRequestMessage (
     private val userEmail: String
 )
 
-class UserSessionSignInMessage (
-    @SerializedName(ClientConstant.USER_SESSION_SIGN_IN_SESSION_TOKEN)
-    private val sessionToken: String
-)
-
-class UserSessionSignOutMessage
-
-class UserSignInMessage (
-    @SerializedName(ClientConstant.USER_SIGN_IN_USER_EMAIL)
-    private val userEmail: String,
-    @SerializedName(ClientConstant.USER_SIGN_IN_USER_PASSWORD)
-    private val userPassword: String
-)
-
-class UserSignUpMessage (
-    @SerializedName(ClientConstant.USER_SIGN_UP_USER_EMAIL)
-    private val userEmail: String,
-    @SerializedName(ClientConstant.USER_SIGN_UP_USER_PASSWORD)
-    private val userPassword: String,
-    @SerializedName(ClientConstant.USER_SIGN_UP_PASSCODE)
-    private val passcode: String
-)
-
-class UserSignUpPasscodeRequestMessage (
-    @SerializedName(ClientConstant.USER_SIGN_UP_PASSCODE_REQUEST_USER_EMAIL)
-    private val userEmail: String
-)
-
 class WebRTCCallMessage (
-    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_SENDER)
-    private val sender: Int,
-    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_RECEIVER)
-    private val receiver: Int,
-    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_WEBRTC_COMMAND)
-    private val webRTCCommand: String,
-    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_WEBRTC_SESSION_DESCRIPTION)
-    private val webRTCSessionDescription: String
+    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_CHANNEL)
+    private val channel: String,
+    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_COMMAND)
+    private val command: String,
+    @SerializedName(ClientConstant.CHAT_WEBRTC_CALL_PAYLOAD)
+    private val payload: String
+)
+
+class FileArchiveMessage (
+    @SerializedName(ClientConstant.FILE_ARCHIVE_FIRST_SELECTOR)
+    private val firstSelector: Int,
+    @SerializedName(ClientConstant.FILE_ARCHIVE_SECOND_SELECTOR)
+    private val secondSelector: Int,
+    @SerializedName(ClientConstant.FILE_ARCHIVE_FILE_NAME)
+    private val fileName: String,
+    @SerializedName(ClientConstant.FILE_ARCHIVE_FILE_LINK)
+    private val fileLink: String,
+    @SerializedName(ClientConstant.FILE_ARCHIVE_FILE_UPLOADER)
+    private val fileUploader: Int,
+    @SerializedName(ClientConstant.FILE_ARCHIVE_FILE_SIZE)
+    private val fileSize: Int,
 )

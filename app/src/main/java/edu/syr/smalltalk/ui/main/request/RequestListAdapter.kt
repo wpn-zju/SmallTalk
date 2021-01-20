@@ -1,98 +1,214 @@
 package edu.syr.smalltalk.ui.main.request
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.android.constant.RequestConstant
 import edu.syr.smalltalk.service.model.entity.SmallTalkRequest
+import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 
-class RequestListAdapter
-    : ListAdapter<SmallTalkRequest, RequestListAdapter.RequestListViewHolder>(RequestListDiffCallback()){
+class RequestListAdapter(
+    private val context: Context,
+    private val lifecycleOwner: LifecycleOwner,
+    private val viewModel: SmallTalkViewModel)
+    : ListAdapter<SmallTalkRequest, RequestListAdapter.RequestListViewHolder>(RequestListDiffCallback()) {
 
     override fun onBindViewHolder(holder: RequestListViewHolder, position: Int) {
         val request = getItem(position)
 
         when (request.requestType) {
             RequestConstant.REQUEST_CONTACT_ADD -> {
-                val requester = request.requestMetadata.get(RequestConstant.REQUEST_CONTACT_ADD_SENDER).asInt
-                val receiver = request.requestMetadata.get(RequestConstant.REQUEST_CONTACT_ADD_RECEIVER).asInt
+                val metadata = Gson().fromJson(request.requestMetadata, JsonObject::class.java)
+                val requester = metadata.get(RequestConstant.REQUEST_CONTACT_ADD_SENDER).asInt
+                val receiver = metadata.get(RequestConstant.REQUEST_CONTACT_ADD_RECEIVER).asInt
 
-                holder.requestAvatar.setImageResource(R.mipmap.ic_launcher)
-                holder.requestTitle.text = "Loading info....." // Todo
-                holder.requestDetail.text = "New contact request" // Todo
+                holder.requestTitle.text = context.getString(R.string.new_contact_request_display_text)
                 holder.requestStatus.text = when (request.requestStatus) {
-                    "request_pending" -> "Pending"
-                    "request_accepted" -> "Accepted"
-                    "request_refused" -> "Declined"
-                    "request_revoked" -> "Revoked"
-                    else -> "Pending"
+                    "request_pending" -> context.getString(R.string.request_pending)
+                    "request_accepted" -> context.getString(R.string.request_accepted)
+                    "request_refused" -> context.getString(R.string.request_declined)
+                    "request_revoked" -> context.getString(R.string.request_revoked)
+                    else -> context.getString(R.string.request_pending)
+                }
+
+                viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                    if (it.isNotEmpty()) {
+                        val requesterInfo = it[0]
+                        holder.requestDetail.text = requesterInfo.contactName
+                    } else {
+                        requestClickListener?.loadContact(requester)
+                    }
                 }
 
                 if (requestClickListener != null) {
-                    if (requester == requestClickListener!!.getUserId()) {
-                        holder.requestAccept.visibility = View.GONE
-                        holder.requestDecline.visibility = View.GONE
-                    } else if (receiver == requestClickListener!!.getUserId() && request.requestStatus == "request_pending") {
-                        holder.requestAccept.visibility = View.VISIBLE
-                        holder.requestDecline.visibility = View.VISIBLE
-                        holder.requestAccept.setOnClickListener {
-                            if (position != RecyclerView.NO_POSITION) {
-                                requestClickListener!!.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                    when {
+                        requester == requestClickListener!!.getUserId() -> {
+                            viewModel.watchCurrentContact(receiver).observe(lifecycleOwner) {
+                                if (it.isNotEmpty()) {
+                                    val receiverInfo = it[0]
+                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
+                                        .load(receiverInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
+                                } else {
+                                    requestClickListener?.loadContact(receiver)
+                                }
+                            }
+                            holder.requestAccept.visibility = View.GONE
+                            holder.requestDecline.visibility = View.GONE
+                            if (request.requestStatus == "request_pending") {
+                                holder.requestRevoke.visibility = View.VISIBLE
+                                holder.requestRevoke.setOnClickListener {
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        requestClickListener?.onRevokeListener(holder.itemView, request.requestType, request.requestId)
+                                    }
+                                }
+                            } else {
+                                holder.requestRevoke.visibility = View.GONE
                             }
                         }
-                        holder.requestDecline.setOnClickListener {
-                            if (position != RecyclerView.NO_POSITION) {
-                                requestClickListener!!.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                        receiver == requestClickListener!!.getUserId() -> {
+                            viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                                if (it.isNotEmpty()) {
+                                    val requesterInfo = it[0]
+                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
+                                        .load(requesterInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
+                                } else {
+                                    requestClickListener?.loadContact(receiver)
+                                }
+                            }
+                            holder.requestRevoke.visibility = View.GONE
+                            if (request.requestStatus == "request_pending") {
+                                holder.requestAccept.visibility = View.VISIBLE
+                                holder.requestDecline.visibility = View.VISIBLE
+                                holder.requestAccept.setOnClickListener {
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        requestClickListener?.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                                    }
+                                }
+                                holder.requestDecline.setOnClickListener {
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        requestClickListener?.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                                    }
+                                }
+                            } else {
+                                holder.requestAccept.visibility = View.GONE
+                                holder.requestDecline.visibility = View.GONE
                             }
                         }
-                    } else {
-                        holder.requestAccept.visibility = View.GONE
-                        holder.requestDecline.visibility = View.GONE
+                        else -> {
+                            holder.requestAvatar.setImageResource(R.mipmap.ic_smalltalk)
+                            holder.requestAccept.visibility = View.GONE
+                            holder.requestDecline.visibility = View.GONE
+                            holder.requestRevoke.visibility = View.GONE
+                        }
                     }
                 }
             }
             RequestConstant.REQUEST_GROUP_ADD -> {
-                val groupId = request.requestMetadata.get(RequestConstant.REQUEST_GROUP_ADD_GROUP_ID).asInt
-                val requester = request.requestMetadata.get(RequestConstant.REQUEST_GROUP_ADD_SENDER).asInt
-                val receiver = request.requestMetadata.get(RequestConstant.REQUEST_GROUP_ADD_RECEIVER).asInt
+                val metadata = Gson().fromJson(request.requestMetadata, JsonObject::class.java)
+                val groupId = metadata.get(RequestConstant.REQUEST_GROUP_ADD_GROUP_ID).asInt
+                val requester = metadata.get(RequestConstant.REQUEST_GROUP_ADD_SENDER).asInt
+                val receiver = metadata.get(RequestConstant.REQUEST_GROUP_ADD_RECEIVER).asInt
 
-                holder.requestAvatar.setImageResource(R.mipmap.ic_launcher)
-                holder.requestTitle.text = "Loading info....." // Todo
-                holder.requestDetail.text = String.format("Join group %d request", groupId)// Todo
                 holder.requestStatus.text = when (request.requestStatus) {
-                    "request_pending" -> "Pending"
-                    "request_accepted" -> "Accepted"
-                    "request_refused" -> "Declined"
-                    "request_revoked" -> "Revoked"
-                    else -> "Pending"
+                    "request_pending" -> context.getString(R.string.request_pending)
+                    "request_accepted" -> context.getString(R.string.request_accepted)
+                    "request_refused" -> context.getString(R.string.request_declined)
+                    "request_revoked" -> context.getString(R.string.request_revoked)
+                    else -> context.getString(R.string.request_pending)
+                }
+
+                viewModel.watchCurrentGroup(groupId).observe(lifecycleOwner) {
+                    if (it.isNotEmpty()) {
+                        val groupInfo = it[0]
+                        holder.requestTitle.text = String.format(
+                            context.getString(R.string.new_member_request_template),
+                            context.getString(R.string.new_member_request_display_text),
+                            groupInfo.groupName)
+                    } else {
+                        requestClickListener?.loadGroup(groupId)
+                    }
+                }
+
+                viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                    if (it.isNotEmpty()) {
+                        val requesterInfo = it[0]
+                        holder.requestDetail.text = requesterInfo.contactName
+                    } else {
+                        requestClickListener?.loadContact(requester)
+                    }
                 }
 
                 if (requestClickListener != null) {
-                    if (requester == requestClickListener!!.getUserId()) {
-                        holder.requestAccept.visibility = View.GONE
-                        holder.requestDecline.visibility = View.GONE
-                    } else if (receiver == requestClickListener!!.getUserId() && request.requestStatus == "request_pending") {
-                        holder.requestAccept.visibility = View.VISIBLE
-                        holder.requestDecline.visibility = View.VISIBLE
-                        holder.requestAccept.setOnClickListener {
-                            if (position != RecyclerView.NO_POSITION) {
-                                requestClickListener!!.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                    when {
+                        requester == requestClickListener!!.getUserId() -> {
+                            viewModel.watchCurrentGroup(groupId).observe(lifecycleOwner) {
+                                if (it.isNotEmpty()) {
+                                    val groupInfo = it[0]
+                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
+                                        .load(groupInfo.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
+                                } else {
+                                    requestClickListener?.loadContact(receiver)
+                                }
+                            }
+                            holder.requestAccept.visibility = View.GONE
+                            holder.requestDecline.visibility = View.GONE
+                            if (request.requestStatus == "request_pending") {
+                                holder.requestRevoke.visibility = View.VISIBLE
+                                holder.requestRevoke.setOnClickListener {
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        requestClickListener?.onRevokeListener(holder.itemView, request.requestType, request.requestId)
+                                    }
+                                }
+                            } else {
+                                holder.requestRevoke.visibility = View.GONE
                             }
                         }
-                        holder.requestDecline.setOnClickListener {
-                            if (position != RecyclerView.NO_POSITION) {
-                                requestClickListener!!.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                        receiver == requestClickListener!!.getUserId() -> {
+                            viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                                if (it.isNotEmpty()) {
+                                    val requesterInfo = it[0]
+                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
+                                        .load(requesterInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
+                                } else {
+                                    requestClickListener?.loadContact(receiver)
+                                }
+                            }
+                            holder.requestRevoke.visibility = View.GONE
+                            if (request.requestStatus == "request_pending") {
+                                holder.requestAccept.visibility = View.VISIBLE
+                                holder.requestDecline.visibility = View.VISIBLE
+                                holder.requestAccept.setOnClickListener {
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        requestClickListener?.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                                    }
+                                }
+                                holder.requestDecline.setOnClickListener {
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        requestClickListener?.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                                    }
+                                }
+                            } else {
+                                holder.requestAccept.visibility = View.GONE
+                                holder.requestDecline.visibility = View.GONE
                             }
                         }
-                    } else {
-                        holder.requestAccept.visibility = View.GONE
-                        holder.requestDecline.visibility = View.GONE
+                        else -> {
+                            holder.requestAvatar.setImageResource(R.mipmap.ic_smalltalk)
+                            holder.requestAccept.visibility = View.GONE
+                            holder.requestDecline.visibility = View.GONE
+                            holder.requestRevoke.visibility = View.GONE
+                        }
                     }
                 }
             }
@@ -106,12 +222,13 @@ class RequestListAdapter
     }
 
     inner class RequestListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val requestAvatar: ImageView = view.findViewById(R.id.request_icon)
+        val requestAvatar: ImageView = view.findViewById(R.id.request_avatar)
         val requestTitle: TextView = view.findViewById(R.id.request_title)
         val requestDetail: TextView = view.findViewById(R.id.request_detail)
         val requestStatus: TextView = view.findViewById(R.id.request_status)
-        val requestAccept: TextView = view.findViewById(R.id.btn_request_confirm)
-        val requestDecline: TextView = view.findViewById(R.id.btn_request_refuse)
+        val requestAccept: TextView = view.findViewById(R.id.request_btn_confirm)
+        val requestDecline: TextView = view.findViewById(R.id.request_btn_refuse)
+        val requestRevoke: TextView = view.findViewById(R.id.request_btn_revoke)
     }
 
     private var requestClickListener: RequestClickListener? = null
@@ -124,8 +241,11 @@ class RequestListAdapter
         fun getUserId(): Int
         fun onConfirmListener(view: View, requestType: String, requestId: Int)
         fun onDeclineListener(view: View, requestType: String, requestId: Int)
+        fun onRevokeListener(view: View, requestType: String, requestId: Int)
         fun onItemClickListener(view: View, requestId: Int)
         fun onItemLongClickListener(view: View, requestId: Int)
+        fun loadContact(contactId: Int)
+        fun loadGroup(groupId: Int)
     }
 }
 

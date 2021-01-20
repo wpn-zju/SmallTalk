@@ -2,9 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_join_group"
-        android:title="@string/join_group" />
-
+        android:title="@string/nav_group_list_join_group" />
     <item
         android:id="@+id/navigation_create_group"
-        android:title="@string/create_group" />
+        android:title="@string/nav_group_list_create_group" />
 </menu>

@@ -14,7 +14,7 @@ class PageAdapter(fragmentManager: FragmentActivity) : androidx.viewpager2.adapt
     override fun createFragment(p0: Int): Fragment {
         var position = p0
         if (p0 < 0) position = 0
-        if (p0 > itemCount) position = itemCount - 1
+        if (p0 >= itemCount) position = itemCount - 1
 
         return when (position) {
             0 -> MessageListFragment()

@@ -1,11 +1,8 @@
 package edu.syr.smalltalk.service.model.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.google.gson.annotations.SerializedName
-import edu.syr.smalltalk.service.android.constant.ServerConstant
+import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.converter.InstantConverter
 import java.io.Serializable
 import java.time.Instant
@@ -15,23 +12,29 @@ data class SmallTalkMessage (
     @ColumnInfo(name = "user_id")
     @SerializedName("user_id")
     val userId: Int,
+    @ColumnInfo(name = "is_group")
+    @SerializedName("is_group")
+    val isGroup: Boolean,
+    @ColumnInfo(name = "has_read")
+    @SerializedName("has_read")
+    val hasRead: Boolean,
     @ColumnInfo(name = "chat_id")
     @SerializedName("chat_id")
     val chatId: Int,
-    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__SENDER)
-    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__SENDER)
+    @ColumnInfo(name = "sender")
+    @SerializedName("sender")
     val sender: Int,
-    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__RECEIVER)
-    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__RECEIVER)
+    @ColumnInfo(name = "receiver")
+    @SerializedName("receiver")
     val receiver: Int,
-    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__CONTENT)
-    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__CONTENT)
+    @ColumnInfo(name = "content")
+    @SerializedName("content")
     val content: String,
-    @ColumnInfo(name = ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE)
-    @SerializedName(ServerConstant.CHAT_NEW_MESSAGE__CONTENT_TYPE)
+    @ColumnInfo(name = "content_type")
+    @SerializedName("content_type")
     val contentType: String,
-    @ColumnInfo(name = ServerConstant.TIMESTAMP)
-    @SerializedName(ServerConstant.TIMESTAMP)
+    @ColumnInfo(name = ClientConstant.TIMESTAMP)
+    @SerializedName(ClientConstant.TIMESTAMP)
     @TypeConverters(InstantConverter::class)
     val timestamp: Instant
 ) : Serializable {
@@ -40,3 +43,10 @@ data class SmallTalkMessage (
     @SerializedName("message_id")
     var messageId: Int = 0
 }
+
+data class SmallTalkRecentMessage (
+    @Embedded
+    val message: SmallTalkMessage,
+    @ColumnInfo(name = "unread_num")
+    val unreadNum: Int
+) : Serializable

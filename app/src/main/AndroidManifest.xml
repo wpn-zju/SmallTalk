@@ -12,9 +12,9 @@
         android:allowBackup="true"
         android:enabled="true"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_smalltalk"
+        android:roundIcon="@mipmap/ic_smalltalk_round"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="true">
@@ -23,7 +23,6 @@
             android:name=".service.RootService"
             android:enabled="true"
             android:exported="false">
-
         </service>
 
         <activity
@@ -39,14 +38,18 @@
             android:name=".ui.file.FileSelectActivity"
             android:exported="false"
             android:screenOrientation="portrait">
-
         </activity>
 
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait">
+        </activity>
 
+        <activity
+            android:name=".ui.webrtc.VideoChatActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 </manifest>

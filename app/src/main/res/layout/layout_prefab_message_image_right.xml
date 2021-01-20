@@ -9,15 +9,16 @@
         android:id="@+id/message_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:scaleType="centerCrop"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@mipmap/ic_smalltalk"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        android:contentDescription="@string/avatar"/>
+        android:contentDescription="@string/label_avatar"/>
 
     <ImageView
         android:id="@+id/message_image_content"
@@ -27,7 +28,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:contentDescription="@string/image_message"
+        android:contentDescription="@string/content_description_image_message"
         android:src="@drawable/drawable_test"
         android:adjustViewBounds="true"
         app:layout_constrainedWidth="true"

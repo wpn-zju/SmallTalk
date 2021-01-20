@@ -55,10 +55,7 @@ class GroupSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_search_group.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!
-                    .loadGroup(input_search_group_id.text.toString().toInt())
-            }
+            serviceProvider.getService()?.loadGroup(input_search_group_id.text.toString().toInt())
         }
     }
 

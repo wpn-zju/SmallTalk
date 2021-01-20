@@ -5,68 +5,73 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
-        android:id="@+id/user_icon"
+        android:id="@+id/recent_message_avatar"
         android:layout_width="64dp"
         android:layout_height="64dp"
+        android:scaleType="centerCrop"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@mipmap/ic_launcher"
-        android:contentDescription="@string/avatar" />
+        android:src="@mipmap/ic_smalltalk"
+        android:contentDescription="@string/label_avatar" />
 
     <TextView
-        android:id="@+id/user_name"
+        android:id="@+id/recent_message_name"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/user_holder"
+        android:text="@string/nickname_placeholder"
         android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@id/preview"
-        app:layout_constraintEnd_toStartOf="@id/recent_time"
-        app:layout_constraintStart_toEndOf="@id/user_icon"
+        app:layout_constraintBottom_toTopOf="@id/recent_message_preview"
+        app:layout_constraintEnd_toStartOf="@id/recent_message_timestamp"
+        app:layout_constraintStart_toEndOf="@id/recent_message_avatar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
     <TextView
-        android:id="@+id/preview"
+        android:id="@+id/recent_message_preview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/message_holder_short"
+        android:text="@string/message_placeholder"
         android:textSize="16sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/recent_time"
-        app:layout_constraintStart_toStartOf="@id/user_name"
-        app:layout_constraintTop_toBottomOf="@id/user_name" />
+        app:layout_constraintEnd_toStartOf="@id/recent_message_timestamp"
+        app:layout_constraintStart_toStartOf="@id/recent_message_name"
+        app:layout_constraintTop_toBottomOf="@id/recent_message_name" />
 
     <TextView
-        android:id="@+id/recent_time"
+        android:id="@+id/recent_message_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/timestamp_holder"
+        android:text="@string/time_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/message_number"
+        android:id="@+id/recent_message_unread_num"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/message_num_holder"
+        android:text="@string/message_num_placeholder"
+        android:textColor="@android:color/holo_red_dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@id/recent_time"
-        app:layout_constraintTop_toBottomOf="@id/recent_time"
+        app:layout_constraintStart_toStartOf="@id/recent_message_timestamp"
+        app:layout_constraintTop_toBottomOf="@id/recent_message_timestamp"
         app:layout_constraintVertical_bias="1.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

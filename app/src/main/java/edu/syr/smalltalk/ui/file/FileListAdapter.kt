@@ -1,5 +1,6 @@
 package edu.syr.smalltalk.ui.file
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,24 +9,33 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
+import edu.syr.smalltalk.service.android.constant.ClientConstant
 
-class FileListAdapter(private val fileList: ArrayList<FileUploadTask>)
+class FileListAdapter(
+    private val context: Context,
+    private val fileList: ArrayList<FileUploadTask>)
     : RecyclerView.Adapter<FileListAdapter.FileListViewHolder>() {
 
     override fun onBindViewHolder(holder: FileListViewHolder, position: Int) {
         val file = fileList[position]
-
         file.holder = holder
-
-        // holder.filePreview.setImageURI(file.fileUri)
+        if (file.fileType == ClientConstant.CHAT_CONTENT_TYPE_IMAGE) {
+            holder.filePreview.setImageURI(file.fileUri)
+        } else {
+            holder.filePreview.setImageResource(R.drawable.ic_outline_insert_drive_file_48)
+        }
         holder.fileName.text = file.fileName
-        holder.fileSize.text = longToSizeString(file.fileSize)
+        holder.fileSize.text = file.fileSizeString
+        holder.fileStatus.text = when (file.status) {
+            FileUploadTask.UPLOAD_STATUS_PENDING -> context.getString(R.string.file_status_pending)
+            FileUploadTask.UPLOAD_STATUS_UPLOADING -> context.getString(R.string.file_status_uploading)
+            FileUploadTask.UPLOAD_STATUS_UPLOADED -> context.getString(R.string.file_status_uploaded)
+            FileUploadTask.UPLOAD_STATUS_FAILED -> context.getString(R.string.file_status_failed)
+            else -> context.getString(R.string.file_status_unknown)
+        }
         holder.progressBar.progress = file.progress
-
         holder.cancel.setOnClickListener {
-            if (uploadTaskListener != null) {
-                uploadTaskListener!!.onItemCanceledListener(holder.itemView, position)
-            }
+            uploadTaskListener?.onItemCanceledListener(holder.itemView, position)
         }
     }
 
@@ -43,7 +53,8 @@ class FileListAdapter(private val fileList: ArrayList<FileUploadTask>)
         val filePreview: ImageView = view.findViewById(R.id.file_preview)
         val fileName: TextView = view.findViewById(R.id.file_name)
         val fileSize: TextView = view.findViewById(R.id.file_size)
-        val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
+        val fileStatus: TextView = view.findViewById(R.id.file_status)
+        val progressBar: ProgressBar = view.findViewById(R.id.file_progress_bar)
         val cancel: ImageView = view.findViewById(R.id.file_cancel)
     }
 
@@ -55,19 +66,5 @@ class FileListAdapter(private val fileList: ArrayList<FileUploadTask>)
 
     interface UploadTaskListener {
         fun onItemCanceledListener(view: View, fileId: Int)
-    }
-
-    private fun longToSizeString(fileSize: Long): String {
-        return when {
-            fileSize < 1024 -> {
-                "%d B".format(fileSize)
-            }
-            fileSize < 1024 * 1024 -> {
-                "%.2f KB".format(fileSize.toFloat() / 1024)
-            }
-            else -> {
-                "%.2f MB".format(fileSize.toFloat() / 1024 / 1024)
-            }
-        }
     }
 }

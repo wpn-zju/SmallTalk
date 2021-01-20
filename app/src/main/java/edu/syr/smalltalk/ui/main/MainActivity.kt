@@ -11,11 +11,8 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
-import com.tonyodev.fetch2.*
-import com.tonyodev.fetch2core.DownloadBlock
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
@@ -29,6 +26,7 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import edu.syr.smalltalk.ui.login.LoginActivity
+import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -87,108 +85,36 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setupFetcher()
     }
 
-    override fun onAttachFragment(fragment: Fragment) {
-        // if (fragment is MainFragment) {
-        //     if (intent.getStringExtra("command").equals("notification_start")) {
-        //         val chatId = intent.getIntExtra("chatId", 0)
-        //         val isGroup = intent.getBooleanExtra("isGroup", false)
-        //         val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
-        //         fragment.requireView().findNavController().navigate(action)
-        //     }
-        // }
-    }
-
-    private fun setupFetcher() {
-        val fetchConfig = FetchConfiguration.Builder(this)
-            .setDownloadConcurrentLimit(6)
-            .build()
-        val fetch = Fetch.Impl.getInstance(fetchConfig)
-        val fetchListener = object : FetchListener {
-            override fun onAdded(download: Download) {
-
-            }
-
-            override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
-
-            }
-
-            override fun onCompleted(download: Download) {
-
-            }
-
-            override fun onError(download: Download, error: Error, throwable: Throwable?) {
-
-            }
-
-            override fun onProgress(
-                download: Download,
-                etaInMilliSeconds: Long,
-                downloadedBytesPerSecond: Long
-            ) {
-
-            }
-
-            override fun onPaused(download: Download) {
-
-            }
-
-            override fun onResumed(download: Download) {
-
-            }
-
-            override fun onCancelled(download: Download) {
-
-            }
-
-            override fun onRemoved(download: Download) {
-
-            }
-
-            override fun onDeleted(download: Download) {
-
-            }
-
-            override fun onDownloadBlockUpdated(
-                download: Download,
-                downloadBlock: DownloadBlock,
-                totalBlocks: Int
-            ) {
-
-            }
-
-            override fun onStarted(
-                download: Download,
-                downloadBlocks: List<DownloadBlock>,
-                totalBlocks: Int
-            ) {
-
-            }
-
-            override fun onWaitingNetwork(download: Download) {
-
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intent?.let { i ->
+            if (i.getStringExtra("command") == "notification_start") {
+                val chatId = i.getIntExtra("chatId", 0)
+                val isGroup = i.getBooleanExtra("isGroup", false)
+                val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
+                nav_host_main.findNavController().navigate(action)
             }
         }
-
-        fetch.addListener(fetchListener)
-        // val request = Request(
-        //     "http://192.168.1.224:8079/download/base/4_ideas.html",
-        //     "$filesDir/downloads/4_ideas.html"
-        // )
-        // request.priority = Priority.HIGH
-        // request.networkType = NetworkType.ALL
-        // fetch.enqueue(request, { updatedRequest ->
-        //     Log.i("FETCH", updatedRequest.toString())
-        // }, { err ->
-        //     Log.e("FETCH", err.toString())
-        // })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_recent_message, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        when (savedInstanceState.getString("fragment")) {
+            "chat" -> {
+                val isGroup = savedInstanceState.getBoolean("isGroup")
+                val chatId = savedInstanceState.getInt("chatId")
+                val action = MainFragmentDirections.recentMessageListEnterChat(chatId, isGroup)
+                nav_host_main.findNavController().navigate(action)
+            }
+            null -> return
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -199,9 +125,9 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onSessionExpired(sessionExpiredEvent: SessionExpiredEvent) {
         AlertDialog.Builder(this)
-            .setTitle("Session Expired")
-            .setMessage("Session Expired. You will be logout.")
-            .setPositiveButton("Confirm") { _, _ -> logout() }
+            .setTitle(getString(R.string.alert_dialog_session_expired))
+            .setMessage(getString(R.string.alert_dialog_session_expired_detail))
+            .setPositiveButton(getString(R.string.alert_dialog_confirm)) { _, _ -> logout() }
             .show()
     }
 
@@ -215,7 +141,7 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         AlertDialog.Builder(this)
             .setTitle(alertDialogEvent.title)
             .setMessage(alertDialogEvent.message)
-            .setPositiveButton("Confirm", null)
+            .setPositiveButton(getString(R.string.alert_dialog_confirm), null)
             .show()
     }
 

@@ -17,11 +17,11 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import kotlinx.android.synthetic.main.fragment_requests.*
 
 class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
-    private val adapter = RequestListAdapter()
-
     private val viewModel: SmallTalkViewModel by viewModels {
         SmallTalkViewModelFactory(requireContext().applicationContext as SmallTalkApplication)
     }
+
+    private lateinit var adapter: RequestListAdapter
 
     private lateinit var serviceProvider: ISmallTalkServiceProvider
 
@@ -46,6 +46,7 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        adapter = RequestListAdapter(requireActivity(), viewLifecycleOwner, viewModel)
         adapter.setRequestClickListener(this)
         recycler_view_request.layoutManager = LinearLayoutManager(context)
         recycler_view_request.adapter = adapter
@@ -54,29 +55,25 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, { user ->
+        viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
             if (user.isEmpty()) {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.loadUser()
-                }
+                serviceProvider.getService()?.loadUser(userId)
             } else {
                 for (requestId in user[0].requestList) {
-                    viewModel.getCurrentRequest(requestId).observe(viewLifecycleOwner, { request ->
+                    viewModel.watchCurrentRequest(requestId).observe(viewLifecycleOwner) { request ->
                         if (request.isEmpty()) {
-                            if (serviceProvider.hasService()) {
-                                serviceProvider.getService()!!.loadRequest(requestId)
-                            }
+                            serviceProvider.getService()?.loadRequest(requestId)
                         }
-                    })
+                    }
                 }
             }
-        })
+        }
 
-        viewModel.getRequestList(userId).observe(viewLifecycleOwner, { requestList ->
+        viewModel.watchRequestList(userId).observe(viewLifecycleOwner) { requestList ->
             requestList.let {
                 adapter.submitList(it)
             }
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -87,14 +84,10 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
     override fun onConfirmListener(view: View, requestType: String, requestId: Int) {
         when (requestType) {
             RequestConstant.REQUEST_CONTACT_ADD -> {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.contactAddConfirm(requestId)
-                }
+                serviceProvider.getService()?.contactAddConfirm(requestId)
             }
             RequestConstant.REQUEST_GROUP_ADD -> {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.groupAddConfirm(requestId)
-                }
+                serviceProvider.getService()?.groupAddConfirm(requestId)
             }
         }
     }
@@ -102,14 +95,21 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
     override fun onDeclineListener(view: View, requestType: String, requestId: Int) {
         when (requestType) {
             RequestConstant.REQUEST_CONTACT_ADD -> {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.contactAddRefuse(requestId)
-                }
+                serviceProvider.getService()?.contactAddRefuse(requestId)
             }
             RequestConstant.REQUEST_GROUP_ADD -> {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.groupAddRefuse(requestId)
-                }
+                serviceProvider.getService()?.groupAddRefuse(requestId)
+            }
+        }
+    }
+
+    override fun onRevokeListener(view: View, requestType: String, requestId: Int) {
+        when (requestType) {
+            RequestConstant.REQUEST_CONTACT_ADD -> {
+                serviceProvider.getService()?.contactAddRevoke(requestId)
+            }
+            RequestConstant.REQUEST_GROUP_ADD -> {
+                serviceProvider.getService()?.groupAddRevoke(requestId)
             }
         }
     }
@@ -126,5 +126,13 @@ class RequestListFragment: Fragment(), RequestListAdapter.RequestClickListener {
 
     override fun onItemLongClickListener(view: View, requestId: Int) {
 
+    }
+
+    override fun loadContact(contactId: Int) {
+        serviceProvider.getService()?.loadContact(contactId)
+    }
+
+    override fun loadGroup(groupId: Int) {
+        serviceProvider.getService()?.loadGroup(groupId)
     }
 }

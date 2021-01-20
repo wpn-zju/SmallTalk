@@ -38,19 +38,14 @@ class RecoverPasswordFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_recover_send_passcode.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!
-                    .userRecoverPasswordPasscodeRequest(input_recover_email.text.toString())
-            }
+            serviceProvider.getService()?.userRecoverPasswordPasscodeRequest(input_recover_email.text.toString())
         }
 
         btn_recover_next.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!.userRecoverPassword(
-                    input_recover_email.text.toString(),
-                    input_recover_password.text.toString(),
-                    input_recover_passcode.text.toString())
-            }
+            serviceProvider.getService()?.userRecoverPassword(
+                input_recover_email.text.toString(),
+                input_recover_password.text.toString(),
+                input_recover_passcode.text.toString())
         }
     }
 }

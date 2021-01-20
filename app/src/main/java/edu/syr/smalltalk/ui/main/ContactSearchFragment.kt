@@ -55,10 +55,7 @@ class ContactSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_search_contact.setOnClickListener {
-            if (serviceProvider.hasService()) {
-                serviceProvider.getService()!!
-                    .loadContactByEmail(input_search_contact_email.text.toString())
-            }
+            serviceProvider.getService()?.loadContactByEmail(input_search_contact_email.text.toString())
         }
     }
 

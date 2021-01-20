@@ -6,31 +6,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
-        android:id="@+id/user_icon"
+        android:id="@+id/contact_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:scaleType="centerCrop"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@mipmap/ic_launcher"
-        android:contentDescription="@string/avatar" />
+        android:src="@mipmap/ic_smalltalk"
+        android:contentDescription="@string/label_avatar" />
 
     <TextView
-        android:id="@+id/user_name"
+        android:id="@+id/contact_name"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/user_holder"
+        android:text="@string/nickname_placeholder"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_icon"
+        app:layout_constraintStart_toEndOf="@id/contact_avatar"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center_vertical"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
+import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.KVPConstant
@@ -38,7 +39,7 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout._fragment_about_me, container, false)
+        return inflater.inflate(R.layout.fragment_about_me, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,16 +51,18 @@ class ProfileFragment : Fragment() {
             .getDefaultSharedPreferences(requireActivity().applicationContext)
             .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
 
-        viewModel.getCurrentUserInfo(userId).observe(viewLifecycleOwner, { user ->
+        viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
             if (user.isEmpty()) {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.loadUser()
-                }
+                serviceProvider.getService()?.loadUser(userId)
             } else {
-                text_contact_name.text = user[0].userName
-                text_contact_email.text = user[0].userEmail
+                val userInfo = user[0]
+                Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
+                    .load(userInfo.userAvatarLink).error(R.mipmap.ic_smalltalk).into(contact_avatar)
+                contact_name.text = userInfo.userName
+                contact_email.text = userInfo.userEmail
+                contact_about_content.text = userInfo.userInfo
             }
-        })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -70,17 +73,21 @@ class ProfileFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.navigation_settings -> {
+                val userId = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+                    .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
+                val action = MainFragmentDirections.profileModifyInfo(userId)
+                requireView().findNavController().navigate(action)
+            }
             R.id.navigation_view_request -> {
                 val action = MainFragmentDirections.profileViewRequest()
                 requireView().findNavController().navigate(action)
             }
             R.id.navigation_share_me -> {
-                Toast.makeText(requireContext(), "Share Clicked", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.toast_share_clicked), Toast.LENGTH_SHORT).show()
             }
             R.id.navigation_sign_out -> {
-                if (serviceProvider.hasService()) {
-                    serviceProvider.getService()!!.userSessionSignOut()
-                }
+                serviceProvider.getService()?.userSessionSignOut()
             }
         }
         return super.onOptionsItemSelected(item)

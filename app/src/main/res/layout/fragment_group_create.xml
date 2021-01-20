@@ -18,25 +18,26 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title="Create Group" />
 
-    <!-- Todo: Preview -->
+    <!-- TODO: GROUP MEMBER PREVIEW -->
     <HorizontalScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scrollbars="none"
         android:visibility="gone">
         <LinearLayout
-            android:id="@+id/group_create_avatar_list"
+            android:id="@+id/create_group_avatar_list"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal">
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:scaleType="centerCrop"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:src="@mipmap/ic_launcher"
-                android:contentDescription="@string/group_invite_avatar" />
+                android:src="@mipmap/ic_smalltalk"
+                android:contentDescription="@string/content_description_group_invite_avatar" />
 
             <View
                 android:layout_width="0dp"
@@ -46,7 +47,7 @@
     </HorizontalScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_group_create_list"
+        android:id="@+id/recycler_view_group_create_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -63,11 +64,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp" >
         <Button
-            android:id="@+id/btn_create_group_create"
+            android:id="@+id/create_group_btn_create"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:text="@string/confirm"
+            android:text="@string/button_confirm"
             android:textSize="24sp" />
     </RelativeLayout>
 </LinearLayout>

@@ -10,45 +10,28 @@ import android.os.Looper
 import android.provider.OpenableColumns
 import android.view.MenuItem
 import android.view.View
-import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.MimeTypeFilter
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.JsonObject
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.RootService
-import edu.syr.smalltalk.service.android.constant.ClientConstant
-import edu.syr.smalltalk.service.android.http.SmallTalkAPI
-import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import kotlinx.android.synthetic.main.activity_file_select.*
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSink
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 
 class FileSelectActivity
     : AppCompatActivity(), ISmallTalkServiceProvider, FileListAdapter.UploadTaskListener {
     private val fileList: ArrayList<FileUploadTask> = ArrayList()
-    private val adapter = FileListAdapter(fileList)
-
-    private val viewModel: SmallTalkViewModel by viewModels {
-        SmallTalkViewModelFactory(application as SmallTalkApplication)
-    }
+    private val adapter = FileListAdapter(this, fileList)
 
     private lateinit var service: ISmallTalkService
     private var bound: Boolean = false
@@ -110,7 +93,16 @@ class FileSelectActivity
         }
 
         btn_upload.setOnClickListener {
-            uploadFiles()
+            fileList.forEach {
+                if (it.status == FileUploadTask.UPLOAD_STATUS_PENDING) {
+                    try {
+                        uploadFile(it)
+                    } catch (e: FileUploadFailedException) {
+                        it.status = FileUploadTask.UPLOAD_STATUS_FAILED
+                        Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
         }
     }
 
@@ -170,59 +162,46 @@ class FileSelectActivity
         adapter.notifyItemRangeInserted(lastCount, fileList.size - lastCount)
     }
 
-    private fun uploadFiles() {
-        fileList.forEach { fileInfo ->
-            if (fileInfo.fileSize > FILE_SIZE_MAX) {
-                Toast.makeText(this, "File size must be no greater than 30 MB!", Toast.LENGTH_LONG).show()
-                return@forEach
+    private fun uploadFile(fileInfo: FileUploadTask) {
+        if (fileInfo.fileSize > FILE_SIZE_MAX) {
+            throw FileUploadFailedException(getString(R.string.exception_file_too_large))
+        }
+
+        val command = intent.getStringExtra("command")
+        val isGroup = intent.getBooleanExtra("isGroup", false)
+        val chatId = intent.getIntExtra("chatId", 0)
+
+        fileInfo.startUploading(this) { downloadLink ->
+            getService()?.let { service ->
+                val messagePayload = JsonObject()
+                messagePayload.addProperty("file_name", fileInfo.fileName)
+                messagePayload.addProperty("file_size", fileInfo.fileSizeString)
+                messagePayload.addProperty("file_url", downloadLink)
+                if (isGroup) {
+                    service.messageForwardGroup(
+                        getUserId(),
+                        chatId,
+                        messagePayload.toString(),
+                        fileInfo.fileType)
+                } else {
+                    service.messageForward(
+                        getUserId(),
+                        chatId,
+                        messagePayload.toString(),
+                        fileInfo.fileType)
+                }
+                if (command == "file") {
+                    if (isGroup) {
+                        service.fileArchive(chatId, 0, fileInfo.fileName, downloadLink, getUserId(), fileInfo.fileSize.toInt())
+                    } else {
+                        if (chatId < getUserId()) {
+                            service.fileArchive(chatId, getUserId(), fileInfo.fileName, downloadLink, getUserId(), fileInfo.fileSize.toInt())
+                        } else {
+                            service.fileArchive(getUserId(), chatId, fileInfo.fileName, downloadLink, getUserId(), fileInfo.fileSize.toInt())
+                        }
+                    }
+                }
             }
-
-            fileInfo.onStartUpload()
-
-            val parcelFileDescriptor = contentResolver
-                .openFileDescriptor(fileInfo.fileUri, "r", null) ?: return
-            val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
-            val file = File(cacheDir, contentResolver.getFileName(fileInfo.fileUri))
-            val outputStream = FileOutputStream(file)
-            inputStream.copyTo(outputStream)
-            val body = UploadRequestBody(file, fileInfo,"application")
-            SmallTalkAPI()
-                .uploadFile(MultipartBody.Part.createFormData("file", fileInfo.fileName, body),
-                    "base", "json".toRequestBody("multipart/form-data".toMediaTypeOrNull()))
-                .enqueue(object : Callback<Void> {
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        fileInfo.onUploadFailed()
-                    }
-
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        fileInfo.onUploadResponse()
-                        response.body().let { file }
-
-                        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
-                        val contentType = when {
-                            MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_IMAGE) -> ClientConstant.CHAT_CONTENT_TYPE_IMAGE
-                            MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_AUDIO) -> ClientConstant.CHAT_CONTENT_TYPE_AUDIO
-                            MimeTypeFilter.matches(mimeType, MIME_TYPE_WILDCARD_VIDEO) -> ClientConstant.CHAT_CONTENT_TYPE_VIDEO
-                            else -> ClientConstant.CHAT_CONTENT_TYPE_FILE
-                        }
-
-                        if (hasService()) {
-                            if (intent.getBooleanExtra("isGroup", false)) {
-                                service.messageForwardGroup(
-                                    getUserId(),
-                                    intent.getIntExtra("chatId", 0),
-                                    SmallTalkApplication.HTTP_URL + "/download/base/" + fileInfo.fileName,
-                                    contentType)
-                            } else {
-                                service.messageForward(
-                                    getUserId(),
-                                    intent.getIntExtra("chatId", 0),
-                                    SmallTalkApplication.HTTP_URL + "/download/base/" + fileInfo.fileName,
-                                    contentType)
-                            }
-                        }
-                    }
-                })
         }
     }
 
@@ -240,11 +219,9 @@ class FileSelectActivity
     companion object {
         const val REQUEST_CODE_PICK_MEDIA = 101
         const val REQUEST_CODE_PICK_FILE = 102
-
         const val MIME_TYPE_WILDCARD_IMAGE = "image/*"
         const val MIME_TYPE_WILDCARD_AUDIO = "audio/*"
         const val MIME_TYPE_WILDCARD_VIDEO = "video/*"
-
         const val FILE_SIZE_MAX = 30 * 1024 * 1024
     }
 }
@@ -288,7 +265,7 @@ class UploadRequestBody(
 
     inner class ProgressUpdater(private val uploaded: Long, private val total: Long) : Runnable {
         override fun run() {
-            fileUploader.onProgressUpdate((100 * uploaded / total).toInt())
+            fileUploader.onProgressUpdate((uploaded * 100 / total).toInt())
         }
     }
 
@@ -300,7 +277,7 @@ class UploadRequestBody(
 fun ContentResolver.getFileName(uri: Uri): String {
     var name = String()
     val returnCursor = this.query(uri, null, null, null, null)
-    if (returnCursor != null) {
+    returnCursor?.let {
         val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         returnCursor.moveToFirst()
         name = returnCursor.getString(nameIndex)
@@ -312,7 +289,7 @@ fun ContentResolver.getFileName(uri: Uri): String {
 fun ContentResolver.getFileSize(uri: Uri): Long {
     var size = 0L
     val returnCursor = this.query(uri, null, null, null, null)
-    if (returnCursor != null) {
+    returnCursor?.let {
         val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
         returnCursor.moveToFirst()
         size = returnCursor.getLong(sizeIndex)
@@ -320,3 +297,5 @@ fun ContentResolver.getFileSize(uri: Uri): Long {
     }
     return size
 }
+
+class FileUploadFailedException(message: String) : Exception(message)

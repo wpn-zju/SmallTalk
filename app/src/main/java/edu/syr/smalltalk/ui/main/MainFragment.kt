@@ -49,17 +49,16 @@ class MainFragment : Fragment() {
         val adapter = PageAdapter(requireActivity())
         view_pager.adapter = adapter
         view_pager.currentItem = 0
-
         view_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(p0: Int) {
                 var position = p0
                 if (p0 < 0) position = 0
-                if (p0 > adapter.itemCount) position = adapter.itemCount - 1
+                if (p0 >= adapter.itemCount) position = adapter.itemCount - 1
                 when (position) {
                     0 -> bottom_nav.selectedItemId = R.id.navigation_message
                     1 -> bottom_nav.selectedItemId = R.id.navigation_contacts
                     2 -> bottom_nav.selectedItemId = R.id.navigation_groups
-                    3 -> bottom_nav.selectedItemId = R.id.navigation_profile
+                    3 -> bottom_nav.selectedItemId = R.id.navigation_about_me
                     else -> bottom_nav.selectedItemId = R.id.navigation_message
                 }
                 super.onPageSelected(position)
@@ -69,35 +68,35 @@ class MainFragment : Fragment() {
         bottom_nav.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.navigation_message -> {
-                    main_toolbar.setTitle(R.string.bottom_bar_message)
+                    main_toolbar.setTitle(R.string.bottom_bar_message_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_recent_message)
                     view_pager.currentItem = 0
                     bottom_nav.visibility = View.VISIBLE
                 }
                 R.id.navigation_contacts -> {
-                    main_toolbar.setTitle(R.string.bottom_bar_contacts)
+                    main_toolbar.setTitle(R.string.bottom_bar_contact_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_contacts)
                     view_pager.currentItem = 1
                     bottom_nav.visibility = View.VISIBLE
                 }
                 R.id.navigation_groups -> {
-                    main_toolbar.setTitle(R.string.bottom_bar_groups)
+                    main_toolbar.setTitle(R.string.bottom_bar_group_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_groups)
                     view_pager.currentItem = 2
                     bottom_nav.visibility = View.VISIBLE
                 }
                 R.id.navigation_about_me -> {
-                    main_toolbar.setTitle(R.string.bottom_bar_about_me)
+                    main_toolbar.setTitle(R.string.bottom_bar_about)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_profile)
                     view_pager.currentItem = 3
                     bottom_nav.visibility = View.VISIBLE
                 }
                 else -> {
-                    main_toolbar.setTitle(R.string.bottom_bar_message)
+                    main_toolbar.setTitle(R.string.bottom_bar_message_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_recent_message)
                     view_pager.currentItem = 0

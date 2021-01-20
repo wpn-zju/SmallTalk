@@ -18,13 +18,11 @@ class GroupCreateListAdapter
     override fun onBindViewHolder(holder: GroupCreateContactViewHolder, position: Int) {
         val contact = getItem(position)
         holder.checkbox.isChecked = contact.second
-        holder.contactAvatar.setImageResource(R.mipmap.ic_launcher)
+        holder.contactAvatar.setImageResource(R.mipmap.ic_smalltalk)
         holder.contactName.text = contact.first.contactName
         holder.checkbox.setOnCheckedChangeListener { v, isChecked ->
-            if (groupCreateListener != null) {
-                if (position != RecyclerView.NO_POSITION) {
-                    groupCreateListener!!.onItemChecked(v, contact.first.contactId, isChecked)
-                }
+            if (position != RecyclerView.NO_POSITION) {
+                groupCreateListener?.onItemChecked(v, contact.first.contactId, isChecked)
             }
         }
     }

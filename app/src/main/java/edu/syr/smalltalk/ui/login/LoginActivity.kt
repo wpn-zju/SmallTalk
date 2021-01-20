@@ -37,15 +37,14 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             service = (binder as RootService.RootServiceBinder).getService()
-            service.setDataAccessor((application as SmallTalkApplication).repository.getDataAccessor())
             bound = true
 
-            // Auto Login
-            val lastSession: String = PreferenceManager.getDefaultSharedPreferences(this@LoginActivity)
-                .getString(KVPConstant.K_LAST_SESSION, "null")!!
-            if (lastSession != "null") {
-                service.userSessionSignIn(lastSession)
-            }
+            PreferenceManager.getDefaultSharedPreferences(this@LoginActivity)
+                .getString(KVPConstant.K_LATEST_SESSION, "null")?.let { lastSession ->
+                    if (lastSession != "null") {
+                        service.userSessionSignIn(lastSession)
+                    }
+                }
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -111,7 +110,7 @@ class LoginActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         AlertDialog.Builder(this)
             .setTitle(alertDialogEvent.title)
             .setMessage(alertDialogEvent.message)
-            .setPositiveButton("Confirm", null)
+            .setPositiveButton(getString(R.string.alert_dialog_confirm), null)
             .show()
     }
 

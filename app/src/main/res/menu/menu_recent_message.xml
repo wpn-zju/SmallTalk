@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/navigation_clear"
-        android:title="@string/clear_recent_message" />
+        android:id="@+id/navigation_mark_as_read"
+        android:title="@string/nav_message_list_mark_as_read" />
 </menu>
