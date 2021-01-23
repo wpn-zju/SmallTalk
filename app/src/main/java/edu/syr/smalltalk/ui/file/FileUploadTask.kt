@@ -28,8 +28,20 @@ class FileUploadTask (
     val fileType: String = getTypeFromFileName(fileName)
     val fileSizeString: String = fileSizeToString(fileSize)
     var status: Int = UPLOAD_STATUS_PENDING
+        set(value) {
+            field = value
+            statusChangeCallback?.let { callback ->
+                callback(field)
+            }
+        }
+    private var statusChangeCallback: ((Int) -> Unit)? = null
     var progress: Int = 0
     var holder: FileListAdapter.FileListViewHolder? = null
+
+    fun setOnStatusChangeCallback(callback: (Int) -> Unit) {
+        statusChangeCallback = callback
+        status = status
+    }
 
     override fun onStartUpload() {
         status = UPLOAD_STATUS_UPLOADING

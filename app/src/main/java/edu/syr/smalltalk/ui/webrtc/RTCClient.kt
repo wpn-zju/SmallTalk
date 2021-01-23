@@ -3,12 +3,15 @@ package edu.syr.smalltalk.ui.webrtc
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import androidx.preference.PreferenceManager
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import edu.syr.smalltalk.service.KVPConstant
+import edu.syr.smalltalk.R
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
+import kotlin.math.max
+import kotlin.math.min
 
 @Suppress("unused")
 class PeerConnectionParameters(
@@ -21,22 +24,11 @@ class PeerConnectionParameters(
 
 class RTCClient(
     private val context: Application,
-    private val mListener: RtcListener,
-    private val pcParams: PeerConnectionParameters
+    private val pcParams: PeerConnectionParameters,
+    private val localSink: VideoSink,
+    private val remoteSink: VideoSink,
+    private val transferCallback: (String) -> Unit
 ) {
-    interface RtcListener {
-        fun onSendMessage(payload: String)
-        fun onStatusChanged(newStatus: String)
-
-        fun onLocalTrack(localTrack: MediaStreamTrack)
-        fun onAddRemoteTrack(remoteTrack: MediaStreamTrack, endPoint: Int)
-        fun onRemoveRemoteTrack(endPoint: Int)
-        fun onLocalStream(localStream: MediaStream)
-        fun onAddRemoteStream(remoteStream: MediaStream, endPoint: Int)
-        fun onRemoveRemoteStream(endPoint: Int)
-    }
-
-    private val endPoints = BooleanArray(MAX_PEER) { false }
     private val peerFactory by lazy { buildPeerConnectionFactory() }
     private val peers = hashMapOf<Int, Peer>()
     private val iceServer = listOf(IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
@@ -49,6 +41,11 @@ class RTCClient(
     private lateinit var localVideoTrack: VideoTrack
     private lateinit var localAudioSource: AudioSource
     private lateinit var localAudioTrack: AudioTrack
+
+    private val remoteEndPoints = BooleanArray(MAX_PEER) { false }
+    private val remoteStreamMap = hashMapOf<Int, MediaStream>()
+    private var curRemoteEndPoint: Int = 0
+    private var curRemoteTrack: VideoTrack? = null
 
     init {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -66,16 +63,14 @@ class RTCClient(
 
         override fun onCreateSuccess(p0: SessionDescription) {
             pc?.let { pc ->
-                val from = PreferenceManager.getDefaultSharedPreferences(context)
-                    .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
+                val from = SmallTalkApplication.getCurrentUserId(context)
                 val to = id
                 val payload = JsonObject()
                 payload.addProperty("from", from)
                 payload.addProperty("to", to)
                 payload.addProperty("type", p0.type.canonicalForm())
                 payload.addProperty("sdp", p0.description)
-                mListener.onSendMessage(Gson().toJson(payload))
-
+                transferCallback(Gson().toJson(payload))
                 pc.setLocalDescription(this, p0)
             }
         }
@@ -113,19 +108,19 @@ class RTCClient(
         }
 
         override fun onIceCandidate(p0: IceCandidate) {
-            val from = PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
-            val to = id
-            val payload = JsonObject()
-            payload.addProperty("from", from)
-            payload.addProperty("to", to)
-            payload.addProperty("type", "candidate")
-            payload.addProperty("label", p0.sdpMLineIndex)
-            payload.addProperty("id", p0.sdpMid)
-            payload.addProperty("candidate", p0.sdp)
-            mListener.onSendMessage(Gson().toJson(payload))
-
-            pc?.addIceCandidate(p0)
+            pc?.let { pc ->
+                val from = SmallTalkApplication.getCurrentUserId(context)
+                val to = id
+                val payload = JsonObject()
+                payload.addProperty("from", from)
+                payload.addProperty("to", to)
+                payload.addProperty("type", "candidate")
+                payload.addProperty("label", p0.sdpMLineIndex)
+                payload.addProperty("id", p0.sdpMid)
+                payload.addProperty("candidate", p0.sdp)
+                transferCallback(Gson().toJson(payload))
+                pc.addIceCandidate(p0)
+            }
         }
 
         override fun onIceCandidatesRemoved(p0: Array<out IceCandidate>?) {
@@ -135,13 +130,34 @@ class RTCClient(
         override fun onAddStream(p0: MediaStream) {
             Log.w("Peer", "onAddStream$p0")
 
-            mListener.onAddRemoteStream(p0, endPoint)
+            val isFirstStream = remoteStreamMap.isEmpty()
+            remoteStreamMap[endPoint] = p0
+            if (isFirstStream) {
+                curRemoteEndPoint = endPoint
+                remoteStreamMap[endPoint]?.let {
+                    curRemoteTrack = it.videoTracks[0]
+                    curRemoteTrack?.addSink(remoteSink)
+                }
+            }
         }
 
         override fun onRemoveStream(p0: MediaStream) {
             Log.w("Peer", "onRemoveStream$p0")
 
-            mListener.onRemoveRemoteStream(endPoint)
+            if (curRemoteEndPoint == endPoint) {
+                remoteStreamMap[endPoint]?.let {
+                    if (curRemoteTrack === it.videoTracks[0]) {
+                        curRemoteTrack?.removeSink(remoteSink)
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.toast_video_chat_internal_error), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            remoteStreamMap.remove(endPoint)
+            if (remoteStreamMap.isNotEmpty()) {
+                curRemoteTrack = remoteStreamMap.entries.iterator().next().value.videoTracks[0]
+                curRemoteTrack?.addSink(remoteSink)
+            }
         }
 
         override fun onDataChannel(p0: DataChannel) {
@@ -153,10 +169,7 @@ class RTCClient(
         }
 
         override fun onAddTrack(p0: RtpReceiver, p1: Array<out MediaStream>) {
-            // p1.forEach { stream ->
-            //     stream.videoTracks.forEach { track -> mListener.onAddRemoteTrack(track, endPoint) }
-            //     stream.audioTracks.forEach { track -> mListener.onAddRemoteTrack(track, endPoint) }
-            // }
+            Log.w("Peer", "onAddTrack")
         }
     }
 
@@ -185,7 +198,6 @@ class RTCClient(
             } ?: throw IllegalStateException()
         }
 
-    // Do for each video view on the user interface
     fun initSurfaceView(view: SurfaceViewRenderer) = view.run {
         setMirror(true)
         setEnableHardwareScaler(true)
@@ -195,7 +207,6 @@ class RTCClient(
     fun startLocalVideoCapture(localVideoOutput: SurfaceViewRenderer) {
         localStream = peerFactory.createLocalMediaStream("local_stream")
 
-        // Local Video
         if (pcParams.videoCallEnabled) {
             localVideoSource = peerFactory.createVideoSource(false)
 
@@ -216,33 +227,28 @@ class RTCClient(
             localStream.addTrack(localVideoTrack)
         }
 
-        // Local Audio
         localAudioSource = peerFactory.createAudioSource(MediaConstraints())
         localAudioTrack = peerFactory.createAudioTrack("local_audio_track", localAudioSource)
         localStream.addTrack(localAudioTrack)
-
-        mListener.onLocalStream(localStream)
-        // mListener.onLocalTrack(localVideoTrack)
-        // mListener.onLocalTrack(localAudioTrack)
+        localVideoTrack.addSink(localSink)
     }
 
     private fun addPeer(id: Int, endPoint: Int) : Peer {
         val peer = Peer(id, endPoint)
         peers[id] = peer
-        endPoints[endPoint] = true
+        remoteEndPoints[endPoint] = true
         return peer
     }
 
     private fun removePeer(id: Int) {
         val peer = peers.getValue(id)
-        mListener.onRemoveRemoteTrack(peer.endPoint)
         peer.pc?.close()
         peers.remove(peer.id)
-        endPoints[peer.endPoint] = false
+        remoteEndPoints[peer.endPoint] = false
     }
 
     private fun findEndPoint(): Int {
-        for (i in 0 until MAX_PEER) if (!endPoints[i]) return i
+        for (i in 0 until MAX_PEER) if (!remoteEndPoints[i]) return i
         return MAX_PEER
     }
 
@@ -256,8 +262,6 @@ class RTCClient(
                 if (endPoint != MAX_PEER) {
                     val peer = addPeer(candidateId, endPoint)
                     peer.pc?.addStream(localStream)
-                    // localStream.audioTracks.forEach { peer.pc.addTrack(it) }
-                    // localStream.videoTracks.forEach { peer.pc.addTrack(it) }
                     peer.pc?.createOffer(peer, pcConstraints)
                 }
             }
@@ -267,6 +271,7 @@ class RTCClient(
     fun onMessage(payload: String) {
         val data = Gson().fromJson(payload, JsonObject::class.java)
         val from = data.get("from").asInt
+        @Suppress("UNUSED_VARIABLE")
         val to = data.get("to").asInt
         when (val type = data.get("type").asString) {
             "offer" -> {
@@ -276,8 +281,6 @@ class RTCClient(
                     if (endPoint != MAX_PEER) {
                         val peer = addPeer(from, endPoint)
                         peer.pc?.addStream(localStream)
-                        // localStream.audioTracks.forEach { peer.pc.addTrack(it) }
-                        // localStream.videoTracks.forEach { peer.pc.addTrack(it) }
                         peer.pc?.setRemoteDescription(peer,
                             SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp))
                         peer.pc?.createAnswer(peer, pcConstraints)
@@ -290,8 +293,6 @@ class RTCClient(
                     peers[from]?.let { peer ->
                         peer.pc?.let { pc ->
                             pc.addStream(localStream)
-                            // localStream.audioTracks.forEach { pc.addTrack(it) }
-                            // localStream.videoTracks.forEach { pc.addTrack(it) }
                             pc.setRemoteDescription(peer,
                                 SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp))
                         }
@@ -303,8 +304,6 @@ class RTCClient(
                     peers[from]?.let { peer ->
                         peer.pc?.let { pc ->
                             pc.addStream(localStream)
-                            // localStream.audioTracks.forEach { pc.addTrack(it) }
-                            // localStream.videoTracks.forEach { pc.addTrack(it) }
                             if (pc.remoteDescription != null) {
                                 val candidate = IceCandidate(
                                     data.get("id").asString,
@@ -324,11 +323,33 @@ class RTCClient(
         videoCapturer.switchCamera(null)
     }
 
+    fun prevRemoteStream(sink: VideoSink) {
+        curRemoteEndPoint = max(curRemoteEndPoint - 1, 0)
+        curRemoteTrack?.removeSink(sink)
+        if (remoteStreamMap.containsKey(curRemoteEndPoint)) {
+            curRemoteTrack = remoteStreamMap[curRemoteEndPoint]?.let { it.videoTracks[0] }
+            curRemoteTrack?.addSink(sink)
+        }
+    }
+
+    fun nextRemoteStream(sink: VideoSink) {
+        curRemoteEndPoint = min(curRemoteEndPoint + 1, MAX_PEER - 1)
+        curRemoteTrack?.removeSink(sink)
+        if (remoteStreamMap.containsKey(curRemoteEndPoint)) {
+            curRemoteTrack = remoteStreamMap[curRemoteEndPoint]?.let { it.videoTracks[0] }
+            curRemoteTrack?.addSink(sink)
+        }
+    }
+
     fun onDestroy() {
-        videoCapturer.stopCapture()
-        peers.forEach { peer -> peer.value.pc?.dispose() }
+        videoCapturer.dispose()
+        peers.forEach { peer -> peer.value.pc?.close() }
         localVideoSource.dispose()
+        localAudioSource.dispose()
+        localStream.dispose()
+        remoteStreamMap.forEach { (_, u) -> u.dispose() }
         peerFactory.dispose()
+        rootEglBase.releaseSurface()
     }
 
     companion object {

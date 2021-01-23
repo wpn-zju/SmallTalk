@@ -3,11 +3,8 @@
     <!--2020 PANTONE COLOR OF THE YEAR-->
     <color name="colorPrimary">#0F4C81</color>
     <color name="colorPrimaryLight">#4c77b1</color>
-    <color name="colorPrimaryDark">#002554</color>
-    <color name="colorPrimaryText">#ffffff</color>
     <!--Snowbound-->
-    <color name="colorSecondary">#edeae5</color>
-    <color name="colorSecondaryLight">#ffffff</color>
     <color name="colorSecondaryDark">#bbb8b3</color>
-    <color name="colorSecondaryText">#000000</color>
+    <!--Logo-->
+    <color name="ic_smalltalk_background">#DFDFDF</color>
 </resources>

@@ -1,7 +1,9 @@
 package edu.syr.smalltalk.service.model.entity
 
+import android.content.Context
 import androidx.room.*
 import com.google.gson.annotations.SerializedName
+import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.converter.InstantConverter
 import java.io.Serializable
@@ -42,6 +44,17 @@ data class SmallTalkMessage (
     @ColumnInfo(name = "message_id")
     @SerializedName("message_id")
     var messageId: Int = 0
+
+    fun getContentPreview(context: Context): String {
+        return when (contentType) {
+            ClientConstant.CHAT_CONTENT_TYPE_TEXT -> content
+            ClientConstant.CHAT_CONTENT_TYPE_IMAGE -> context.getString(R.string.notification_image)
+            ClientConstant.CHAT_CONTENT_TYPE_AUDIO -> context.getString(R.string.notification_audio)
+            ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> context.getString(R.string.notification_video)
+            ClientConstant.CHAT_CONTENT_TYPE_FILE -> context.getString(R.string.notification_file)
+            else -> context.getString(R.string.notification_others)
+        }
+    }
 }
 
 data class SmallTalkRecentMessage (

@@ -5,12 +5,10 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import edu.syr.smalltalk.R
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.android.constant.ServerConstant
 import edu.syr.smalltalk.service.eventbus.*
@@ -46,6 +44,7 @@ class AWebSocketManager(application: SmallTalkApplication) {
                 when (lifecycleEvent.type) {
                     LifecycleEvent.Type.OPENED -> {
                         Log.v("WebSocket Stomp Client Info", "Connected")
+                        tryReplaceSession()
                     }
                     LifecycleEvent.Type.CLOSED -> {
                         Log.v("WebSocket Stomp Client Info", "Disconnected")
@@ -74,15 +73,19 @@ class AWebSocketManager(application: SmallTalkApplication) {
         stompClient.send("/app$endPoint", message).subscribe()
     }
 
+    private fun tryReplaceSession() {
+        SmallTalkApplication.getLastSession(context)?.let { lastSession ->
+            send(ClientConstant.API_USER_REPLACE_SESSION, Gson().toJson(SessionReplaceMessage(lastSession)))
+        }
+    }
+
     private fun subscribe() {
         compositeDisposable.add(
             stompClient.topic("/user" + ServerConstant.DIR_USER_SYNC).subscribe {
                 val userInfo = Gson().fromJson(it.payload, SmallTalkUser::class.java)
                 repository.insertUser(userInfo)
-                PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putInt(KVPConstant.K_CURRENT_USER_ID, userInfo.userId).apply()
-                PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putString(KVPConstant.K_LATEST_SESSION, userInfo.userSession).apply()
+                SmallTalkApplication.setCurrentUserId(context, userInfo.userId)
+                SmallTalkApplication.setLastSession(context, userInfo.userSession)
                 EventBus.getDefault().post(SignInEvent())
             })
 
@@ -296,8 +299,7 @@ class AWebSocketManager(application: SmallTalkApplication) {
 
         compositeDisposable.add(
             stompClient.topic("/user" + ServerConstant.DIR_USER_SIGN_OUT_SUCCESS).subscribe {
-                PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putString(KVPConstant.K_LATEST_SESSION, "null").apply()
+                SmallTalkApplication.setLastSession(context, null)
                 EventBus.getDefault().post(SignOutEvent())
             })
 
@@ -377,16 +379,16 @@ class AWebSocketManager(application: SmallTalkApplication) {
 
     private fun insertMessage(payload: String, isGroup: Boolean) {
         val messageObj = JsonParser.parseString(payload).asJsonObject
-        val userId: Int = PreferenceManager.getDefaultSharedPreferences(context)
-            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
+        val userId: Int = SmallTalkApplication.getCurrentUserId(context)
         val senderId: Int = messageObj.get("sender").asInt
         val receiverId: Int = messageObj.get("receiver").asInt
         val chatId: Int = if (userId == senderId) receiverId else if (userId == receiverId) senderId else receiverId
         val content: String = messageObj.get("content").asString
         val contentType: String = messageObj.get("content_type").asString
         val timestamp = Instant.parse(messageObj.get(ClientConstant.TIMESTAMP).asString)
+        val hasRead = chatId == SmallTalkApplication.getCurrentChatId(context)
         val smallTalkMessage = SmallTalkMessage(
-            userId, isGroup, false,
+            userId, isGroup, hasRead,
             chatId, senderId, receiverId, content, contentType, timestamp
         )
         repository.insertMessage(smallTalkMessage)
@@ -394,16 +396,7 @@ class AWebSocketManager(application: SmallTalkApplication) {
     }
 
     private fun sendNotification(message: SmallTalkMessage) {
-        if (!PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(KVPConstant.K_IS_FOREGROUND, true)) {
-            val notificationText: String = when (message.contentType) {
-                ClientConstant.CHAT_CONTENT_TYPE_TEXT -> message.content
-                ClientConstant.CHAT_CONTENT_TYPE_IMAGE -> context.getString(R.string.notification_image)
-                ClientConstant.CHAT_CONTENT_TYPE_AUDIO -> context.getString(R.string.notification_audio)
-                ClientConstant.CHAT_CONTENT_TYPE_VIDEO -> context.getString(R.string.notification_video)
-                ClientConstant.CHAT_CONTENT_TYPE_FILE -> context.getString(R.string.notification_file)
-                else -> context.getString(R.string.notification_others)
-            }
+        if (!SmallTalkApplication.getIsForeGround(context)) {
             val chatName = if (message.isGroup) {
                 repository.getGroup(message.chatId)?.groupName ?: context.getString(R.string.app_name)
             } else {
@@ -415,9 +408,9 @@ class AWebSocketManager(application: SmallTalkApplication) {
             intent.putExtra("isGroup", message.isGroup)
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
             val builder = NotificationCompat.Builder(context, "Message")
-                .setSmallIcon(R.drawable.ic_baseline_message_24)
+                .setSmallIcon(R.mipmap.ic_smalltalk)
                 .setContentTitle(chatName)
-                .setContentText(notificationText)
+                .setContentText(message.getContentPreview(context))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)

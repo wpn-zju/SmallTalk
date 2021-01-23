@@ -10,13 +10,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.model.entity.SmallTalkGroup
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 
 class GroupListAdapter
     : ListAdapter<SmallTalkGroup, GroupListAdapter.GroupListViewHolder>(GroupListDiffCallback()) {
 
     override fun onBindViewHolder(holder: GroupListAdapter.GroupListViewHolder, position: Int) {
         val group = getItem(position)
-        holder.groupAvatar.setImageResource(R.mipmap.ic_smalltalk)
+        SmallTalkApplication.picasso(group.groupAvatarLink, holder.groupAvatar)
         holder.groupName.text = group.groupName
         holder.itemView.setOnClickListener {
             if (position != RecyclerView.NO_POSITION) {

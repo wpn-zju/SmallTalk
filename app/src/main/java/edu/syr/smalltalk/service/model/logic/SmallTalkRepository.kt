@@ -4,7 +4,6 @@ import edu.syr.smalltalk.service.model.entity.*
 import kotlinx.coroutines.flow.Flow
 
 class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
-    val watchUserList: Flow<List<SmallTalkUser>> = smallTalkDao.watchUserList()
     val watchContactList: Flow<List<SmallTalkContact>> = smallTalkDao.watchContactList()
     val watchGroupList: Flow<List<SmallTalkGroup>> = smallTalkDao.watchGroupList()
     val watchRequestList: Flow<List<SmallTalkRequest>> = smallTalkDao.watchRequestList()
@@ -27,6 +26,10 @@ class SmallTalkRepository(private val smallTalkDao: SmallTalkDao) {
 
     fun deleteMessage(smallTalkMessage: SmallTalkMessage) {
         smallTalkDao.deleteMessage(smallTalkMessage)
+    }
+
+    fun readAll(userId: Int) {
+        smallTalkDao.readAll(userId)
     }
 
     fun readMessage(userId: Int, chatId: Int) {

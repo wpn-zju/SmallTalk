@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_profile"
+        android:title="@string/nav_chat_room_view_profile" />
+    <item
+        android:id="@+id/navigation_file_list"
+        android:title="@string/nav_chat_room_view_files" />
+    <item
+        android:id="@+id/navigation_group_view_member_list"
+        android:title="@string/nav_chat_room_group_view_member_list" />
+    <item
+        android:id="@+id/navigation_group_settings"
+        android:title="@string/nav_chat_room_group_settings" />
+    <item
+        android:id="@+id/navigation_share"
+        android:title="@string/nav_chat_room_share" />
+</menu>

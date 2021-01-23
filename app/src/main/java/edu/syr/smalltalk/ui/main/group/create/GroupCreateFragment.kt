@@ -8,11 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
@@ -47,21 +45,16 @@ class GroupCreateFragment : Fragment(), GroupCreateListAdapter.GroupCreateContac
         super.onViewCreated(view, savedInstanceState)
 
         adapter.setGroupCreateListener(this)
-        recycler_view_group_create_list.layoutManager = LinearLayoutManager(context)
+        recycler_view_group_create_list.layoutManager = LinearLayoutManager(requireContext())
         recycler_view_group_create_list.adapter = adapter
 
-        val userId: Int = PreferenceManager
-            .getDefaultSharedPreferences(requireActivity().applicationContext)
-            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
-
-        viewModel.watchContactList(userId).observe(viewLifecycleOwner) { contactList ->
-            contactList.let { cList ->
-                adapter.submitList(cList.stream()
+        viewModel.watchContactList(SmallTalkApplication.getCurrentUserId(requireContext()))
+            .observe(viewLifecycleOwner) { contactList ->
+                adapter.submitList(contactList.stream()
                     .map { contact ->
                         Pair(contact, checkedMap.getOrDefault(contact.contactId, false))
                     }.collect(Collectors.toList()))
             }
-        }
 
         create_group_btn_create.setOnClickListener {
             serviceProvider.getService()?.groupCreateRequest("New Group", checkedMap.toList().stream()
@@ -75,5 +68,10 @@ class GroupCreateFragment : Fragment(), GroupCreateListAdapter.GroupCreateContac
 
     override fun onItemChecked(view: View, contactId: Int, isChecked: Boolean) {
         checkedMap[contactId] = isChecked
+    }
+
+    override fun onDestroyView() {
+        recycler_view_group_create_list.adapter = null
+        super.onDestroyView()
     }
 }

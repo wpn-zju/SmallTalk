@@ -208,3 +208,8 @@ class FileArchiveMessage (
     @SerializedName(ClientConstant.FILE_ARCHIVE_FILE_SIZE)
     private val fileSize: Int,
 )
+
+class SessionReplaceMessage (
+    @SerializedName(ClientConstant.USER_SESSION_REPLACE_OLD_SESSION)
+    private val oldSession: String
+)

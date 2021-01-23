@@ -11,18 +11,20 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.model.entity.SmallTalkContact
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 
 class GroupCreateListAdapter
     : ListAdapter<Pair<SmallTalkContact, Boolean>, GroupCreateListAdapter.GroupCreateContactViewHolder>(GroupCreateContactDiffCallback()) {
 
     override fun onBindViewHolder(holder: GroupCreateContactViewHolder, position: Int) {
-        val contact = getItem(position)
-        holder.checkbox.isChecked = contact.second
-        holder.contactAvatar.setImageResource(R.mipmap.ic_smalltalk)
-        holder.contactName.text = contact.first.contactName
+        val contact = getItem(position).first
+        val checked = getItem(position).second
+        holder.checkbox.isChecked = checked
+        SmallTalkApplication.picasso(contact.contactAvatarLink, holder.contactAvatar)
+        holder.contactName.text = contact.contactName
         holder.checkbox.setOnCheckedChangeListener { v, isChecked ->
             if (position != RecyclerView.NO_POSITION) {
-                groupCreateListener?.onItemChecked(v, contact.first.contactId, isChecked)
+                groupCreateListener?.onItemChecked(v, contact.contactId, isChecked)
             }
         }
     }

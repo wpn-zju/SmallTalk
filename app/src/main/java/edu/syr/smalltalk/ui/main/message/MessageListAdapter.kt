@@ -10,9 +10,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.model.entity.SmallTalkRecentMessage
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import java.time.Instant
 import java.time.ZoneId
@@ -28,30 +28,23 @@ class MessageListAdapter(
 
     override fun onBindViewHolder(holder: MessageListViewHolder, position: Int) {
         val message = getItem(position).message
-        val unreadNum = getItem(position).unreadNum
+        holder.preview.text = message.getContentPreview(context)
+        holder.timestamp.text = instantToTimeString(context, message.timestamp)
         if (message.isGroup) {
-            holder.preview.text = message.content
-            holder.timestamp.text = instantToTimeString(context, message.timestamp)
-            holder.unreadNum.text = unreadNum.toString()
             viewModel.watchCurrentGroup(message.chatId).observe(lifecycleOwner) {
                 if (it.isNotEmpty()) {
                     val groupInfo = it[0]
-                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                        .load(groupInfo.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.avatar)
+                    SmallTalkApplication.picasso(groupInfo.groupAvatarLink, holder.avatar)
                     holder.name.text = groupInfo.groupName
                 } else {
                     messageClickListener?.loadGroup(message.chatId)
                 }
             }
         } else {
-            holder.preview.text = message.content
-            holder.timestamp.text = instantToTimeString(context, message.timestamp)
-            holder.unreadNum.text = unreadNum.toString()
             viewModel.watchCurrentContact(message.chatId).observe(lifecycleOwner) {
                 if (it.isNotEmpty()) {
                     val contactInfo = it[0]
-                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                        .load(contactInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.avatar)
+                    SmallTalkApplication.picasso(contactInfo.contactAvatarLink, holder.avatar)
                     holder.name.text = contactInfo.contactName
                 } else {
                     messageClickListener?.loadContact(message.chatId)
@@ -70,6 +63,21 @@ class MessageListAdapter(
                 messageClickListener?.onItemLongClickListener(holder.itemView, message.chatId)
             }
             true
+        }
+
+        val unreadNum = getItem(position).unreadNum
+        when {
+            unreadNum == 0 -> {
+                holder.unreadNum.visibility = View.INVISIBLE
+            }
+            unreadNum > 99 -> {
+                holder.unreadNum.visibility = View.VISIBLE
+                holder.unreadNum.text = context.getString(R.string.message_num_large)
+            }
+            else -> {
+                holder.unreadNum.visibility = View.VISIBLE
+                holder.unreadNum.text = unreadNum.toString()
+            }
         }
     }
 

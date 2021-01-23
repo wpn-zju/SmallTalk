@@ -8,8 +8,6 @@ import java.util.stream.Collectors
 class SmallTalkViewModel(application: SmallTalkApplication, private val repository: SmallTalkRepository)
     : AndroidViewModel(application) {
 
-    val userList: LiveData<List<SmallTalkUser>> = repository.watchUserList.asLiveData()
-
     fun watchCurrentUserInfo(userId: Int): LiveData<List<SmallTalkUser>> {
         return repository.watchUser(userId).asLiveData()
     }
@@ -97,6 +95,10 @@ class SmallTalkViewModel(application: SmallTalkApplication, private val reposito
 
     fun watchCurrentMessageList(userId: Int, chatId: Int): LiveData<List<SmallTalkMessage>> {
         return repository.watchChatMessageList(userId, chatId).asLiveData()
+    }
+
+    fun readAll(userId: Int) {
+        repository.readAll(userId)
     }
 
     fun readMessage(userId: Int, chatId: Int) {

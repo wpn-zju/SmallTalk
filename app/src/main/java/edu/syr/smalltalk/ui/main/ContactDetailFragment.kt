@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -42,18 +41,16 @@ class ContactDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel.watchCurrentContact(args.contactId).observe(viewLifecycleOwner) { contact ->
-            if (contact.isEmpty()) {
-                serviceProvider.getService()?.loadContact(args.contactId)
-            } else {
+            if (contact.isNotEmpty()) {
                 val contactInfo = contact[0]
-                Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(contactInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(contact_avatar)
+                SmallTalkApplication.picasso(contactInfo.contactAvatarLink, contact_avatar)
                 contact_detail_toolbar.title = contactInfo.contactName
                 contact_name.text = contactInfo.contactName
+                contact_id.text = contactInfo.contactId.toString()
                 contact_email.text = contactInfo.contactEmail
                 contact_about_content.text = contactInfo.contactInfo
+                contact_location_content.text = contactInfo.contactLocation
                 if (args.isContact) {
                     contact_enter_chat.visibility = View.VISIBLE
                     contact_send_request.visibility = View.GONE
@@ -74,6 +71,8 @@ class ContactDetailFragment : Fragment() {
                         serviceProvider.getService()?.contactAddRequest(contactInfo.contactEmail)
                     }
                 }
+            } else {
+                serviceProvider.getService()?.loadContact(args.contactId)
             }
         }
     }

@@ -12,14 +12,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.JsonObject
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.RootService
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import kotlinx.android.synthetic.main.activity_file_select.*
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -78,9 +77,6 @@ class FileSelectActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_select)
-
-        setSupportActionBar(file_select_toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         adapter.setFileClickListener(this)
 
@@ -167,6 +163,7 @@ class FileSelectActivity
             throw FileUploadFailedException(getString(R.string.exception_file_too_large))
         }
 
+        val userId = SmallTalkApplication.getCurrentUserId(this)
         val command = intent.getStringExtra("command")
         val isGroup = intent.getBooleanExtra("isGroup", false)
         val chatId = intent.getIntExtra("chatId", 0)
@@ -179,25 +176,25 @@ class FileSelectActivity
                 messagePayload.addProperty("file_url", downloadLink)
                 if (isGroup) {
                     service.messageForwardGroup(
-                        getUserId(),
+                        userId,
                         chatId,
                         messagePayload.toString(),
                         fileInfo.fileType)
                 } else {
                     service.messageForward(
-                        getUserId(),
+                        userId,
                         chatId,
                         messagePayload.toString(),
                         fileInfo.fileType)
                 }
                 if (command == "file") {
                     if (isGroup) {
-                        service.fileArchive(chatId, 0, fileInfo.fileName, downloadLink, getUserId(), fileInfo.fileSize.toInt())
+                        service.fileArchive(chatId, 0, fileInfo.fileName, downloadLink, userId, fileInfo.fileSize.toInt())
                     } else {
-                        if (chatId < getUserId()) {
-                            service.fileArchive(chatId, getUserId(), fileInfo.fileName, downloadLink, getUserId(), fileInfo.fileSize.toInt())
+                        if (chatId < userId) {
+                            service.fileArchive(chatId, userId, fileInfo.fileName, downloadLink, userId, fileInfo.fileSize.toInt())
                         } else {
-                            service.fileArchive(getUserId(), chatId, fileInfo.fileName, downloadLink, getUserId(), fileInfo.fileSize.toInt())
+                            service.fileArchive(userId, chatId, fileInfo.fileName, downloadLink, userId, fileInfo.fileSize.toInt())
                         }
                     }
                 }
@@ -210,10 +207,9 @@ class FileSelectActivity
         adapter.notifyItemRemoved(fileId)
     }
 
-    private fun getUserId(): Int {
-        return PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
+    override fun onDestroy() {
+        file_upload_list.adapter = null
+        super.onDestroy()
     }
 
     companion object {

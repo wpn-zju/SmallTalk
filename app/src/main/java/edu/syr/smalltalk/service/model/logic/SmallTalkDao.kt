@@ -21,6 +21,9 @@ interface SmallTalkDao {
     @Delete
     fun deleteUser(smallTalkUser: SmallTalkUser)
 
+    @Query("UPDATE small_talk_message SET has_read = 1 WHERE user_id = :userId")
+    fun readAll(userId: Int)
+
     @Query("UPDATE small_talk_message SET has_read = 1 WHERE user_id = :userId AND chat_id = :chatId")
     fun readMessage(userId: Int, chatId: Int)
 
@@ -33,7 +36,7 @@ interface SmallTalkDao {
     @Query("SELECT * FROM small_talk_message WHERE user_id = :userId AND chat_id = :chatId ORDER BY timestamp ASC")
     fun watchChatMessageList(userId: Int, chatId: Int): Flow<List<SmallTalkMessage>>
 
-    @Query("SELECT p1.*, p2.unread_num FROM small_talk_message p1 LEFT JOIN (SELECT max(timestamp) latest_timestamp, sum(is_group) unread_num, chat_id FROM small_talk_message WHERE user_id = :userId GROUP BY chat_id) p2 ON p1.chat_id = p2.chat_id AND p1.timestamp = p2.latest_timestamp WHERE user_id = :userId GROUP BY p1.chat_id ORDER BY timestamp DESC")
+    @Query("SELECT p1.*, p2.unread_num FROM small_talk_message p1 INNER JOIN (SELECT max(timestamp) latest_timestamp, sum(NOT has_read) unread_num, chat_id FROM small_talk_message WHERE user_id = :userId GROUP BY chat_id) p2 ON p1.chat_id = p2.chat_id AND p1.timestamp = p2.latest_timestamp WHERE user_id = :userId ORDER BY timestamp DESC")
     fun watchRecentMessageList(userId: Int): Flow<List<SmallTalkRecentMessage>>
 
     @Insert

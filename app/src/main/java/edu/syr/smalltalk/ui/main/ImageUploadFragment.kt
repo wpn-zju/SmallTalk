@@ -7,11 +7,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.google.gson.JsonObject
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -37,11 +37,6 @@ class ImageUploadFragment: Fragment() {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,14 +47,15 @@ class ImageUploadFragment: Fragment() {
     private var image: FileUploadTask? = null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         when (args.uploadType) {
             "user_avatar" -> {
                 viewModel.watchCurrentUserInfo(args.uploadId).observe(viewLifecycleOwner) { user ->
                     if (user.isNotEmpty()) {
                         val userInfo = user[0]
-                        Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
-                            .load(userInfo.userAvatarLink).error(R.mipmap.ic_smalltalk).into(image_upload_preview)
+                        SmallTalkApplication.picasso(
+                            userInfo.userAvatarLink,
+                            image_upload_preview
+                        )
                         image_select_btn.setOnClickListener {
                             Intent(Intent.ACTION_GET_CONTENT).also {
                                 it.type = "*/*"
@@ -69,8 +65,14 @@ class ImageUploadFragment: Fragment() {
                             }
                         }
                         image_upload_btn.setOnClickListener {
-                            uploadAvatar(false)
-                            requireActivity().onBackPressed()
+                            image?.let { image ->
+                                if (image.fileSize > IMAGE_SIZE_MAX) {
+                                    Toast.makeText(requireContext(), getString(R.string.exception_image_too_large), Toast.LENGTH_LONG).show()
+                                } else {
+                                    uploadAvatar(false)
+                                    requireActivity().onBackPressed()
+                                }
+                            }
                         }
                     } else {
                         serviceProvider.getService()?.loadUser(args.uploadId)
@@ -81,8 +83,10 @@ class ImageUploadFragment: Fragment() {
                 viewModel.watchCurrentGroup(args.uploadId).observe(viewLifecycleOwner) { group ->
                     if (group.isNotEmpty()) {
                         val groupInfo = group[0]
-                        Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
-                            .load(groupInfo.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(image_upload_preview)
+                        SmallTalkApplication.picasso(
+                            groupInfo.groupAvatarLink,
+                            image_upload_preview
+                        )
                         image_select_btn.setOnClickListener {
                             Intent(Intent.ACTION_GET_CONTENT).also {
                                 it.type = "*/*"
@@ -92,8 +96,14 @@ class ImageUploadFragment: Fragment() {
                             }
                         }
                         image_upload_btn.setOnClickListener {
-                            uploadAvatar(true)
-                            requireActivity().onBackPressed()
+                            image?.let { image ->
+                                if (image.fileSize > IMAGE_SIZE_MAX) {
+                                    Toast.makeText(requireContext(), getString(R.string.exception_image_too_large), Toast.LENGTH_LONG).show()
+                                } else {
+                                    uploadAvatar(true)
+                                    requireActivity().onBackPressed()
+                                }
+                            }
                         }
                     } else {
                         serviceProvider.getService()?.loadGroup(args.uploadId)
@@ -137,7 +147,6 @@ class ImageUploadFragment: Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (resultCode == Activity.RESULT_OK) {
             if (data?.clipData != null) {
                 val clipData = data.clipData!!
@@ -160,5 +169,6 @@ class ImageUploadFragment: Fragment() {
 
     companion object {
         const val REQUEST_CODE_PICK_IMAGE = 200
+        const val IMAGE_SIZE_MAX = 1 * 1024 * 1024
     }
 }

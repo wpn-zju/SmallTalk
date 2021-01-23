@@ -2,15 +2,15 @@ package edu.syr.smalltalk.ui.main.contact
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
@@ -32,11 +32,6 @@ class ContactListFragment: Fragment(), ContactListAdapter.ContactClickListener {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,48 +43,28 @@ class ContactListFragment: Fragment(), ContactListAdapter.ContactClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         adapter.setContactClickListener(this)
-        recycler_view_contact.layoutManager = LinearLayoutManager(context)
+        recycler_view_contact.layoutManager = LinearLayoutManager(requireContext())
         recycler_view_contact.adapter = adapter
 
-        val userId: Int = PreferenceManager
-            .getDefaultSharedPreferences(requireActivity().applicationContext)
-            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
-
-        viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
-            if (user.isEmpty()) {
-                serviceProvider.getService()?.loadUser(userId)
-            } else {
-                for (contactId in user[0].contactList) {
-                    viewModel.watchCurrentContact(contactId).observe(viewLifecycleOwner) { contact ->
-                        if (contact.isEmpty()) {
-                            serviceProvider.getService()?.loadContact(contactId)
+        SmallTalkApplication.getCurrentUserId(requireContext()).let { userId ->
+            viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
+                if (user.isNotEmpty()) {
+                    for (contactId in user[0].contactList) {
+                        viewModel.watchCurrentContact(contactId).observe(viewLifecycleOwner) { contact ->
+                            if (contact.isEmpty()) {
+                                serviceProvider.getService()?.loadContact(contactId)
+                            }
                         }
                     }
+                } else {
+                    serviceProvider.getService()?.loadUser(userId)
                 }
             }
-        }
 
-        viewModel.watchContactList(userId).observe(viewLifecycleOwner) { contactList ->
-            contactList.let {
-                adapter.submitList(it)
+            viewModel.watchContactList(userId).observe(viewLifecycleOwner) { contactList ->
+                adapter.submitList(contactList)
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_contacts, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.navigation_new_contact -> {
-                val action = MainFragmentDirections.contactListSearchContact()
-                requireView().findNavController().navigate(action)
-            }
-        }
-        return true
     }
 
     override fun onItemClickListener(view: View, contactId: Int) {
@@ -99,5 +74,10 @@ class ContactListFragment: Fragment(), ContactListAdapter.ContactClickListener {
 
     override fun onItemLongClickListener(view: View, contactId: Int) {
 
+    }
+
+    override fun onDestroyView() {
+        recycler_view_contact.adapter = null
+        super.onDestroyView()
     }
 }

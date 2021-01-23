@@ -4,18 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
@@ -23,6 +23,8 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import edu.syr.smalltalk.ui.file.FileSelectActivity
 import edu.syr.smalltalk.ui.webrtc.VideoChatActivity
 import kotlinx.android.synthetic.main.fragment_chat.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener {
     private val args: ChatFragmentArgs by navArgs()
@@ -40,11 +42,6 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,23 +49,33 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
         return inflater.inflate(R.layout.fragment_chat, container, false)
     }
 
+    override fun onStart() {
+        SmallTalkApplication.setCurrentChatId(requireContext(), args.chatId)
+        super.onStart()
+    }
+
+    override fun onStop() {
+        SmallTalkApplication.setCurrentChatId(requireContext(), 0)
+        super.onStop()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ChatMessageListAdapter(requireActivity(), viewLifecycleOwner, viewModel)
+        adapter = ChatMessageListAdapter(requireContext(), viewLifecycleOwner, viewModel)
         adapter.setChatMessageClickListener(this)
 
-        val layoutManager = LinearLayoutManager(context)
+        val layoutManager = LinearLayoutManager(requireContext())
         chat_message_list.layoutManager = layoutManager
         chat_message_list.adapter = adapter
 
-        var inited = false
+        var init = false
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 chat_message_list.postDelayed({
                     if (layoutManager.findLastVisibleItemPosition() + 2 >= positionStart) {
-                        if (inited) {
-                            inited = true
+                        if (init) {
+                            init = true
                             chat_message_list.scrollToPosition(positionStart + itemCount)
                         } else {
                             chat_message_list.smoothScrollToPosition(positionStart + itemCount)
@@ -86,18 +93,19 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
             }
         }
 
+        val userId = SmallTalkApplication.getCurrentUserId(requireContext())
         send_message.setOnClickListener {
             if (input_text.text.isNotEmpty()) {
                 serviceProvider.getService()?.let { service ->
                     if (args.isGroupChat) {
                         service.messageForwardGroup(
-                            getUserId(),
+                            userId,
                             args.chatId,
                             input_text.text.toString(),
                             ClientConstant.CHAT_CONTENT_TYPE_TEXT)
                     } else {
                         service.messageForward(
-                            getUserId(),
+                            userId,
                             args.chatId,
                             input_text.text.toString(),
                             ClientConstant.CHAT_CONTENT_TYPE_TEXT)
@@ -118,7 +126,7 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
 
         more_options_camera.setOnClickListener {
             more_options_bar.visibility = View.GONE
-            Toast.makeText(requireActivity(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
         }
 
         more_options_webrtc.setOnClickListener {
@@ -139,74 +147,109 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
 
         more_options_voice.setOnClickListener {
             more_options_bar.visibility = View.GONE
-            Toast.makeText(requireActivity(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
         }
 
         more_options_position.setOnClickListener {
             more_options_bar.visibility = View.GONE
-            Toast.makeText(requireActivity(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
         }
 
         more_options_share.setOnClickListener {
             more_options_bar.visibility = View.GONE
-            Toast.makeText(requireActivity(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_not_supported_yet), Toast.LENGTH_LONG).show()
         }
 
-        viewModel.watchCurrentMessageList(getUserId(), args.chatId).observe(viewLifecycleOwner) { chatMessageList ->
-            chatMessageList.let {
-                adapter.submitList(it) { }
-            }
+        viewModel.watchCurrentMessageList(userId, args.chatId).observe(viewLifecycleOwner) { messageList ->
+            adapter.submitList(messageList)
         }
 
         if (args.isGroupChat) {
+            chat_toolbar?.let { bar ->
+                bar.menu.clear()
+                bar.inflateMenu(R.menu.menu_chat_group)
+                bar.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.navigation_profile -> {
+                            val action = ChatFragmentDirections.chatRoomViewGroup(args.chatId, true)
+                            requireView().findNavController().navigate(action)
+                            true
+                        }
+                        R.id.navigation_file_list -> {
+                            val action = ChatFragmentDirections.chatRoomViewFileArchive(args.chatId, 0)
+                            requireView().findNavController().navigate(action)
+                            true
+                        }
+                        R.id.navigation_group_view_member_list -> {
+                            // TODO: VIEW MEMBER LIST
+                            true
+                        }
+                        R.id.navigation_group_settings -> {
+                            val action = ChatFragmentDirections.chatRoomModifyGroupInfo(args.chatId)
+                            requireView().findNavController().navigate(action)
+                            true
+                        }
+                        R.id.navigation_share -> {
+                            Toast.makeText(requireContext(), getString(R.string.toast_share_clicked), Toast.LENGTH_SHORT).show()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            }
+
             viewModel.watchCurrentGroup(args.chatId).observe(viewLifecycleOwner) { group ->
                 if (group.isNotEmpty()) {
-                    chat_toolbar?.title = group[0].groupName
+                    chat_toolbar?.let { bar ->
+                        bar.title = group[0].groupName
+                    }
+                } else {
+                    serviceProvider.getService()?.loadGroup(args.chatId)
                 }
             }
         } else {
-            viewModel.watchCurrentContact(args.chatId).observe(viewLifecycleOwner) { contact ->
-                if (contact.isNotEmpty()) {
-                    chat_toolbar?.title = contact[0].contactName
-                }
-            }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_chat, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
-            R.id.navigation_share -> {
-                Toast.makeText(requireContext(), getString(R.string.toast_share_clicked), Toast.LENGTH_SHORT).show()
-            }
-            R.id.navigation_file_list -> {
-                val action = if (args.isGroupChat) {
-                    ChatFragmentDirections.chatRoomViewFileArchive(args.chatId, 0)
-                } else {
-                    if (args.chatId < getUserId()) {
-                        ChatFragmentDirections.chatRoomViewFileArchive(args.chatId, getUserId())
-                    } else {
-                        ChatFragmentDirections.chatRoomViewFileArchive(getUserId(), args.chatId)
+            chat_toolbar?.let { bar ->
+                bar.menu.clear()
+                bar.inflateMenu(R.menu.menu_chat_contact)
+                bar.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.navigation_profile -> {
+                            val action = ChatFragmentDirections.chatRoomViewContact(args.chatId, true)
+                            requireView().findNavController().navigate(action)
+                            true
+                        }
+                        R.id.navigation_file_list -> {
+                            val action = if (args.chatId < userId) {
+                                ChatFragmentDirections.chatRoomViewFileArchive(args.chatId, userId)
+                            } else {
+                                ChatFragmentDirections.chatRoomViewFileArchive(userId, args.chatId)
+                            }
+                            requireView().findNavController().navigate(action)
+                            true
+                        }
+                        R.id.navigation_share -> {
+                            Toast.makeText(requireContext(), getString(R.string.toast_share_clicked), Toast.LENGTH_SHORT).show()
+                            true
+                        }
+                        else -> false
                     }
                 }
-                requireView().findNavController().navigate(action)
             }
-            R.id.navigation_profile -> {
-                if (args.isGroupChat) {
-                    val action = ChatFragmentDirections.chatRoomModifyGroupInfo(args.chatId)
-                    requireView().findNavController().navigate(action)
+
+            viewModel.watchCurrentContact(args.chatId).observe(viewLifecycleOwner) { contact ->
+                if (contact.isNotEmpty()) {
+                    chat_toolbar?.let { bar ->
+                        bar.title = contact[0].contactName
+                    }
                 } else {
-                    val action = ChatFragmentDirections.chatRoomViewContact(args.chatId, true)
-                    requireView().findNavController().navigate(action)
+                    serviceProvider.getService()?.loadContact(args.chatId)
                 }
             }
         }
-        return true
+
+        GlobalScope.launch {
+            viewModel.readMessage(userId, args.chatId)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -218,16 +261,6 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
         super.onSaveInstanceState(outState)
     }
 
-    override fun getChatId(): Int {
-        return args.chatId
-    }
-
-    override fun getUserId(): Int {
-        return PreferenceManager
-            .getDefaultSharedPreferences(requireActivity().applicationContext)
-            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
-    }
-
     override fun openBrowser(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
@@ -236,14 +269,21 @@ class ChatFragment : Fragment(), ChatMessageListAdapter.ChatMessageClickListener
         serviceProvider.getService()?.loadContact(contactId)
     }
 
+    override fun onDestroyView() {
+        chat_message_list.adapter = null
+        super.onDestroyView()
+    }
+
     private fun getChannel(): String {
         return if (args.isGroupChat) {
-            "G - %d".format(getChatId())
+            "G - %d".format(args.chatId)
         } else {
-            if (getChatId() < getUserId()) {
-                "P - %d - %d".format(getChatId(), getUserId())
-            } else {
-                "P - %d - %d".format(getUserId(), getChatId())
+            SmallTalkApplication.getCurrentUserId(requireContext()).let { userId ->
+                if (args.chatId < userId) {
+                    "P - %d - %d".format(args.chatId, userId)
+                } else {
+                    "P - %d - %d".format(userId, args.chatId)
+                }
             }
         }
     }

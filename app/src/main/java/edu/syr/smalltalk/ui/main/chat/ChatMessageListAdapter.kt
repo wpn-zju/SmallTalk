@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.android.constant.ClientConstant
 import edu.syr.smalltalk.service.model.entity.SmallTalkMessage
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 
 class ChatMessageListAdapter(
@@ -31,8 +31,8 @@ class ChatMessageListAdapter(
         viewModel.watchCurrentContact(message.sender).observe(lifecycleOwner) {
             if (it.isNotEmpty()) {
                 val contactInfo = it[0]
-                Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(contactInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.avatar)
+                holder.sender.text = contactInfo.contactName
+                SmallTalkApplication.picasso(contactInfo.contactAvatarLink, holder.avatar)
             } else {
                 chatMessageClickListener?.loadContact(message.sender)
             }
@@ -47,8 +47,7 @@ class ChatMessageListAdapter(
                 val fileDescription = Gson().fromJson(message.content, JsonObject::class.java)
                 val url = fileDescription.get("file_url").asString
                 val rHolder = holder as ImageViewHolder
-                Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(url).error(R.drawable.data_not_found).into(rHolder.content)
+                SmallTalkApplication.picasso(url, rHolder.content)
             }
             ClientConstant.CHAT_CONTENT_TYPE_AUDIO -> {
                 // TODO: TEST AUDIO PLAY
@@ -101,7 +100,7 @@ class ChatMessageListAdapter(
             ClientConstant.CHAT_CONTENT_TYPE_FILE -> {
                 val fileDescription = Gson().fromJson(message.content, JsonObject::class.java)
                 val rHolder = holder as FileViewHolder
-                rHolder.fileImage.setImageResource(R.drawable.ic_outline_insert_drive_file_48)
+                rHolder.fileImage.setImageResource(R.mipmap.ic_smalltalk)
                 rHolder.fileName.text = fileDescription.get("file_name").asString
                 rHolder.fileSize.text = fileDescription.get("file_size").asString
                 holder.itemView.setOnClickListener {
@@ -155,7 +154,7 @@ class ChatMessageListAdapter(
 
     override fun getItemViewType(position: Int): Int {
         val message: SmallTalkMessage = getItem(position)
-        val userId: Int = chatMessageClickListener!!.getUserId()
+        val userId: Int = SmallTalkApplication.getCurrentUserId(context)
         val isSubject: Boolean = message.sender == userId
         return when (message.contentType) {
             ClientConstant.CHAT_CONTENT_TYPE_TEXT -> {
@@ -179,14 +178,15 @@ class ChatMessageListAdapter(
 
     open inner class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: ImageView = view.findViewById(R.id.message_avatar)
+        val sender: TextView = view.findViewById(R.id.message_sender)
     }
 
     inner class TextViewHolder(view: View) : MessageViewHolder(view) {
-        val content: TextView = view.findViewById(R.id.message_text_content)
+        val content: TextView = view.findViewById(R.id.message_content)
     }
 
     inner class ImageViewHolder(view: View) : MessageViewHolder(view) {
-        val content: ImageView = view.findViewById(R.id.message_image_content)
+        val content: ImageView = view.findViewById(R.id.message_content)
     }
 
     inner class AudioViewHolder(view: View) : MessageViewHolder(view) {
@@ -212,8 +212,6 @@ class ChatMessageListAdapter(
     }
 
     interface ChatMessageClickListener {
-        fun getUserId(): Int
-        fun getChatId(): Int
         fun openBrowser(url: String)
         fun loadContact(contactId: Int)
     }

@@ -31,11 +31,6 @@ class TextUploadFragment: Fragment() {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,7 +40,6 @@ class TextUploadFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         when (args.uploadType) {
             "user_name" -> {
                 viewModel.watchCurrentUserInfo(args.uploadId).observe(viewLifecycleOwner) { user ->

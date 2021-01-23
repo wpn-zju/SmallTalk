@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.android.constant.RequestConstant
 import edu.syr.smalltalk.service.model.entity.SmallTalkRequest
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 
 class RequestListAdapter(
@@ -33,84 +33,80 @@ class RequestListAdapter(
                 val requester = metadata.get(RequestConstant.REQUEST_CONTACT_ADD_SENDER).asInt
                 val receiver = metadata.get(RequestConstant.REQUEST_CONTACT_ADD_RECEIVER).asInt
 
-                holder.requestTitle.text = context.getString(R.string.new_contact_request_display_text)
-                holder.requestStatus.text = when (request.requestStatus) {
-                    "request_pending" -> context.getString(R.string.request_pending)
-                    "request_accepted" -> context.getString(R.string.request_accepted)
-                    "request_refused" -> context.getString(R.string.request_declined)
-                    "request_revoked" -> context.getString(R.string.request_revoked)
-                    else -> context.getString(R.string.request_pending)
-                }
+                holder.requestDetail.text = context.getString(R.string.new_contact_request_display_text)
+                holder.requestStatus.text = displayRequestStatus(context, request.requestStatus)
 
                 viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
                     if (it.isNotEmpty()) {
                         val requesterInfo = it[0]
-                        holder.requestDetail.text = requesterInfo.contactName
+                        holder.requestTitle.text = requesterInfo.contactName
                     } else {
                         requestClickListener?.loadContact(requester)
                     }
                 }
 
-                if (requestClickListener != null) {
-                    when {
-                        requester == requestClickListener!!.getUserId() -> {
-                            viewModel.watchCurrentContact(receiver).observe(lifecycleOwner) {
-                                if (it.isNotEmpty()) {
-                                    val receiverInfo = it[0]
-                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                                        .load(receiverInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
-                                } else {
-                                    requestClickListener?.loadContact(receiver)
-                                }
-                            }
-                            holder.requestAccept.visibility = View.GONE
-                            holder.requestDecline.visibility = View.GONE
-                            if (request.requestStatus == "request_pending") {
-                                holder.requestRevoke.visibility = View.VISIBLE
-                                holder.requestRevoke.setOnClickListener {
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        requestClickListener?.onRevokeListener(holder.itemView, request.requestType, request.requestId)
-                                    }
-                                }
+                when (SmallTalkApplication.getCurrentUserId(context)) {
+                    requester -> {
+                        viewModel.watchCurrentContact(receiver).observe(lifecycleOwner) {
+                            if (it.isNotEmpty()) {
+                                val receiverInfo = it[0]
+                                SmallTalkApplication.picasso(
+                                    receiverInfo.contactAvatarLink,
+                                    holder.requestAvatar
+                                )
                             } else {
-                                holder.requestRevoke.visibility = View.GONE
+                                requestClickListener?.loadContact(receiver)
                             }
                         }
-                        receiver == requestClickListener!!.getUserId() -> {
-                            viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
-                                if (it.isNotEmpty()) {
-                                    val requesterInfo = it[0]
-                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                                        .load(requesterInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
-                                } else {
-                                    requestClickListener?.loadContact(receiver)
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
+                        if (request.requestStatus == "request_pending") {
+                            holder.requestRevoke.visibility = View.VISIBLE
+                            holder.requestRevoke.setOnClickListener {
+                                if (position != RecyclerView.NO_POSITION) {
+                                    requestClickListener?.onRevokeListener(holder.itemView, request.requestType, request.requestId)
                                 }
                             }
-                            holder.requestRevoke.visibility = View.GONE
-                            if (request.requestStatus == "request_pending") {
-                                holder.requestAccept.visibility = View.VISIBLE
-                                holder.requestDecline.visibility = View.VISIBLE
-                                holder.requestAccept.setOnClickListener {
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        requestClickListener?.onConfirmListener(holder.itemView, request.requestType, request.requestId)
-                                    }
-                                }
-                                holder.requestDecline.setOnClickListener {
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        requestClickListener?.onDeclineListener(holder.itemView, request.requestType, request.requestId)
-                                    }
-                                }
-                            } else {
-                                holder.requestAccept.visibility = View.GONE
-                                holder.requestDecline.visibility = View.GONE
-                            }
-                        }
-                        else -> {
-                            holder.requestAvatar.setImageResource(R.mipmap.ic_smalltalk)
-                            holder.requestAccept.visibility = View.GONE
-                            holder.requestDecline.visibility = View.GONE
+                        } else {
                             holder.requestRevoke.visibility = View.GONE
                         }
+                    }
+                    receiver -> {
+                        viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                            if (it.isNotEmpty()) {
+                                val requesterInfo = it[0]
+                                SmallTalkApplication.picasso(
+                                    requesterInfo.contactAvatarLink,
+                                    holder.requestAvatar
+                                )
+                            } else {
+                                requestClickListener?.loadContact(receiver)
+                            }
+                        }
+                        holder.requestRevoke.visibility = View.GONE
+                        if (request.requestStatus == "request_pending") {
+                            holder.requestAccept.visibility = View.VISIBLE
+                            holder.requestDecline.visibility = View.VISIBLE
+                            holder.requestAccept.setOnClickListener {
+                                if (position != RecyclerView.NO_POSITION) {
+                                    requestClickListener?.onConfirmListener(holder.itemView, request.requestType, request.requestId)
+                                }
+                            }
+                            holder.requestDecline.setOnClickListener {
+                                if (position != RecyclerView.NO_POSITION) {
+                                    requestClickListener?.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                                }
+                            }
+                        } else {
+                            holder.requestAccept.visibility = View.GONE
+                            holder.requestDecline.visibility = View.GONE
+                        }
+                    }
+                    else -> {
+                        holder.requestAvatar.setImageResource(R.mipmap.ic_smalltalk)
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
+                        holder.requestRevoke.visibility = View.GONE
                     }
                 }
             }
@@ -120,18 +116,21 @@ class RequestListAdapter(
                 val requester = metadata.get(RequestConstant.REQUEST_GROUP_ADD_SENDER).asInt
                 val receiver = metadata.get(RequestConstant.REQUEST_GROUP_ADD_RECEIVER).asInt
 
-                holder.requestStatus.text = when (request.requestStatus) {
-                    "request_pending" -> context.getString(R.string.request_pending)
-                    "request_accepted" -> context.getString(R.string.request_accepted)
-                    "request_refused" -> context.getString(R.string.request_declined)
-                    "request_revoked" -> context.getString(R.string.request_revoked)
-                    else -> context.getString(R.string.request_pending)
+                holder.requestStatus.text = displayRequestStatus(context, request.requestStatus)
+
+                viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                    if (it.isNotEmpty()) {
+                        val requesterInfo = it[0]
+                        holder.requestTitle.text = requesterInfo.contactName
+                    } else {
+                        requestClickListener?.loadContact(requester)
+                    }
                 }
 
                 viewModel.watchCurrentGroup(groupId).observe(lifecycleOwner) {
                     if (it.isNotEmpty()) {
                         val groupInfo = it[0]
-                        holder.requestTitle.text = String.format(
+                        holder.requestDetail.text = String.format(
                             context.getString(R.string.new_member_request_template),
                             context.getString(R.string.new_member_request_display_text),
                             groupInfo.groupName)
@@ -140,75 +139,68 @@ class RequestListAdapter(
                     }
                 }
 
-                viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
-                    if (it.isNotEmpty()) {
-                        val requesterInfo = it[0]
-                        holder.requestDetail.text = requesterInfo.contactName
-                    } else {
-                        requestClickListener?.loadContact(requester)
+                when (SmallTalkApplication.getCurrentUserId(context)) {
+                    requester -> {
+                        viewModel.watchCurrentGroup(groupId).observe(lifecycleOwner) {
+                            if (it.isNotEmpty()) {
+                                val groupInfo = it[0]
+                                SmallTalkApplication.picasso(
+                                    groupInfo.groupAvatarLink,
+                                    holder.requestAvatar
+                                )
+                            } else {
+                                requestClickListener?.loadContact(receiver)
+                            }
+                        }
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
+                        if (request.requestStatus == "request_pending") {
+                            holder.requestRevoke.visibility = View.VISIBLE
+                            holder.requestRevoke.setOnClickListener {
+                                if (position != RecyclerView.NO_POSITION) {
+                                    requestClickListener?.onRevokeListener(holder.itemView, request.requestType, request.requestId)
+                                }
+                            }
+                        } else {
+                            holder.requestRevoke.visibility = View.GONE
+                        }
                     }
-                }
-
-                if (requestClickListener != null) {
-                    when {
-                        requester == requestClickListener!!.getUserId() -> {
-                            viewModel.watchCurrentGroup(groupId).observe(lifecycleOwner) {
-                                if (it.isNotEmpty()) {
-                                    val groupInfo = it[0]
-                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                                        .load(groupInfo.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
-                                } else {
-                                    requestClickListener?.loadContact(receiver)
+                    receiver -> {
+                        viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
+                            if (it.isNotEmpty()) {
+                                val requesterInfo = it[0]
+                                SmallTalkApplication.picasso(
+                                    requesterInfo.contactAvatarLink,
+                                    holder.requestAvatar
+                                )
+                            } else {
+                                requestClickListener?.loadContact(receiver)
+                            }
+                        }
+                        holder.requestRevoke.visibility = View.GONE
+                        if (request.requestStatus == "request_pending") {
+                            holder.requestAccept.visibility = View.VISIBLE
+                            holder.requestDecline.visibility = View.VISIBLE
+                            holder.requestAccept.setOnClickListener {
+                                if (position != RecyclerView.NO_POSITION) {
+                                    requestClickListener?.onConfirmListener(holder.itemView, request.requestType, request.requestId)
                                 }
                             }
+                            holder.requestDecline.setOnClickListener {
+                                if (position != RecyclerView.NO_POSITION) {
+                                    requestClickListener?.onDeclineListener(holder.itemView, request.requestType, request.requestId)
+                                }
+                            }
+                        } else {
                             holder.requestAccept.visibility = View.GONE
                             holder.requestDecline.visibility = View.GONE
-                            if (request.requestStatus == "request_pending") {
-                                holder.requestRevoke.visibility = View.VISIBLE
-                                holder.requestRevoke.setOnClickListener {
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        requestClickListener?.onRevokeListener(holder.itemView, request.requestType, request.requestId)
-                                    }
-                                }
-                            } else {
-                                holder.requestRevoke.visibility = View.GONE
-                            }
                         }
-                        receiver == requestClickListener!!.getUserId() -> {
-                            viewModel.watchCurrentContact(requester).observe(lifecycleOwner) {
-                                if (it.isNotEmpty()) {
-                                    val requesterInfo = it[0]
-                                    Picasso.Builder(holder.itemView.context).listener { _, _, e -> e.printStackTrace() }.build()
-                                        .load(requesterInfo.contactAvatarLink).error(R.mipmap.ic_smalltalk).into(holder.requestAvatar)
-                                } else {
-                                    requestClickListener?.loadContact(receiver)
-                                }
-                            }
-                            holder.requestRevoke.visibility = View.GONE
-                            if (request.requestStatus == "request_pending") {
-                                holder.requestAccept.visibility = View.VISIBLE
-                                holder.requestDecline.visibility = View.VISIBLE
-                                holder.requestAccept.setOnClickListener {
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        requestClickListener?.onConfirmListener(holder.itemView, request.requestType, request.requestId)
-                                    }
-                                }
-                                holder.requestDecline.setOnClickListener {
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        requestClickListener?.onDeclineListener(holder.itemView, request.requestType, request.requestId)
-                                    }
-                                }
-                            } else {
-                                holder.requestAccept.visibility = View.GONE
-                                holder.requestDecline.visibility = View.GONE
-                            }
-                        }
-                        else -> {
-                            holder.requestAvatar.setImageResource(R.mipmap.ic_smalltalk)
-                            holder.requestAccept.visibility = View.GONE
-                            holder.requestDecline.visibility = View.GONE
-                            holder.requestRevoke.visibility = View.GONE
-                        }
+                    }
+                    else -> {
+                        holder.requestAvatar.setImageResource(R.mipmap.ic_smalltalk)
+                        holder.requestAccept.visibility = View.GONE
+                        holder.requestDecline.visibility = View.GONE
+                        holder.requestRevoke.visibility = View.GONE
                     }
                 }
             }
@@ -238,7 +230,6 @@ class RequestListAdapter(
     }
 
     interface RequestClickListener {
-        fun getUserId(): Int
         fun onConfirmListener(view: View, requestType: String, requestId: Int)
         fun onDeclineListener(view: View, requestType: String, requestId: Int)
         fun onRevokeListener(view: View, requestType: String, requestId: Int)
@@ -246,6 +237,18 @@ class RequestListAdapter(
         fun onItemLongClickListener(view: View, requestId: Int)
         fun loadContact(contactId: Int)
         fun loadGroup(groupId: Int)
+    }
+
+    companion object {
+        private fun displayRequestStatus(context: Context, status: String): String {
+            return when (status) {
+                "request_pending" -> context.getString(R.string.request_pending)
+                "request_accepted" -> context.getString(R.string.request_accepted)
+                "request_refused" -> context.getString(R.string.request_declined)
+                "request_revoked" -> context.getString(R.string.request_revoked)
+                else -> context.getString(R.string.request_pending)
+            }
+        }
     }
 }
 

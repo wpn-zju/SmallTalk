@@ -6,20 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import kotlinx.android.synthetic.main.fragment_hello.*
 
 class HelloFragment : Fragment() {
-    private val viewModel: SmallTalkViewModel by viewModels {
-        SmallTalkViewModelFactory(requireContext().applicationContext as SmallTalkApplication)
-    }
-
     private lateinit var serviceProvider: ISmallTalkServiceProvider
 
     override fun onAttach(context: Context) {

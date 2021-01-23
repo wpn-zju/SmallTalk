@@ -34,11 +34,6 @@ class FileFragment: Fragment(), FileAdapter.FileClickListener {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,17 +45,15 @@ class FileFragment: Fragment(), FileAdapter.FileClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = FileAdapter(viewLifecycleOwner, viewModel)
+        adapter = FileAdapter(requireContext(), viewLifecycleOwner, viewModel)
         adapter.setFileClickListener(this)
-        recycler_view_file.layoutManager = LinearLayoutManager(context)
+        recycler_view_file.layoutManager = LinearLayoutManager(requireContext())
         recycler_view_file.adapter = adapter
 
         serviceProvider.getService()?.loadFileList(args.firstSelector, args.secondSelector)
 
         viewModel.watchFileList(args.firstSelector, args.secondSelector).observe(viewLifecycleOwner) { fileList ->
-            fileList.let {
-                adapter.submitList(it)
-            }
+            adapter.submitList(fileList)
         }
     }
 
@@ -70,5 +63,10 @@ class FileFragment: Fragment(), FileAdapter.FileClickListener {
 
     override fun loadContact(contactId: Int) {
         serviceProvider.getService()?.loadContact(contactId)
+    }
+
+    override fun onDestroyView() {
+        recycler_view_file.adapter = null
+        super.onDestroyView()
     }
 }

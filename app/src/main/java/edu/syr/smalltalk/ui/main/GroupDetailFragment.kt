@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -44,14 +43,12 @@ class GroupDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.watchCurrentGroup(args.groupId).observe(viewLifecycleOwner) { group ->
-            if (group.isEmpty()) {
-                serviceProvider.getService()?.loadGroup(args.groupId)
-            } else {
+            if (group.isNotEmpty()) {
                 val groupInfo = group[0]
-                Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(groupInfo.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(group_avatar)
+                SmallTalkApplication.picasso(groupInfo.groupAvatarLink, group_avatar)
                 group_detail_toolbar.title = groupInfo.groupName
                 group_name.text = groupInfo.groupName
+                group_id.text = groupInfo.groupId.toString()
                 group_description.text = groupInfo.groupName
                 if (args.isMember) {
                     group_enter_chat.visibility = View.VISIBLE
@@ -73,6 +70,8 @@ class GroupDetailFragment : Fragment() {
                         serviceProvider.getService()?.groupAddRequest(groupInfo.groupId)
                     }
                 }
+            } else {
+                serviceProvider.getService()?.loadGroup(args.groupId)
             }
         }
     }

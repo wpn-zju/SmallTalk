@@ -10,13 +10,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.model.entity.SmallTalkContact
+import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 
 class ContactListAdapter
     : ListAdapter<SmallTalkContact, ContactListAdapter.ContactListViewHolder>(ContactListDiffCallback()) {
 
     override fun onBindViewHolder(holder: ContactListViewHolder, position: Int) {
         val contact = getItem(position)
-        holder.contactAvatar.setImageResource(R.mipmap.ic_smalltalk)
+        SmallTalkApplication.picasso(contact.contactAvatarLink, holder.contactAvatar)
         holder.contactName.text = contact.contactName
         holder.itemView.setOnClickListener {
             if (position != RecyclerView.NO_POSITION) {

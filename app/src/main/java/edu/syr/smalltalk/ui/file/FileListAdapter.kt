@@ -22,16 +22,18 @@ class FileListAdapter(
         if (file.fileType == ClientConstant.CHAT_CONTENT_TYPE_IMAGE) {
             holder.filePreview.setImageURI(file.fileUri)
         } else {
-            holder.filePreview.setImageResource(R.drawable.ic_outline_insert_drive_file_48)
+            holder.filePreview.setImageResource(R.mipmap.ic_smalltalk)
         }
         holder.fileName.text = file.fileName
         holder.fileSize.text = file.fileSizeString
-        holder.fileStatus.text = when (file.status) {
-            FileUploadTask.UPLOAD_STATUS_PENDING -> context.getString(R.string.file_status_pending)
-            FileUploadTask.UPLOAD_STATUS_UPLOADING -> context.getString(R.string.file_status_uploading)
-            FileUploadTask.UPLOAD_STATUS_UPLOADED -> context.getString(R.string.file_status_uploaded)
-            FileUploadTask.UPLOAD_STATUS_FAILED -> context.getString(R.string.file_status_failed)
-            else -> context.getString(R.string.file_status_unknown)
+        file.setOnStatusChangeCallback { status ->
+            holder.fileStatus.text = when (status) {
+                FileUploadTask.UPLOAD_STATUS_PENDING -> context.getString(R.string.file_status_pending)
+                FileUploadTask.UPLOAD_STATUS_UPLOADING -> context.getString(R.string.file_status_uploading)
+                FileUploadTask.UPLOAD_STATUS_UPLOADED -> context.getString(R.string.file_status_uploaded)
+                FileUploadTask.UPLOAD_STATUS_FAILED -> context.getString(R.string.file_status_failed)
+                else -> context.getString(R.string.file_status_unknown)
+            }
         }
         holder.progressBar.progress = file.progress
         holder.cancel.setOnClickListener {

@@ -5,9 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
@@ -15,6 +16,8 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import kotlinx.android.synthetic.main.fragment_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
     private val viewModel: SmallTalkViewModel by viewModels {
@@ -29,11 +32,6 @@ class MainFragment : Fragment() {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,9 +42,8 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).setSupportActionBar(main_toolbar)
-
         val adapter = PageAdapter(requireActivity())
+        view_pager.isSaveEnabled = false
         view_pager.adapter = adapter
         view_pager.currentItem = 0
         view_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -65,12 +62,24 @@ class MainFragment : Fragment() {
             }
         })
 
+        val userId = SmallTalkApplication.getCurrentUserId(requireContext())
         bottom_nav.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.navigation_message -> {
                     main_toolbar.setTitle(R.string.bottom_bar_message_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_recent_message)
+                    main_toolbar.setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.navigation_mark_as_read -> {
+                                GlobalScope.launch {
+                                    viewModel.readAll(userId)
+                                }
+                                true
+                            }
+                            else -> false
+                        }
+                    }
                     view_pager.currentItem = 0
                     bottom_nav.visibility = View.VISIBLE
                 }
@@ -78,6 +87,16 @@ class MainFragment : Fragment() {
                     main_toolbar.setTitle(R.string.bottom_bar_contact_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_contacts)
+                    main_toolbar.setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.navigation_new_contact -> {
+                                val action = MainFragmentDirections.contactListSearchContact()
+                                requireView().findNavController().navigate(action)
+                                true
+                            }
+                            else -> false
+                        }
+                    }
                     view_pager.currentItem = 1
                     bottom_nav.visibility = View.VISIBLE
                 }
@@ -85,6 +104,21 @@ class MainFragment : Fragment() {
                     main_toolbar.setTitle(R.string.bottom_bar_group_list)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_groups)
+                    main_toolbar.setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.navigation_join_group -> {
+                                val action = MainFragmentDirections.groupListSearchGroup()
+                                requireView().findNavController().navigate(action)
+                                true
+                            }
+                            R.id.navigation_create_group -> {
+                                val action = MainFragmentDirections.groupListCreateGroup()
+                                requireView().findNavController().navigate(action)
+                                true
+                            }
+                            else -> false
+                        }
+                    }
                     view_pager.currentItem = 2
                     bottom_nav.visibility = View.VISIBLE
                 }
@@ -92,6 +126,29 @@ class MainFragment : Fragment() {
                     main_toolbar.setTitle(R.string.bottom_bar_about)
                     main_toolbar.menu.clear()
                     main_toolbar.inflateMenu(R.menu.menu_profile)
+                    main_toolbar.setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.navigation_settings -> {
+                                val action = MainFragmentDirections.profileModifyInfo(userId)
+                                requireView().findNavController().navigate(action)
+                                true
+                            }
+                            R.id.navigation_view_request -> {
+                                val action = MainFragmentDirections.profileViewRequest()
+                                requireView().findNavController().navigate(action)
+                                true
+                            }
+                            R.id.navigation_share_me -> {
+                                Toast.makeText(requireContext(), getString(R.string.toast_share_clicked), Toast.LENGTH_SHORT).show()
+                                true
+                            }
+                            R.id.navigation_sign_out -> {
+                                serviceProvider.getService()?.userSessionSignOut()
+                                true
+                            }
+                            else -> false
+                        }
+                    }
                     view_pager.currentItem = 3
                     bottom_nav.visibility = View.VISIBLE
                 }
@@ -107,5 +164,10 @@ class MainFragment : Fragment() {
         }
 
         bottom_nav.selectedItemId = R.id.navigation_message
+    }
+
+    override fun onDestroyView() {
+        view_pager.adapter = null
+        super.onDestroyView()
     }
 }

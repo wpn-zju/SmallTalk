@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -32,11 +31,6 @@ class UserInfoFragment: Fragment() {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,12 +40,10 @@ class UserInfoFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel.watchCurrentUserInfo(args.userId).observe(viewLifecycleOwner) { user ->
             if (user.isNotEmpty()) {
                 val currentUser = user[0]
-                Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(currentUser.userAvatarLink).error(R.mipmap.ic_smalltalk).into(user_avatar_preview)
+                SmallTalkApplication.picasso(currentUser.userAvatarLink, user_avatar_preview)
                 user_avatar_set.setOnClickListener {
                     val action = UserInfoFragmentDirections.userInfoUploadImage("user_avatar", args.userId)
                     requireView().findNavController().navigate(action)

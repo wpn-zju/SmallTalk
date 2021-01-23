@@ -6,25 +6,18 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.view.Menu
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkService
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.RootService
 import edu.syr.smalltalk.service.eventbus.AlertDialogEvent
 import edu.syr.smalltalk.service.eventbus.SessionExpiredEvent
 import edu.syr.smalltalk.service.eventbus.SignOutEvent
 import edu.syr.smalltalk.service.eventbus.ToastEvent
-import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
-import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
 import edu.syr.smalltalk.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
@@ -32,10 +25,6 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
-    private val viewModel: SmallTalkViewModel by viewModels {
-        SmallTalkViewModelFactory(application as SmallTalkApplication)
-    }
-
     private lateinit var service: ISmallTalkService
     private var bound: Boolean = false
     private val connection = object : ServiceConnection {
@@ -99,11 +88,6 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_recent_message, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         when (savedInstanceState.getString("fragment")) {
@@ -146,8 +130,6 @@ class MainActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     private fun logout() {
-        PreferenceManager.getDefaultSharedPreferences(this)
-            .edit().putString(KVPConstant.K_USER_STATUS, KVPConstant.V_USER_STATUS_LOGOUT).apply()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

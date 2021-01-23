@@ -1,5 +1,6 @@
 package edu.syr.smalltalk.ui.main.file
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,18 +16,25 @@ import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.ui.file.FileUploadTask
 
 class FileAdapter(
+    private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val viewModel: SmallTalkViewModel)
     : ListAdapter<SmallTalkFile, FileAdapter.FileViewHolder>(FileDiffCallback()) {
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val file = getItem(position)
-        holder.filePreview.setImageResource(R.drawable.ic_outline_insert_drive_file_48)
+        holder.filePreview.setImageResource(R.mipmap.ic_smalltalk)
         holder.fileName.text = file.fileName
         holder.fileSize.text = FileUploadTask.fileSizeToString(file.fileSize.toLong())
-        holder.fileUploadTime.text = file.fileUploadTime.toString()
-        holder.fileExpireTime.text = file.fileExpireTime.toString()
-        holder.fileDownloads.text = file.fileDownloads.toString()
+        // TODO: FILE UPLOAD/EXPIRE TIME DISPLAY
+        holder.fileUploadTime.visibility = View.GONE
+        holder.fileExpireTime.visibility = View.GONE
+        // holder.fileUploadTime.text = context.getString(R.string.file_upload_time_pattern)
+        //     .format(MessageListAdapter.instantToTimeString(context, file.fileUploadTime))
+        // holder.fileExpireTime.text = context.getString(R.string.file_expire_time_pattern)
+        //     .format(MessageListAdapter.instantToTimeString(context, file.fileExpireTime))
+        holder.fileDownloads.text = context.getString(R.string.file_downloads_pattern)
+            .format(file.fileDownloads.toString())
         holder.itemView.setOnClickListener {
             fileClickListener?.onItemClickListener(holder.itemView, file.fileLink)
         }
@@ -34,7 +42,7 @@ class FileAdapter(
         viewModel.watchCurrentContact(file.fileUploader).observe(lifecycleOwner) {
             if (it.isNotEmpty()) {
                 val uploaderInfo = it[0]
-                holder.fileUploader.text = uploaderInfo.contactName
+                holder.fileUploader.text = context.getString(R.string.file_uploader_pattern).format(uploaderInfo.contactName)
             } else {
                 fileClickListener?.loadContact(file.fileUploader)
             }

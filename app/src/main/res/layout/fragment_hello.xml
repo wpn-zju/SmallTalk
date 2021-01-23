@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -19,12 +20,12 @@
 
     <ImageView
         android:id="@+id/app_logo_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
         android:contentDescription="@string/content_description_logo"
         app:layout_constraintBottom_toTopOf="@+id/app_logo_text"
-        app:layout_constraintStart_toEndOf="@+id/app_logo_text"
-        app:srcCompat="@drawable/ic_baseline_message_24" />
+        app:layout_constraintEnd_toEndOf="@+id/app_logo_text"
+        app:srcCompat="@mipmap/ic_smalltalk_foreground" />
 
     <EditText
         android:id="@+id/input_email"

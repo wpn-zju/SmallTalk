@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import com.squareup.picasso.Picasso
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
@@ -32,11 +31,6 @@ class GroupInfoFragment: Fragment() {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,20 +44,19 @@ class GroupInfoFragment: Fragment() {
         viewModel.watchCurrentGroup(args.groupId).observe(viewLifecycleOwner) { group ->
             if (group.isNotEmpty()) {
                 val currentGroup = group[0]
-                Picasso.Builder(requireActivity()).listener { _, _, e -> e.printStackTrace() }.build()
-                    .load(currentGroup.groupAvatarLink).error(R.mipmap.ic_smalltalk).into(group_avatar_preview)
+                SmallTalkApplication.picasso(currentGroup.groupAvatarLink, group_avatar_preview)
                 group_avatar_set.setOnClickListener {
                     val action = GroupInfoFragmentDirections.groupInfoUploadImage("group_avatar", args.groupId)
                     requireView().findNavController().navigate(action)
                 }
 
-                group_name_text.text = currentGroup.groupName
+                group_name_preview.text = currentGroup.groupName
                 group_name_set.setOnClickListener {
                     val action = GroupInfoFragmentDirections.groupInfoUploadText("group_name", args.groupId)
                     requireView().findNavController().navigate(action)
                 }
 
-                group_info_text.text = currentGroup.groupInfo
+                group_info_preview.text = currentGroup.groupInfo
                 group_info_set.setOnClickListener {
                     val action = GroupInfoFragmentDirections.groupInfoUploadText("group_info", args.groupId)
                     requireView().findNavController().navigate(action)

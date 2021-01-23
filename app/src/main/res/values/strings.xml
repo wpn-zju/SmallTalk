@@ -11,6 +11,8 @@
     <string name="nav_chat_room_view_profile">View Profile</string>
     <string name="nav_chat_room_view_files">View Files</string>
     <string name="nav_chat_room_share">Share</string>
+    <string name="nav_chat_room_group_view_member_list">View Member List</string>
+    <string name="nav_chat_room_group_settings">Group Settings</string>
     <string name="nav_profile_settings">Settings</string>
     <string name="nav_profile_view_request">Requests</string>
     <string name="nav_profile_share">Share</string>
@@ -62,6 +64,7 @@
     <string name="new_member_request_display_text">New Member Request</string>
     <string name="new_member_request_template">%s to %s</string>
     <string name="zero_length_whitespace">​</string>
+    <string name="id_placeholder">10001</string>
     <string name="email_placeholder">zjuwpn@gmail.com</string>
     <string name="nickname_placeholder">Peinan Weng</string>
     <string name="password_placeholder">********</string>
@@ -79,7 +82,7 @@
     <string name="file_size_placeholder">15.6 KB</string>
     <string name="file_downloads_placeholder">Downloads 588</string>
     <string name="request_status_placeholder">Accepted</string>
-    <string name="music_progress_text_placeholder">0:00 / 99:99</string>
+    <string name="music_progress_text_placeholder">0:00 / 4:59</string>
     <string name="alert_dialog_error">Error</string>
     <string name="alert_dialog_user_not_found">User not found!</string>
     <string name="alert_dialog_group_not_found">Group not found!</string>
@@ -97,6 +100,8 @@
     <string name="alert_dialog_camera_permission_required_detail">This app need the camera to function</string>
     <string name="alert_dialog_camera_permission_grant">Grant</string>
     <string name="alert_dialog_camera_permission_deny">Deny</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+    <string name="alert_dialog_video_chat_exit_hint">Are you sure to exit video chat room?</string>
     <string name="toast_sign_up">Sign up successfully!</string>
     <string name="toast_sign_up_failed_user_exists">Sign up failed - User Exists!</string>
     <string name="toast_sign_up_failed_passcode_incorrect">Sign up failed - Passcode Incorrect!</string>
@@ -117,13 +122,16 @@
     <string name="toast_request_not_found">Request ID not found!</string>
     <string name="toast_not_supported_yet">Sorry - Not supported yet.</string>
     <string name="toast_share_clicked">Share Clicked.</string>
-    <string name="toast_mark_as_read_clicked">Mark As Read Clicked.</string>
     <string name="toast_camera_permission_denied">Camera Permission Denied.</string>
+    <string name="toast_video_chat_first_stream">This is the first video stream!</string>
+    <string name="toast_video_chat_last_stream">This is the last video stream!</string>
+    <string name="toast_video_chat_internal_error">Video chat internal error!</string>
     <string name="notification_image">[Image Message]</string>
     <string name="notification_audio">[Audio Message]</string>
     <string name="notification_video">[Video Message]</string>
     <string name="notification_file">[File Message]</string>
     <string name="notification_others">[Unknown Message]</string>
+    <string name="exception_image_too_large">This image must be no larger than 1 MB!</string>
     <string name="exception_file_too_large">File must be no larger than 30 MB!</string>
     <string name="exception_file_open_descriptor_failed">Open file descriptor failed.</string>
     <string name="request_pending">Pending</string>
@@ -137,6 +145,8 @@
     <string name="time_pattern_hm">HH:mm</string>
     <string name="time_pattern_md">MM/dd</string>
     <string name="time_pattern_mdy">MM/dd/yyyy</string>
+    <string name="file_downloads_pattern">Downloads - %s</string>
+    <string name="file_uploader_pattern">Uploaded by - %s</string>
     <string name="file_status_pending">Pending</string>
     <string name="file_status_uploading">Uploading</string>
     <string name="file_status_uploaded">Uploaded</string>
@@ -149,7 +159,7 @@
     <string name="content_description_file_cancel">File Cancel</string>
     <string name="content_description_image_upload_preview">Image Upload Preview</string>
     <string name="content_description_call_button">Call Button</string>
-    <string name="content_description_group_invite_avatar">Group Invite Avatar</string>
     <string name="content_description_avatar_preview">Avatar Preview</string>
     <string name="content_description_send_message">Send Message</string>
+    <string name="message_num_large">99+</string>
 </resources>

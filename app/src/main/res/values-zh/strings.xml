@@ -11,10 +11,12 @@
     <string name="nav_chat_room_view_profile">查看资料</string>
     <string name="nav_chat_room_view_files">查看文件</string>
     <string name="nav_chat_room_share">分享</string>
+    <string name="nav_chat_room_group_view_member_list">查看全部成员</string>
+    <string name="nav_chat_room_group_settings">群组设置</string>
     <string name="nav_profile_settings">设置</string>
     <string name="nav_profile_view_request">查看请求</string>
     <string name="nav_profile_share">分享</string>
-    <string name="nav_profile_sign_out">注销账号</string>
+    <string name="nav_profile_sign_out">退出登录</string>
     <string name="chat_more_options">更多功能</string>
     <string name="chat_more_options_send_image">图片</string>
     <string name="chat_more_options_take_photos">拍照</string>
@@ -62,6 +64,7 @@
     <string name="new_member_request_display_text">请求加入</string>
     <string name="new_member_request_template">%s 群组 %s</string>
     <string name="zero_length_whitespace">​</string>
+    <string name="id_placeholder">10001</string>
     <string name="email_placeholder">zjuwpn@gmail.com</string>
     <string name="nickname_placeholder">Peinan Weng</string>
     <string name="password_placeholder">********</string>
@@ -79,7 +82,7 @@
     <string name="file_size_placeholder">15.6 KB</string>
     <string name="file_downloads_placeholder">下载数 588</string>
     <string name="request_status_placeholder">已接受</string>
-    <string name="music_progress_text_placeholder">0:00 / 99:99</string>
+    <string name="music_progress_text_placeholder">0:00 / 4:59</string>
     <string name="alert_dialog_error">错误</string>
     <string name="alert_dialog_user_not_found">用户不存在</string>
     <string name="alert_dialog_group_not_found">群组不存在</string>
@@ -97,6 +100,8 @@
     <string name="alert_dialog_camera_permission_required_detail">该操作需要提供相机权限</string>
     <string name="alert_dialog_camera_permission_grant">同意</string>
     <string name="alert_dialog_camera_permission_deny">拒绝</string>
+    <string name="alert_dialog_cancel">取消</string>
+    <string name="alert_dialog_video_chat_exit_hint">确定要离开视频聊天吗</string>
     <string name="toast_sign_up">注册成功</string>
     <string name="toast_sign_up_failed_user_exists">注册失败 - 邮箱已存在</string>
     <string name="toast_sign_up_failed_passcode_incorrect">注册失败 - 验证码错误</string>
@@ -117,13 +122,16 @@
     <string name="toast_request_not_found">请求编号不存在</string>
     <string name="toast_not_supported_yet">抱歉 该功能尚未开放</string>
     <string name="toast_share_clicked">已点击 分享</string>
-    <string name="toast_mark_as_read_clicked">已点击 标记为已读</string>
     <string name="toast_camera_permission_denied">拒绝提供相机权限</string>
+    <string name="toast_video_chat_first_stream">目前已经是第一个视频流</string>
+    <string name="toast_video_chat_last_stream">目前已经是最后一个视频流</string>
+    <string name="toast_video_chat_internal_error">内部错误</string>
     <string name="notification_image">[图片消息]</string>
     <string name="notification_audio">[音频消息]</string>
     <string name="notification_video">[视频消息]</string>
     <string name="notification_file">[文件消息]</string>
     <string name="notification_others">[其他消息]</string>
+    <string name="exception_image_too_large">图片大小必须不大于 1 MB</string>
     <string name="exception_file_too_large">文件大小必须不大于 30 MB</string>
     <string name="exception_file_open_descriptor_failed">文件描述符打开失败</string>
     <string name="request_pending">请求中</string>
@@ -137,6 +145,8 @@
     <string name="time_pattern_hm">HH:mm</string>
     <string name="time_pattern_md">M月d日</string>
     <string name="time_pattern_mdy">yyyy年M月d日</string>
+    <string name="file_downloads_pattern">下载数 - %s</string>
+    <string name="file_uploader_pattern">上传者 - %s</string>
     <string name="file_status_pending">等待发送</string>
     <string name="file_status_uploading">发送中</string>
     <string name="file_status_uploaded">发送成功</string>
@@ -149,7 +159,7 @@
     <string name="content_description_file_cancel">取消该文件</string>
     <string name="content_description_image_upload_preview">文件上传预览</string>
     <string name="content_description_call_button">呼叫按钮</string>
-    <string name="content_description_group_invite_avatar">头像</string>
     <string name="content_description_avatar_preview">头像预览</string>
     <string name="content_description_send_message">发送消息</string>
+    <string name="message_num_large">99+</string>
 </resources>

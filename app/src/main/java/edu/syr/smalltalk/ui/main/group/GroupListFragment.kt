@@ -2,15 +2,15 @@ package edu.syr.smalltalk.ui.main.group
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.ISmallTalkServiceProvider
-import edu.syr.smalltalk.service.KVPConstant
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModel
 import edu.syr.smalltalk.service.model.logic.SmallTalkViewModelFactory
@@ -32,11 +32,6 @@ class GroupListFragment: Fragment(), GroupListAdapter.GroupClickListener {
         serviceProvider = requireActivity() as ISmallTalkServiceProvider
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,52 +43,28 @@ class GroupListFragment: Fragment(), GroupListAdapter.GroupClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         adapter.setGroupClickListener(this)
-        recycler_view_group.layoutManager = LinearLayoutManager(context)
+        recycler_view_group.layoutManager = LinearLayoutManager(requireContext())
         recycler_view_group.adapter = adapter
 
-        val userId: Int = PreferenceManager
-            .getDefaultSharedPreferences(requireActivity().applicationContext)
-            .getInt(KVPConstant.K_CURRENT_USER_ID, 0)
-
-        viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
-            if (user.isEmpty()) {
-                serviceProvider.getService()?.loadUser(userId)
-            } else {
-                for (groupId in user[0].groupList) {
-                    viewModel.watchCurrentGroup(groupId).observe(viewLifecycleOwner) { group ->
-                        if (group.isEmpty()) {
-                            serviceProvider.getService()?.loadGroup(groupId)
+        SmallTalkApplication.getCurrentUserId(requireContext()).let { userId ->
+            viewModel.watchCurrentUserInfo(userId).observe(viewLifecycleOwner) { user ->
+                if (user.isNotEmpty()) {
+                    for (groupId in user[0].groupList) {
+                        viewModel.watchCurrentGroup(groupId).observe(viewLifecycleOwner) { group ->
+                            if (group.isEmpty()) {
+                                serviceProvider.getService()?.loadGroup(groupId)
+                            }
                         }
                     }
+                } else {
+                    serviceProvider.getService()?.loadUser(userId)
                 }
             }
-        }
 
-        viewModel.watchGroupList(userId).observe(viewLifecycleOwner) { groupList ->
-            groupList.let {
-                adapter.submitList(it)
+            viewModel.watchGroupList(userId).observe(viewLifecycleOwner) { groupList ->
+                adapter.submitList(groupList)
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_groups, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.navigation_join_group -> {
-                val action = MainFragmentDirections.groupListSearchGroup()
-                requireView().findNavController().navigate(action)
-            }
-            R.id.navigation_create_group -> {
-                val action = MainFragmentDirections.groupListCreateGroup()
-                requireView().findNavController().navigate(action)
-            }
-        }
-        return true
     }
 
     override fun onItemClickListener(view: View, groupId: Int) {
@@ -103,5 +74,10 @@ class GroupListFragment: Fragment(), GroupListAdapter.GroupClickListener {
 
     override fun onItemLongClickListener(view: View, groupId: Int) {
 
+    }
+
+    override fun onDestroyView() {
+        recycler_view_group.adapter = null
+        super.onDestroyView()
     }
 }
