@@ -47,7 +47,7 @@
             android:id="@+id/chat_controls_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent">
             <ImageView
                 android:id="@+id/more_options"
                 android:layout_width="32dp"
@@ -100,7 +100,7 @@
             android:fillViewport="true"
             android:scrollbars="none"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/chat_controls_main">
+            app:layout_constraintBottom_toTopOf="@id/chat_controls_main">
 
             <LinearLayout
                 android:layout_width="wrap_content"

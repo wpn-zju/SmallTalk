@@ -30,8 +30,9 @@ import org.greenrobot.eventbus.ThreadMode
 
 class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     companion object {
-        private const val CAMERA_PERMISSION_REQUEST_CODE = 1
+        private const val PERMISSION_REQUEST_CODE = 1
         private const val CAMERA_PERMISSION = Manifest.permission.CAMERA
+        private const val RECORD_PERMISSION = Manifest.permission.RECORD_AUDIO
     }
 
     private lateinit var service: ISmallTalkService
@@ -40,6 +41,7 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             service = (binder as RootService.RootServiceBinder).getService()
             bound = true
+            getService()?.webRTCCall(channel, "connect", "connect")
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -88,30 +90,7 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat)
         intent.getStringExtra("channel")?.let { channel = it } ?: finish()
-        checkCameraPermission()
-    }
 
-    private fun checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
-            requestCameraPermission()
-        } else {
-            onCameraPermissionGranted()
-        }
-    }
-
-    private fun requestCameraPermission(dialogShown: Boolean = false) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, CAMERA_PERMISSION) && !dialogShown) {
-            showPermissionRationaleDialog()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(CAMERA_PERMISSION),
-                CAMERA_PERMISSION_REQUEST_CODE
-            )
-        }
-    }
-
-    private fun onCameraPermissionGranted() {
         val params = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val bounds = windowManager.currentWindowMetrics.bounds
             PeerConnectionParameters(
@@ -151,7 +130,6 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         }
         rtcClient.initSurfaceView(remote_view)
         rtcClient.initSurfaceView(local_view)
-        rtcClient.startLocalVideoCapture(local_view)
 
         switch_button.isClickable = true
         switch_button.setOnClickListener {
@@ -162,12 +140,12 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
 
         prev_remote_button.isClickable = true
         prev_remote_button.setOnClickListener {
-            rtcClient.prevRemoteStream(remote_view)
+            rtcClient.prevRemotePeer(remote_view)
         }
 
         next_remote_button.isClickable = true
         next_remote_button.setOnClickListener {
-            rtcClient.nextRemoteStream(remote_view)
+            rtcClient.nextRemotePeer(remote_view)
         }
 
         enterFullScreenMode()
@@ -205,16 +183,41 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
             }
         }
 
-        getService()?.webRTCCall(channel, "connect", "connect")
+        checkPermission()
+    }
+
+    private fun checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, RECORD_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermission()
+        } else {
+            onPermissionGranted()
+        }
+    }
+
+    private fun requestPermission(dialogShown: Boolean = false) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, CAMERA_PERMISSION) &&
+            ActivityCompat.shouldShowRequestPermissionRationale(this, RECORD_PERMISSION) && !dialogShown) {
+            showPermissionRationaleDialog()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(CAMERA_PERMISSION, RECORD_PERMISSION),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+    private fun onPermissionGranted() {
+        rtcClient.startLocalVideoCapture(local_view)
     }
 
     private fun enterFullScreenMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
-            val controller = window.insetsController
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_TOUCH
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_TOUCH
             }
         } else {
             @Suppress("DEPRECATION")
@@ -227,7 +230,7 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onWebRTCTestMessage(event: WebRTCEvent) {
+    fun onWebRTCMessage(event: WebRTCEvent) {
         if (event.command == "init") {
             rtcClient.initConnections(event.payload)
         } else if (event.command == "transfer") {
@@ -241,11 +244,11 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
             .setMessage(getString(R.string.alert_dialog_camera_permission_required_detail))
             .setPositiveButton(getString(R.string.alert_dialog_camera_permission_grant)) { dialog, _ ->
                 dialog.dismiss()
-                requestCameraPermission(true)
+                requestPermission(true)
             }
             .setNegativeButton(getString(R.string.alert_dialog_camera_permission_deny)) { dialog, _ ->
                 dialog.dismiss()
-                onCameraPermissionDenied()
+                onPermissionDenied()
             }
             .show()
     }
@@ -256,17 +259,17 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            onCameraPermissionGranted()
+        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            onPermissionGranted()
         } else {
-            onCameraPermissionDenied()
+            onPermissionDenied()
         }
     }
 
-    private fun onCameraPermissionDenied() {
+    private fun onPermissionDenied() {
         Toast.makeText(this, getString(R.string.toast_camera_permission_denied), Toast.LENGTH_LONG).show()
 
-        requestCameraPermission()
+        requestPermission()
     }
 
     override fun onBackPressed() {
@@ -275,6 +278,7 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
             .setMessage(getString(R.string.alert_dialog_video_chat_exit_hint))
             .setPositiveButton(getString(R.string.alert_dialog_confirm)) { dialog, _ ->
                 dialog.dismiss()
+                getService()?.webRTCCall(channel, "disconnect", "disconnect")
                 finish()
             }
             .setNegativeButton(getString(R.string.alert_dialog_cancel)) { dialog, _ ->
@@ -284,7 +288,6 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     override fun onDestroy() {
-        getService()?.webRTCCall(channel, "disconnect", "disconnect")
         local_view.release()
         remote_view.release()
         rtcClient.onDestroy()

@@ -8,6 +8,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import edu.syr.smalltalk.R
 import edu.syr.smalltalk.service.model.logic.SmallTalkApplication
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import kotlin.math.max
@@ -30,8 +32,8 @@ class RTCClient(
     private val transferCallback: (String) -> Unit
 ) {
     private val peerFactory by lazy { buildPeerConnectionFactory() }
-    private val peers = hashMapOf<Int, Peer>()
-    private val iceServer = listOf(IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
+    private val peers = mutableMapOf<Int, Peer>()
+    private val iceServer = listOf(IceServer.builder("stun:stun.stunprotocol.org").createIceServer())
     private val pcConstraints = MediaConstraints()
     private val rootEglBase = EglBase.create()
     private val videoCapturer by lazy { getVideoCapture(context) }
@@ -99,6 +101,14 @@ class RTCClient(
             }
         }
 
+        override fun onStandardizedIceConnectionChange(newState: IceConnectionState?) {
+            Log.w("Peer", "onStandardizedIceConnectionChange$newState")
+        }
+
+        override fun onConnectionChange(newState: PeerConnectionState?) {
+            Log.w("Peer", "onConnectionChange$newState")
+        }
+
         override fun onIceConnectionReceivingChange(p0: Boolean) {
             Log.w("Peer", "onIceConnectionReceivingChange$p0")
         }
@@ -157,6 +167,9 @@ class RTCClient(
             if (remoteStreamMap.isNotEmpty()) {
                 curRemoteTrack = remoteStreamMap.entries.iterator().next().value.videoTracks[0]
                 curRemoteTrack?.addSink(remoteSink)
+            } else {
+                curRemoteEndPoint = 0
+                curRemoteTrack = null
             }
         }
 
@@ -233,7 +246,7 @@ class RTCClient(
         localVideoTrack.addSink(localSink)
     }
 
-    private fun addPeer(id: Int, endPoint: Int) : Peer {
+    private fun addPeer(id: Int, endPoint: Int): Peer {
         val peer = Peer(id, endPoint)
         peers[id] = peer
         remoteEndPoints[endPoint] = true
@@ -242,9 +255,16 @@ class RTCClient(
 
     private fun removePeer(id: Int) {
         val peer = peers.getValue(id)
-        peer.pc?.close()
         peers.remove(peer.id)
+        if (curRemoteEndPoint == peer.endPoint) {
+            curRemoteTrack?.removeSink(remoteSink)
+            curRemoteTrack = null
+        }
+        remoteStreamMap.remove(peer.endPoint)
         remoteEndPoints[peer.endPoint] = false
+        GlobalScope.launch {
+            peer.pc?.close()
+        }
     }
 
     private fun findEndPoint(): Int {
@@ -273,45 +293,36 @@ class RTCClient(
         val from = data.get("from").asInt
         @Suppress("UNUSED_VARIABLE")
         val to = data.get("to").asInt
+        if (!peers.containsKey(from)) {
+            val endPoint = findEndPoint()
+            val peer = addPeer(from, endPoint)
+            peer.pc?.addStream(localStream)
+        }
         when (val type = data.get("type").asString) {
             "offer" -> {
                 val sdp = data.get("sdp").asString
-                if (!peers.containsKey(from)) {
-                    val endPoint = findEndPoint()
-                    if (endPoint != MAX_PEER) {
-                        val peer = addPeer(from, endPoint)
-                        peer.pc?.addStream(localStream)
-                        peer.pc?.setRemoteDescription(peer,
-                            SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp))
-                        peer.pc?.createAnswer(peer, pcConstraints)
-                    }
+                peers[from]?.let { peer ->
+                    peer.pc?.setRemoteDescription(peer,
+                        SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp))
+                    peer.pc?.createAnswer(peer, pcConstraints)
                 }
             }
             "answer" -> {
                 val sdp = data.get("sdp").asString
-                if (peers.containsKey(from)) {
-                    peers[from]?.let { peer ->
-                        peer.pc?.let { pc ->
-                            pc.addStream(localStream)
-                            pc.setRemoteDescription(peer,
-                                SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp))
-                        }
-                    }
+                peers[from]?.let { peer ->
+                    peer.pc?.setRemoteDescription(peer,
+                        SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp))
                 }
             }
             "candidate" -> {
-                if (peers.containsKey(from)) {
-                    peers[from]?.let { peer ->
-                        peer.pc?.let { pc ->
-                            pc.addStream(localStream)
-                            if (pc.remoteDescription != null) {
-                                val candidate = IceCandidate(
-                                    data.get("id").asString,
-                                    data.get("label").asInt,
-                                    data.get("candidate").asString
-                                )
-                                pc.addIceCandidate(candidate)
-                            }
+                peers[from]?.let { peer ->
+                    peer.pc?.let { pc ->
+                        if (pc.remoteDescription != null) {
+                            val candidate = IceCandidate(
+                                data.get("id").asString,
+                                data.get("label").asInt,
+                                data.get("candidate").asString)
+                            pc.addIceCandidate(candidate)
                         }
                     }
                 }
@@ -323,7 +334,7 @@ class RTCClient(
         videoCapturer.switchCamera(null)
     }
 
-    fun prevRemoteStream(sink: VideoSink) {
+    fun prevRemotePeer(sink: VideoSink) {
         curRemoteEndPoint = max(curRemoteEndPoint - 1, 0)
         curRemoteTrack?.removeSink(sink)
         if (remoteStreamMap.containsKey(curRemoteEndPoint)) {
@@ -332,7 +343,7 @@ class RTCClient(
         }
     }
 
-    fun nextRemoteStream(sink: VideoSink) {
+    fun nextRemotePeer(sink: VideoSink) {
         curRemoteEndPoint = min(curRemoteEndPoint + 1, MAX_PEER - 1)
         curRemoteTrack?.removeSink(sink)
         if (remoteStreamMap.containsKey(curRemoteEndPoint)) {
@@ -342,14 +353,18 @@ class RTCClient(
     }
 
     fun onDestroy() {
+        videoCapturer.stopCapture()
         videoCapturer.dispose()
-        peers.forEach { peer -> peer.value.pc?.close() }
         localVideoSource.dispose()
         localAudioSource.dispose()
         localStream.dispose()
-        remoteStreamMap.forEach { (_, u) -> u.dispose() }
+        peerFactory.stopAecDump()
+        peers.forEach { peer -> peer.value.pc?.close() }
+        peers.clear()
         peerFactory.dispose()
-        rootEglBase.releaseSurface()
+        PeerConnectionFactory.stopInternalTracingCapture()
+        PeerConnectionFactory.shutdownInternalTracer()
+        rootEglBase.release()
     }
 
     companion object {

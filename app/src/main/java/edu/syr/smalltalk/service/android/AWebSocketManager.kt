@@ -40,15 +40,15 @@ class AWebSocketManager(application: SmallTalkApplication) {
         compositeDisposable.add(stompClient.lifecycle()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { lifecycleEvent: LifecycleEvent ->
+            .subscribe { lifecycleEvent ->
                 when (lifecycleEvent.type) {
                     LifecycleEvent.Type.OPENED -> {
                         Log.v("WebSocket Stomp Client Info", "Connected")
+                        registerSubscriptions()
                         tryReplaceSession()
                     }
                     LifecycleEvent.Type.CLOSED -> {
                         Log.v("WebSocket Stomp Client Info", "Disconnected")
-                        stompClient.reconnect()
                     }
                     LifecycleEvent.Type.ERROR -> {
                         Log.v("WebSocket Stomp Client Info", lifecycleEvent.exception.stackTraceToString())
@@ -61,7 +61,6 @@ class AWebSocketManager(application: SmallTalkApplication) {
                     }
                 }
             })
-        subscribe()
     }
 
     fun disconnect() {
@@ -70,7 +69,12 @@ class AWebSocketManager(application: SmallTalkApplication) {
     }
 
     fun send(endPoint: String, message: String) {
-        stompClient.send("/app$endPoint", message).subscribe()
+        compositeDisposable.add(stompClient
+            .send("/app$endPoint", message).subscribe ({
+                Log.v("WEBSOCKET MANAGER", "MESSAGE SENT")
+            }, {
+                Log.e("WEBSOCKET MANAGER", it.stackTrace.toString())
+            }))
     }
 
     private fun tryReplaceSession() {
@@ -79,7 +83,7 @@ class AWebSocketManager(application: SmallTalkApplication) {
         }
     }
 
-    private fun subscribe() {
+    private fun registerSubscriptions() {
         compositeDisposable.add(
             stompClient.topic("/user" + ServerConstant.DIR_USER_SYNC).subscribe {
                 val userInfo = Gson().fromJson(it.payload, SmallTalkUser::class.java)
