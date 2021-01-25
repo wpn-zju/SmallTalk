@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Point
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -209,6 +210,10 @@ class VideoChatActivity : AppCompatActivity(), ISmallTalkServiceProvider {
     }
 
     private fun onPermissionGranted() {
+        val audioManager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.isSpeakerphoneOn = true
+        audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+
         rtcClient.startLocalVideoCapture(local_view)
     }
 
